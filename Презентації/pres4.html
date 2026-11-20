@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="uk" data-theme="tomato">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тема 4 · Соуси</title>
+
+<!-- Шрифти з кирилицею: Unbounded (заголовки), Manrope (текст), Caveat (рукописні нотатки) -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;600;800&family=Manrope:wght@400;500;600;700;800&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+
+<style>
+/* =========================================================
+   КОЛЬОРОВІ ТЕМИ
+   Кожен розділ має свій «кулінарний» колір. Тема перемикається
+   атрибутом data-theme на <html> — кольори плавно перетікають
+   (завдяки @property браузер вміє анімувати CSS-змінні).
+   ========================================================= */
+@property --bg     { syntax: '<color>'; inherits: true; initial-value: #E14B31; }
+@property --fg     { syntax: '<color>'; inherits: true; initial-value: #FFF4E6; }
+@property --muted  { syntax: '<color>'; inherits: true; initial-value: #FFD7C7; }
+@property --accent { syntax: '<color>'; inherits: true; initial-value: #FFF4E6; }
+@property --soft   { syntax: '<color>'; inherits: true; initial-value: #F9D9CC; }
+@property --px-a   { syntax: '<color>'; inherits: true; initial-value: #CF3F26; }
+@property --px-b   { syntax: '<color>'; inherits: true; initial-value: #F07A61; }
+
+:root {
+  /* фіксовані кольори розділів */
+  --c-tomato:  #E14B31;
+  --c-herb:    #2F7A4A;
+  --c-saffron: #F2AE2E;
+  --c-plum:    #6B3576;
+  --ink:       #2A1A12;
+  --card:      #FFFCF6;
+
+  --font-display: 'Unbounded', 'Arial Black', sans-serif;
+  --font-body:    'Manrope', 'Segoe UI', sans-serif;
+  --font-hand:    'Caveat', cursive;
+
+  transition: --bg .9s ease, --fg .6s ease, --muted .6s ease, --accent .6s ease,
+              --soft .6s ease, --px-a .9s ease, --px-b .9s ease;
+}
+/* Суцільні (яскраві) теми — титул і розділювачі */
+[data-theme="tomato"]  { --bg:#E14B31; --fg:#FFF4E6; --muted:#FFD7C7; --accent:#FFF4E6; --soft:rgba(255,244,230,.18); --px-a:#CF3F26; --px-b:#F07A61; }
+[data-theme="herb"]    { --bg:#2F5D3E; --fg:#F4F1E3; --muted:#BFD5B9; --accent:#F4F1E3; --soft:rgba(244,241,227,.14); --px-a:#285236; --px-b:#4F8160; }
+[data-theme="saffron"] { --bg:#F2AE2E; --fg:#2A1A0C; --muted:#6B4410; --accent:#2A1A0C; --soft:rgba(42,26,12,.10);  --px-a:#E39E1E; --px-b:#FFD27A; }
+[data-theme="plum"]    { --bg:#3E2445; --fg:#F8ECF6; --muted:#D2B6D6; --accent:#F8ECF6; --soft:rgba(248,236,246,.12); --px-a:#341D3A; --px-b:#6E4878; }
+/* Світлі теми — слайди зі змістом */
+[data-theme="cream"]         { --bg:#F7EEDF; --fg:#2A1A12; --muted:#7A5D4C; --accent:#E14B31; --soft:#F9D9CC; --px-a:#F0E2CF; --px-b:#E6CFB5; }
+[data-theme="tomato-cream"]  { --bg:#F7EEDF; --fg:#2A1A12; --muted:#7A5D4C; --accent:#E14B31; --soft:#F9D9CC; --px-a:#F1DFCB; --px-b:#EBC9B4; }
+[data-theme="herb-cream"]    { --bg:#F2EFDF; --fg:#1E2A20; --muted:#5E6D5F; --accent:#2F7A4A; --soft:#D9E8D3; --px-a:#E5E5CF; --px-b:#CFD9BE; }
+[data-theme="saffron-cream"] { --bg:#FAF0DC; --fg:#2A1A0C; --muted:#7A6040; --accent:#C97F00; --soft:#FBE2B0; --px-a:#F4E5C5; --px-b:#EED6A6; }
+[data-theme="plum-cream"]    { --bg:#F5EDEF; --fg:#251A27; --muted:#6F5E72; --accent:#7B3F86; --soft:#EBD9EE; --px-a:#EDE0E4; --px-b:#DCC6D3; }
+
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body { background: var(--bg); color: var(--fg); font-family: var(--font-body); -webkit-font-smoothing: antialiased; }
+
+/* ===== Полотно 1280×720, масштабується під екран ===== */
+.slides-wrapper { position: fixed; width: 1280px; height: 720px; overflow: hidden; background: var(--bg); }
+.slides-wrapper::after { /* паперова фактура */
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 50; opacity: .09; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.slide {
+  position: absolute; inset: 0;
+  padding: 92px 72px 84px;
+  display: flex; flex-direction: column; justify-content: center;
+  visibility: hidden; opacity: 0;
+}
+.slide.active { visibility: visible; opacity: 1; }
+
+.slide-head { position: absolute; top: 38px; left: 72px; right: 72px; display: flex; justify-content: space-between; align-items: center; }
+.tag { font-size: 11.5px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+.tag::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.slide-no { font-family: var(--font-display); font-size: 12px; color: var(--muted); }
+
+/* ===== Типографіка ===== */
+h1, h2, h3 { margin: 0; font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
+h1 { font-size: 64px; line-height: 1.02; font-weight: 800; text-transform: uppercase; }
+h2 { font-size: 38px; line-height: 1.12; margin-bottom: 24px; }
+h2 .acc, h1 .acc { color: var(--accent); }
+h3 { font-size: 19px; line-height: 1.2; }
+p { margin: 0; }
+.lead { font-size: 16px; line-height: 1.6; color: var(--muted); max-width: 720px; }
+.small { font-size: 13.5px; line-height: 1.55; }
+.muted { color: var(--muted); }
+.hand { font-family: var(--font-hand); font-weight: 700; color: var(--accent); font-size: 28px; line-height: 1; }
+.mark { background: linear-gradient(transparent 58%, var(--soft) 58%); padding: 0 2px; }
+
+/* ===== Елементи ===== */
+.card { background: var(--card); border-radius: 22px; padding: 24px; box-shadow: 0 12px 34px rgba(60, 30, 10, .08), 0 1px 0 rgba(60,30,10,.04); position: relative; color: var(--fg); }
+.stk { width: 62px; height: 62px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; rotate: -6deg; flex-shrink: 0; box-shadow: 0 6px 16px rgba(0,0,0,.12); }
+.stk svg { width: 32px; height: 32px; fill: none; stroke: #FFF8EE; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.stk.sm { width: 46px; height: 46px; } .stk.sm svg { width: 24px; height: 24px; }
+.stk.lg { width: 84px; height: 84px; } .stk.lg svg { width: 44px; height: 44px; }
+.chip { display: inline-block; font-size: 12.5px; font-weight: 700; padding: 6px 12px; border-radius: 999px; background: var(--soft); color: var(--fg); margin: 0 5px 6px 0; }
+.ic { width: 28px; height: 28px; fill: none; stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.label { font-size: 11px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.big-num { font-family: var(--font-display); font-weight: 800; line-height: .85; }
+
+/* рукописна стрілка */
+.arrow-hand { fill: none; stroke: var(--accent); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ===== Титул ===== */
+.cover { display: grid; grid-template-columns: 620px 1fr; align-items: center; height: 100%; }
+.cover .kicker { display: inline-block; font-weight: 800; font-size: 12px; letter-spacing: .2em; text-transform: uppercase; border: 2px solid var(--fg); border-radius: 999px; padding: 8px 16px; margin-bottom: 28px; }
+.cover .hand { color: var(--fg); font-size: 40px; margin-top: 20px; }
+.cover .hint { margin-top: 40px; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+.plate-wrap { position: relative; width: 560px; height: 560px; margin-left: 10px; }
+.plate { position: absolute; inset: 40px; border-radius: 50%; background: #FFF6EA; box-shadow: 0 30px 60px rgba(90, 20, 5, .35), inset 0 0 0 18px #FBEBD8, inset 0 0 0 20px #F3DAC0; }
+.food { position: absolute; }
+.food svg { width: 100%; height: 100%; display: block; }
+
+/* ===== План ===== */
+.plan-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+.plan-tile { border-radius: 24px; padding: 26px 24px; height: 380px; display: flex; flex-direction: column; color: #FFF6EA; position: relative; overflow: hidden; }
+.plan-tile .big-num { font-size: 92px; opacity: .95; }
+.plan-tile h3 { font-size: 20px; margin-top: auto; line-height: 1.25; }
+.plan-tile .ghost { position: absolute; right: -40px; top: 80px; width: 200px; height: 200px; opacity: .22; }
+.plan-tile .ghost svg { width: 100%; height: 100%; fill: none; stroke: #fff; stroke-width: .8; }
+
+/* ===== Розділювачі ===== */
+.divider { display: grid; grid-template-columns: 1fr 470px; align-items: center; height: 100%; }
+.divider .big-num { font-size: 230px; color: var(--fg); letter-spacing: -0.04em; }
+.divider h1 { font-size: 52px; margin-top: 16px; }
+.divider .hand { color: var(--fg); opacity: .9; font-size: 36px; margin-top: 14px; }
+.divider .inside { margin-top: 34px; display: flex; flex-wrap: wrap; gap: 8px; }
+.divider .inside span { border: 1.5px solid var(--fg); border-radius: 999px; padding: 7px 14px; font-size: 13px; font-weight: 700; opacity: .9; }
+.hero { width: 470px; height: 470px; position: relative; }
+.hero svg { width: 100%; height: 100%; overflow: visible; }
+
+/* ===== Рівняння (слайд «поняття») ===== */
+.equation { display: flex; align-items: center; gap: 16px; margin-bottom: 26px; }
+.eq-main { background: var(--accent); color: #FFF6EA; border-radius: 20px; padding: 20px 24px; font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.2; rotate: -1.5deg; }
+.eq-op { font-family: var(--font-display); font-weight: 800; font-size: 34px; color: var(--accent); }
+.eq-item { display: flex; align-items: center; gap: 12px; font-weight: 800; font-size: 15px; line-height: 1.25; }
+
+/* ===== Пончики (діаграми-кільця) ===== */
+.donut-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.donut-card { display: grid; grid-template-columns: 210px 1fr; gap: 20px; align-items: center; }
+.donut svg { width: 210px; height: 210px; overflow: visible; }
+.legend6 { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-top: 22px; }
+.legend6 div { font-size: 12px; font-weight: 600; line-height: 1.35; color: var(--muted); }
+.legend6 b { display: block; font-family: var(--font-display); font-size: 18px; color: var(--accent); margin-bottom: 4px; }
+
+/* ===== Змійка 6 стадій ===== */
+.snake { position: relative; height: 400px; }
+.snake svg.path { position: absolute; inset: 0; overflow: visible; }
+.snode { position: absolute; width: 190px; margin-left: -95px; text-align: center; }
+.snode .stk { margin: 0 auto; }
+.snode .n { font-family: var(--font-display); font-weight: 800; font-size: 13px; color: var(--accent); margin: 10px 0 4px; }
+.snode .t { font-size: 13.5px; font-weight: 700; line-height: 1.35; }
+.snode.up .txt { position: absolute; bottom: 74px; left: 0; right: 0; }
+
+/* ===== Шеврони 3 стадій ===== */
+.chevrons { display: grid; grid-template-columns: repeat(3, 1fr); }
+.chev { height: 150px; display: flex; align-items: center; gap: 18px; padding: 0 30px 0 64px; color: #FFF6EA; margin-right: -26px;
+        clip-path: polygon(0 0, calc(100% - 44px) 0, 100% 50%, calc(100% - 44px) 100%, 0 100%, 44px 50%); }
+.chev:first-child { padding-left: 34px; clip-path: polygon(0 0, calc(100% - 44px) 0, 100% 50%, calc(100% - 44px) 100%, 0 100%); border-radius: 22px 0 0 22px; }
+.chev .big-num { font-size: 56px; }
+.chev h3 { font-size: 22px; }
+.chev-desc { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; margin-top: 26px; }
+.chev-desc .card { display: flex; gap: 16px; align-items: flex-start; }
+
+/* ===== 5 видів обробки ===== */
+.proc-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.proc { padding: 22px 18px; min-height: 360px; display: flex; flex-direction: column; }
+.proc h3 { font-size: 16.5px; margin: 18px 0 14px; }
+.proc .chip { font-size: 12px; padding: 5px 10px; }
+.proc .foot { margin-top: auto; font-size: 12px; line-height: 1.45; color: var(--muted); padding-top: 12px; }
+
+/* ===== Цехи ===== */
+.shops { display: grid; grid-template-columns: 1fr 170px 1fr; align-items: center; }
+.shops .card { padding: 30px; min-height: 340px; }
+.shops h3 { font-size: 26px; margin: 18px 0 12px; }
+.conveyor { position: relative; height: 120px; }
+.conveyor .belt { position: absolute; left: 10px; right: 10px; top: 58px; border-top: 3px dashed var(--accent); }
+.conveyor .belt::after { content: ''; position: absolute; right: -4px; top: -10px; border-left: 14px solid var(--accent); border-top: 8.5px solid transparent; border-bottom: 8.5px solid transparent; }
+.token { position: absolute; top: 34px; left: 0; background: var(--accent); color: #FFF6EA; font-family: var(--font-display); font-size: 12px; font-weight: 600; padding: 12px 10px; border-radius: 12px; }
+.conveyor .cap { position: absolute; bottom: -6px; left: 0; right: 0; text-align: center; font-size: 22px; }
+
+/* ===== Готовність / якість ===== */
+.ready-grid { display: grid; grid-template-columns: 500px 1fr; gap: 40px; align-items: center; }
+.ticket { padding: 30px 30px 40px; border-radius: 6px; }
+.ticket::before, .ticket::after { content: ''; position: absolute; left: 0; right: 0; height: 12px;
+  background: radial-gradient(circle at 8px 0, transparent 7px, var(--card) 7.5px) repeat-x; background-size: 16px 12px; }
+.ticket::after { bottom: -11px; }
+.ticket::before { top: -11px; rotate: 180deg; }
+.check-row { display: flex; gap: 12px; align-items: center; padding: 11px 0; border-bottom: 1.5px dashed rgba(42,26,18,.15); font-weight: 700; font-size: 15px; }
+.check-row i { width: 24px; height: 24px; border-radius: 7px; background: var(--accent); display: grid; place-items: center; }
+.check-row i svg { width: 15px; height: 15px; stroke: #fff; stroke-width: 3; fill: none; }
+.stamp { z-index: 3; position: absolute; right: -26px; bottom: -20px; rotate: -10deg; border: 3.5px solid var(--accent); color: var(--accent); border-radius: 12px; padding: 10px 16px; font-family: var(--font-display); font-weight: 800; font-size: 14px; line-height: 1.2; text-align: center; background: rgba(255,252,246,.85); }
+.quote-big { font-size: 30px; font-weight: 700; line-height: 1.35; letter-spacing: -0.01em; }
+
+/* ===== Венн ===== */
+.venn-grid { display: grid; grid-template-columns: 520px 1fr; gap: 30px; align-items: center; }
+.venn svg { width: 520px; height: 450px; overflow: visible; }
+.venn-detail { display: grid; gap: 14px; }
+.venn-detail .card { padding: 18px 22px; }
+.venn-detail h3 { display: flex; align-items: center; gap: 10px; font-size: 17px; margin-bottom: 8px; }
+.venn-detail h3 i { width: 14px; height: 14px; border-radius: 50%; display: inline-block; }
+
+/* ===== Кільце циклу ===== */
+.ring-grid { display: grid; grid-template-columns: 340px 1fr; gap: 10px; align-items: center; }
+.ring { position: relative; width: 700px; height: 480px; margin-left: auto; }
+.ring svg { position: absolute; inset: 0; overflow: visible; }
+.ring .lbl { position: absolute; width: 170px; font-size: 13px; font-weight: 700; line-height: 1.35; }
+.ring .center { position: absolute; left: 350px; top: 240px; transform: translate(-50%, -50%); text-align: center; }
+.ring .center .big-num { font-size: 76px; color: var(--accent); }
+
+/* ===== Контроль якості ===== */
+.ctrl-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.ctrl { min-height: 380px; }
+.ctrl h3 { font-size: 21px; margin: 18px 0 12px; }
+.senses { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin: 8px 0 4px; }
+.sense { text-align: center; font-size: 11px; font-weight: 700; color: var(--muted); }
+.sense .ic { width: 26px; height: 26px; display: block; margin: 0 auto 6px; }
+.dots-list { list-style: none; padding: 0; margin: 0; font-size: 13.5px; line-height: 1.5; }
+.dots-list li { padding-left: 18px; position: relative; margin-bottom: 6px; }
+.dots-list li::before { content: ''; position: absolute; left: 0; top: 7px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+.risk { display: grid; gap: 8px; margin-top: 14px; }
+.risk div { display: grid; grid-template-columns: 1fr; gap: 4px; font-size: 13px; font-weight: 700; }
+.risk i { height: 10px; border-radius: 5px; display: block; }
+
+/* ===== Принципи ===== */
+.pr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.pr { display: grid; grid-template-columns: 70px 1fr; gap: 0 18px; padding: 24px 26px; min-height: 200px; overflow: hidden; }
+.pr h3 { font-size: 20px; margin: 4px 0 10px 0; }
+.pr p { font-size: 13.8px; line-height: 1.55; color: var(--muted); }
+.pr > div { position: relative; z-index: 1; }
+.pr .wm { position: absolute; right: 18px; bottom: -14px; font-family: var(--font-display); font-weight: 800; font-size: 86px; color: var(--soft); line-height: 1; opacity: .75; }
+.pr .hand { font-size: 22px; margin-top: 10px; display: block; }
+
+/* ===== Рушійна сила ===== */
+.force-grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 36px; align-items: center; }
+.formula { font-family: var(--font-display); font-weight: 600; font-size: 22px; margin-bottom: 22px; }
+.formula b { background: var(--accent); color: #FFF6EA; padding: 4px 12px; border-radius: 10px; font-weight: 600; }
+.fbar { display: grid; grid-template-columns: 150px 1fr; gap: 16px; align-items: center; margin-bottom: 16px; }
+.fbar .nm { font-weight: 800; font-size: 13px; letter-spacing: .06em; text-transform: uppercase; }
+.fbar .nm small { display: block; text-transform: none; letter-spacing: 0; font-weight: 600; color: var(--muted); font-size: 12px; margin-top: 2px; }
+.fbar .bar { height: 52px; border-radius: 26px; position: relative; overflow: hidden; background: var(--card); box-shadow: inset 0 0 0 1.5px var(--soft); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; font-family: var(--font-display); font-weight: 600; font-size: 18px; }
+.fbar .bar .fill { position: absolute; inset: 0; background: linear-gradient(90deg, var(--accent), transparent 92%); transform-origin: left; }
+.fbar .bar span { position: relative; z-index: 1; }
+.fbar .bar span:first-child { color: #FFF6EA; }
+.dice { text-align: center; }
+.dice svg { width: 100%; max-width: 480px; height: 260px; overflow: visible; }
+
+/* ===== Віяло документів ===== */
+.docs-grid { display: grid; grid-template-columns: 430px 1fr; gap: 20px; align-items: center; }
+.doc-list { list-style: none; padding: 0; margin: 18px 0 0; counter-reset: d; }
+.doc-list li { display: grid; grid-template-columns: 70px 1fr; gap: 10px; padding: 9px 0; border-bottom: 1.5px dashed var(--soft); font-size: 14px; font-weight: 600; align-items: center; }
+.doc-list b { font-family: var(--font-display); color: var(--accent); font-size: 14px; }
+.fan { position: relative; height: 470px; }
+.fan-card { position: absolute; left: 50%; bottom: 10px; width: 210px; height: 300px; margin-left: -105px; border-radius: 18px; background: var(--card);
+  box-shadow: 0 16px 40px rgba(60, 20, 60, .16); transform-origin: 50% 230%; padding: 22px 20px; transition: translate .35s cubic-bezier(.3,1.5,.6,1); cursor: default; }
+.fan-card:hover { translate: 0 -26px; }
+.fan-card .ab { font-family: var(--font-display); font-weight: 800; font-size: 34px; color: var(--accent); line-height: 1.05; }
+.fan-card .fn { font-size: 12.5px; font-weight: 700; margin-top: 8px; line-height: 1.35; }
+.fan-card .lines { margin-top: 18px; }
+.fan-card .lines i { display: block; height: 6px; border-radius: 3px; background: var(--soft); margin-bottom: 9px; }
+
+/* ===== Збірник рецептур ===== */
+.tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.tabcard { padding-top: 0; border-top-left-radius: 0; }
+.tabcard .tab { position: absolute; top: -40px; left: 0; height: 42px; padding: 0 18px; border-radius: 14px 14px 0 0; background: var(--accent); color: #FFF6EA; font-family: var(--font-display); font-weight: 600; font-size: 14px; display: flex; align-items: center; }
+.tabcard h3 { font-size: 23px; margin: 24px 0 14px; }
+.tabcard .dots-list li { margin-bottom: 9px; }
+
+/* ===== ГСТ ===== */
+.gst-grid { display: grid; grid-template-columns: 1fr 520px; gap: 40px; align-items: center; }
+.ind-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 14px 0 20px; }
+.ind-row div { text-align: center; font-size: 12.5px; font-weight: 800; }
+.ind-row .stk { margin: 0 auto 10px; }
+.callout { border-radius: 18px; background: var(--accent); color: #FFF6EA; padding: 18px 22px; font-size: 15px; line-height: 1.5; font-weight: 600; rotate: -1deg; }
+.paper { background: #FFFEFA; border-radius: 6px; padding: 30px 32px 26px; rotate: 1.6deg; box-shadow: 0 22px 50px rgba(60,20,60,.18); position: relative; }
+.paper::before { content: ''; position: absolute; top: -14px; left: 50%; width: 110px; height: 28px; margin-left: -55px; background: rgba(123,63,134,.25); rotate: -3deg; }
+.paper .ph { display: flex; justify-content: space-between; align-items: baseline; border-bottom: 2px solid var(--fg); padding-bottom: 10px; margin-bottom: 8px; }
+.paper .ph b { font-family: var(--font-display); font-size: 26px; }
+.paper .ph span { font-size: 11px; font-weight: 800; letter-spacing: .14em; color: var(--muted); }
+.paper li { display: grid; grid-template-columns: 26px 1fr; gap: 10px; padding: 8px 0; border-bottom: 1px solid rgba(37,26,39,.1); font-size: 13.5px; line-height: 1.4; font-weight: 600; }
+.paper ul { list-style: none; padding: 0; margin: 0; }
+.paper li svg { width: 20px; height: 20px; stroke: var(--accent); stroke-width: 2.6; fill: none; }
+
+/* ===== Фінал ===== */
+.sum-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.sum { border-radius: 22px; padding: 22px 20px; color: #FFF6EA; min-height: 230px; display: flex; flex-direction: column; }
+.sum .big-num { font-size: 40px; }
+.sum h3 { font-size: 17px; margin: 14px 0 10px; }
+.sum p { font-size: 13.5px; line-height: 1.5; opacity: .95; }
+.thanks { display: flex; align-items: center; justify-content: space-between; margin-top: 30px; }
+.thanks .hand { font-size: 56px; }
+
+/* ===== ПАРАЛАКС-шари ===== */
+.px-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.px-layer { position: absolute; top: -90px; left: -90px; width: 2800px; height: 900px; }
+.px-shape { position: absolute; --sa: var(--px-a); --sb: var(--px-b); }
+.px-shape svg { width: 100%; height: 100%; display: block; overflow: visible; }
+
+/* ===== Навігація ===== */
+.progress { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--accent); width: 0; z-index: 60; transition: width .5s ease; }
+.slide-dots { position: absolute; bottom: 30px; left: 72px; display: flex; gap: 6px; z-index: 60; }
+.slide-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--fg); opacity: .22; cursor: pointer; border: none; padding: 0; transition: all .3s; }
+.slide-dots .dot.active { background: var(--accent); opacity: 1; width: 22px; border-radius: 4px; }
+.nav-btns { position: absolute; right: 60px; bottom: 20px; display: flex; gap: 8px; z-index: 60; }
+.nav-btns button { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--fg); background: transparent; color: var(--fg); font-size: 18px; font-weight: 700; cursor: pointer; opacity: .7; transition: opacity .2s, background .2s; }
+.nav-btns button:hover { opacity: 1; background: var(--soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+
+/* =========================================================
+   ТЕМА 2 — додаткові компоненти
+   ========================================================= */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.card h3 { font-size: 19px; margin: 14px 0 8px; }
+.row { display: flex; align-items: center; gap: 12px; }
+.pill { display: inline-flex; align-items: center; gap: 9px; background: var(--card); border-radius: 999px; padding: 6px 16px 6px 6px; font-weight: 800; font-size: 14px; box-shadow: 0 6px 16px rgba(60,30,10,.08); margin: 0 8px 8px 0; color: var(--ink); }
+.pill .stk { width: 34px; height: 34px; } .pill .stk svg { width: 18px; height: 18px; }
+.soft-row { background: var(--soft); border-radius: 18px; padding: 14px 18px; }
+
+/* великі числа */
+.stat { flex: none; font-family: var(--font-display); font-weight: 800; font-size: 34px; line-height: 1; color: var(--accent); letter-spacing: -.02em; white-space: nowrap; }
+.stat-row { display: flex; gap: 18px; align-items: center; padding: 13px 0; border-bottom: 1.5px dashed rgba(42,26,18,.14); }
+.stat-row:last-child { border: 0; padding-bottom: 0; }
+.stat-row p { font-size: 14.5px; line-height: 1.45; font-weight: 600; margin: 0; }
+
+/* діаграми */
+.chart { background: var(--card); border-radius: 22px; padding: 18px 24px; box-shadow: 0 12px 34px rgba(60,30,10,.08); color: var(--fg); }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.tc-grid { stroke: rgba(42,26,18,.09); stroke-width: 1; }
+.tc-ax { font-family: var(--font-display); font-size: 13px; fill: var(--muted); }
+.tc-t { font-family: var(--font-body); font-weight: 800; font-size: 17px; fill: var(--fg); }
+.tc-s { font-family: var(--font-body); font-weight: 600; font-size: 13.5px; fill: var(--muted); }
+.tc-v { font-family: var(--font-display); font-weight: 600; font-size: 15px; fill: var(--fg); }
+.tc-mark { stroke: var(--accent); stroke-width: 2; stroke-dasharray: 6 6; }
+.tc-mk { font-family: var(--font-hand); font-weight: 700; font-size: 21px; fill: var(--accent); }
+.sv-t { font-family: var(--font-body); font-weight: 800; font-size: 15px; fill: var(--fg); }
+.sv-s { font-family: var(--font-body); font-weight: 600; font-size: 13px; fill: var(--muted); }
+.sv-h { font-family: var(--font-hand); font-weight: 700; font-size: 21px; fill: var(--accent); }
+.sv-d { font-family: var(--font-display); font-weight: 800; font-size: 15px; fill: var(--fg); }
+
+/* як тепло потрапляє в продукт */
+.heat-cell { text-align: center; padding: 18px 16px; }
+.heat-cell svg { width: 160px; height: 160px; display: block; margin: 0 auto 4px; overflow: visible; }
+.heat-cell h3 { font-size: 17px; margin: 6px 0 4px; }
+.heat-cell p { font-size: 13px; line-height: 1.45; color: var(--muted); margin: 0; }
+
+/* попередження */
+.note-w { border-radius: 18px; padding: 13px 18px; background: color-mix(in srgb, var(--c-tomato) 10%, var(--card)); border-left: 5px solid var(--c-tomato); font-size: 14px; line-height: 1.5; font-weight: 600; color: var(--ink); }
+.note-w b { color: var(--c-tomato); }
+
+/* потік «крок → крок» */
+.flow { display: flex; align-items: stretch; gap: 12px; }
+.flow .node { flex: 1; background: var(--card); border-radius: 18px; padding: 14px 18px; box-shadow: 0 10px 26px rgba(60,30,10,.07); font-size: 14px; line-height: 1.45; font-weight: 600; color: var(--ink); }
+.flow .node b { display: block; font-family: var(--font-display); font-size: 15px; color: var(--accent); margin-bottom: 4px; font-weight: 600; }
+.flow .arr { align-self: center; font-family: var(--font-display); font-size: 28px; font-weight: 800; color: var(--accent); }
+
+/* кольорові плитки */
+.tiles3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.tile { border-radius: 22px; padding: 20px 22px; color: #FFF6EA; min-height: 124px; display: flex; flex-direction: column; justify-content: space-between; }
+.tile .big-num { font-size: 34px; }
+.tile h3 { font-size: 21px; margin: 0; }
+
+/* сковорідка на титулі */
+.pan { position: absolute; left: 30px; top: 80px; width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, #4B3428, #24160F 72%);
+  box-shadow: 0 34px 60px rgba(90,20,5,.42), inset 0 0 0 14px #3A2720, inset 0 0 0 17px #5A3B2D; }
+.pan-handle { position: absolute; left: 400px; top: 262px; width: 160px; height: 38px; border-radius: 19px; background: linear-gradient(#3A2720, #1E120C);
+  rotate: -14deg; transform-origin: 0 50%; box-shadow: 0 14px 26px rgba(90,20,5,.35); }
+.pan-handle::after { content: ''; position: absolute; right: 16px; top: 12px; width: 28px; height: 14px; border-radius: 7px; background: #E14B31; }
+.steam { position: absolute; left: 120px; top: -6px; width: 220px; height: 120px; overflow: visible; }
+.steam path { fill: none; stroke: #FFF4E6; stroke-width: 3.5; stroke-linecap: round; opacity: 0; animation: steam 3.2s ease-in-out infinite; }
+.steam path:nth-child(2) { animation-delay: 1s; } .steam path:nth-child(3) { animation-delay: 2s; }
+@keyframes steam { 0% { transform: translateY(16px); opacity: 0; } 40% { opacity: .8; } 100% { transform: translateY(-26px); opacity: 0; } }
+html.static .steam path { animation: none; opacity: .7; }
+
+
+/* =========================================================
+   ТЕМА 3 — п'ятий колір «лід» (зберігання сировини) і компоненти
+   ========================================================= */
+:root { --c-ice: #2E6F95; }
+[data-theme="ice"]       { --bg:#1F4F6E; --fg:#EEF6FA; --muted:#B9D3E2; --accent:#EEF6FA; --soft:rgba(238,246,250,.14); --px-a:#1A4560; --px-b:#3F7598; }
+[data-theme="ice-cream"] { --bg:#EEF3F4; --fg:#16262F; --muted:#536770; --accent:#2E6F95; --soft:#D6E6EE; --px-a:#E1EAEC; --px-b:#C8D9E0; }
+
+.plan-grid.five { grid-template-columns: repeat(5, 1fr); gap: 14px; }
+.plan-grid.five .plan-tile { height: 360px; padding: 24px 20px; }
+.plan-grid.five .plan-tile .big-num { font-size: 76px; }
+.plan-grid.five .plan-tile h3 { font-size: 18px; }
+.sum-grid.five { grid-template-columns: repeat(5, 1fr); gap: 12px; }
+.sum-grid.five .sum { padding: 20px 18px; }
+
+/* ящик на титулі */
+.crate { position: absolute; left: 40px; top: 96px; width: 430px; height: 340px; border-radius: 18px;
+  background: repeating-linear-gradient(90deg, #C98A4E 0 98px, #A8692F 98px 106px);
+  border: 15px solid #8A5328; box-shadow: 0 34px 60px rgba(90,20,5,.42), inset 0 0 0 3px rgba(0,0,0,.08); }
+.crate::after { content: ''; position: absolute; left: -15px; right: -15px; top: 42%; height: 15px; background: #8A5328; }
+.waybill { position: absolute; left: 340px; top: 300px; width: 190px; height: 230px; border-radius: 6px; background: #FFFDF8; rotate: 8deg;
+  box-shadow: 0 20px 40px rgba(90,20,5,.35); padding: 22px 18px; }
+.waybill b { display: block; font-family: var(--font-display); font-size: 15px; color: #2A1A12; margin-bottom: 12px; }
+.waybill i { display: block; height: 7px; border-radius: 4px; background: #EBDCC7; margin-bottom: 11px; }
+.waybill .st { position: absolute; right: 12px; bottom: 18px; rotate: -14deg; border: 3px solid #2F7A4A; color: #2F7A4A; border-radius: 10px; padding: 5px 9px; font-family: var(--font-display); font-weight: 800; font-size: 13px; }
+
+/* конвеєр п'яти стадій */
+.stages5 { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-top: 10px; }
+.stages5 svg.wire { position: absolute; left: 0; top: 0; width: 100%; height: 150px; overflow: visible; }
+.st5 { text-align: center; position: relative; }
+.st5 .disc { width: 120px; height: 120px; margin: 15px auto 18px; border-radius: 50%; display: grid; place-items: center; box-shadow: 0 14px 30px rgba(60,30,10,.18); rotate: -6deg; }
+.st5 .disc svg { width: 54px; height: 54px; fill: none; stroke: #FFF8EE; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.st5 .n { font-family: var(--font-display); font-weight: 800; font-size: 13px; color: var(--muted); }
+.st5 h3 { font-size: 17px; line-height: 1.25; margin: 6px 6px 8px; }
+.st5 p { font-size: 13px; line-height: 1.45; color: var(--muted); margin: 0 6px; }
+
+/* «стоп-лист» */
+.stop-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.stop { background: var(--card); border-radius: 16px; padding: 12px 14px 12px 12px; display: flex; gap: 10px; align-items: flex-start; font-size: 13px; line-height: 1.4; font-weight: 600; color: var(--ink); box-shadow: 0 8px 22px rgba(60,30,10,.06); }
+.stop i { flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--c-tomato); color: #fff; display: grid; place-items: center; font-style: normal; font-weight: 800; font-size: 13px; margin-top: 1px; }
+.stop b { font-weight: 800; }
+
+/* діаграми з JS */
+.rc .tc-in { font-family: var(--font-display); font-weight: 600; font-size: 14px; fill: #fff; }
+
+/* камера: правила сусідства */
+.chamber svg { width: 100%; display: block; overflow: visible; }
+
+/* поперечний розріз продукту */
+.xsec svg { width: 100%; display: block; overflow: visible; }
+
+/* стрілки змін */
+.chg { display: flex; gap: 14px; align-items: center; }
+.chg .ar { flex: none; width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 26px; color: #fff; }
+.chg h3 { margin: 0 0 4px; font-size: 18px; }
+.chg p { margin: 0; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+
+/* таймлайн нереалізованої їжі */
+.tl6 { display: grid; grid-template-columns: repeat(6, 1fr); position: relative; margin-top: 8px; }
+.tl6::before { content: ''; position: absolute; left: 8%; right: 8%; top: 31px; border-top: 3px dashed var(--accent); opacity: .5; }
+.tl6 > div { text-align: center; position: relative; padding: 0 6px; }
+.tl6 .stk { margin: 0 auto 12px; position: relative; }
+.tl6 .stat { font-size: 21px; display: block; margin-bottom: 4px; }
+.tl6 p { font-size: 13px; line-height: 1.4; font-weight: 600; margin: 0; }
+.chip.no { background: color-mix(in srgb, var(--c-tomato) 14%, var(--card)); }
+.chip.no::before { content: '✕ '; color: var(--c-tomato); font-weight: 800; }
+.cardv{min-height:380px;display:flex;flex-direction:column;}
+.cardv .vis{margin-top:auto;display:flex;align-items:center;gap:8px;padding-top:14px;border-top:1.5px dashed var(--soft);}
+.cardv .cal{margin-top:auto;display:flex;align-items:center;gap:12px;padding-top:12px;}
+.cardv .cal svg{width:72px;flex:none;}
+.cardv .xm{color:var(--c-tomato);font-weight:800;font-size:22px;margin-left:-22px;}
+
+/* =========================================================
+   ТЕМА 4 — шостий колір «ягода» (солодкі соуси) і компоненти
+   ========================================================= */
+:root { --c-berry: #B5355E; --c-milk: #2E6F95; }
+[data-theme="berry"]       { --bg:#8E2A4A; --fg:#FFF0F4; --muted:#F2C2D2; --accent:#FFF0F4; --soft:rgba(255,240,244,.16); --px-a:#7E2341; --px-b:#B5506F; }
+[data-theme="berry-cream"] { --bg:#F8EEF0; --fg:#2B1620; --muted:#765A66; --accent:#B5355E; --soft:#F6D9E2; --px-a:#F0DFE4; --px-b:#E6C7D1; }
+
+.plan-grid.six { grid-template-columns: repeat(6, 1fr); gap: 12px; }
+.plan-grid.six .plan-tile { height: 360px; padding: 22px 18px; }
+.plan-grid.six .plan-tile .big-num { font-size: 64px; }
+.plan-grid.six .plan-tile h3 { font-size: 16.5px; }
+.plan-grid.six .plan-tile .ghost { width: 150px; height: 150px; right: -34px; }
+.sum-grid.six { grid-template-columns: repeat(6, 1fr); gap: 10px; }
+.sum-grid.six .sum { padding: 18px 16px; min-height: 250px; }
+.sum-grid.six .sum h3 { font-size: 15.5px; }
+.sum-grid.six .sum p { font-size: 12.8px; }
+
+/* сотейник із соусом на титулі */
+.saute { position: absolute; left: 40px; top: 90px; width: 400px; height: 400px; border-radius: 50%;
+  background: radial-gradient(circle at 42% 38%, #4B3428, #24160F 72%);
+  box-shadow: 0 34px 60px rgba(90,20,5,.42), inset 0 0 0 14px #3A2720, inset 0 0 0 17px #5A3B2D; }
+.saute-handle { position: absolute; left: 410px; top: 270px; width: 160px; height: 38px; border-radius: 19px; background: linear-gradient(#3A2720, #1E120C); rotate: -14deg; transform-origin: 0 50%; box-shadow: 0 14px 26px rgba(90,20,5,.35); }
+.saute-handle::after { content: ''; position: absolute; right: 16px; top: 12px; width: 28px; height: 14px; border-radius: 7px; background: #F2AE2E; }
+.sauce-swirl { position: absolute; left: 72px; top: 122px; width: 336px; height: 336px; overflow: visible; }
+
+/* соусники різного розміру */
+.boats { display: flex; align-items: flex-end; gap: 22px; }
+.boats > div { text-align: center; }
+.boats svg { display: block; margin: 0 auto 8px; overflow: visible; }
+.boats b { font-family: var(--font-display); font-size: 22px; color: var(--accent); }
+.boats span { display: block; font-size: 12px; color: var(--muted); font-weight: 600; }
+
+/* дерево похідних соусів */
+.tree { display: grid; grid-template-columns: 250px 1fr; gap: 22px; align-items: center; }
+.tree .root { border-radius: 26px; padding: 22px 22px; color: #FFF6EA; position: relative; }
+.tree .root .big-num { font-size: 26px; line-height: 1.1; }
+.tree .root p { font-size: 13.5px; line-height: 1.45; margin: 10px 0 0; opacity: .95; }
+.leaves { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; position: relative; }
+.leaves::before { content: ''; position: absolute; left: -22px; top: 24px; bottom: 24px; border-left: 3px dashed var(--accent); opacity: .45; }
+.leaf { background: var(--card); border-radius: 16px; padding: 15px 16px 15px 18px; box-shadow: 0 8px 20px rgba(60,30,10,.06); border-left: 5px solid var(--accent); color: var(--ink); }
+.leaf h3 { font-size: 17px; margin: 0 0 5px; }
+.leaf p { font-size: 13.5px; line-height: 1.45; color: var(--muted); margin: 0; }
+.leaf p b { color: var(--fg); }
+
+/* кольорові «мазки» соусів */
+.swatch-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.swatch { background: var(--card); border-radius: 22px; padding: 16px 18px 18px; box-shadow: 0 10px 26px rgba(60,30,10,.07); color: var(--ink); }
+.swatch svg { width: 100%; height: 86px; display: block; margin-bottom: 10px; }
+.swatch h3 { font-size: 16.5px; margin: 0 0 6px; }
+.swatch p { font-size: 12.8px; line-height: 1.45; color: var(--muted); margin: 0 0 4px; }
+.swatch p b { color: var(--fg); }
+
+/* масляні суміші — форми */
+.shapes { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
+.shapes div { text-align: center; font-size: 12px; font-weight: 700; color: var(--muted); }
+.shapes svg { width: 54px; height: 54px; display: block; margin: 0 auto 6px; }
+
+/* рецепт-картка: шкала борошна */
+.flour { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; align-items: stretch; }
+.flour > div { background: var(--card); border-radius: 22px; padding: 16px 18px; box-shadow: 0 10px 26px rgba(60,30,10,.07); color: var(--ink); }
+.flour .jar { display: flex; justify-content: center; margin-bottom: 6px; }
+.flour .jar i { display: block; width: 70px; border-radius: 12px 12px 18px 18px; background: linear-gradient(#F4E6CF, #E8D2AE); border: 3px solid #C8A878; }
+.flour .stat { font-size: 30px; }
+.flour h3 { font-size: 17px; margin: 6px 0 4px; }
+.flour p { font-size: 13px; line-height: 1.45; color: var(--muted); margin: 0; }
+</style>
+</head>
+<body>
+
+<!-- =========================================================
+     SVG-СПРАЙТ
+     i-*    — лінійні іконки
+     f-*    — «продукти» для паралаксу та ілюстрацій
+              (кольори задаються змінними --sa — заливка, --sb — лінії)
+     ========================================================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- Іконки -->
+    <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></symbol>
+    <symbol id="i-knife" viewBox="0 0 24 24"><path d="M20.5 3.5 7 17l-3.5.5.5-3.5L17.5 3.5c1-1 2-1 3 0z"/><path d="M7 17l3 3-2 1.5L5.5 19"/></symbol>
+    <symbol id="i-pot" viewBox="0 0 24 24"><path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M2 10h20M9 7c0-1.2 1-1.2 1-2.5M14 7c0-1.2 1-1.2 1-2.5"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20.5 20.5 15.2 15.2M7.8 10.6l2 2 3.6-3.6"/></symbol>
+    <symbol id="i-cloche" viewBox="0 0 24 24"><path d="M2.5 18.5h19M4.5 18.5a7.5 7.5 0 0 1 15 0M12 11V9M10.5 9h3"/></symbol>
+    <symbol id="i-recycle" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.6-5.9L20 8.5"/><path d="M20 3.5v5h-5"/><path d="M12 9c-2 1.5-2.5 3.5-1 6 2-.2 3.6-1.5 3.6-3.6"/></symbol>
+    <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6.5 7.2 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10.2 12 3 12 3z"/><path d="M9 15a3 3 0 0 0 3 3"/></symbol>
+    <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2.5c2 4 6.5 6.2 6.5 11.5a6.5 6.5 0 0 1-13 0c0-3.2 2-5.3 3.2-6.3 0 2 1 3.3 2.3 3.3 0-3.4-1.2-5.5 1-8.5z"/><path d="M12 20a2.6 2.6 0 0 1-2.6-2.6c0-1.6 1.6-2.7 2.6-4.1 1 1.4 2.6 2.5 2.6 4.1A2.6 2.6 0 0 1 12 20z"/></symbol>
+    <symbol id="i-bio" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.5"/><circle cx="16" cy="15.5" r="4"/><circle cx="16.5" cy="5.5" r="1.6"/><circle cx="6.5" cy="17.5" r="1.4"/></symbol>
+    <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6.2L4.2 19.3A1.2 1.2 0 0 0 5.3 21h13.4a1.2 1.2 0 0 0 1.1-1.7L14 9.2V3"/><path d="M7 15h10"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+    <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.3-1.2-1.6-1.2-2.8 0-1 .8-1.6 1.8-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></symbol>
+    <symbol id="i-nose" viewBox="0 0 24 24"><path d="M5 9c2-1 3-1 4 0M15 9c1-1 2-1 4 0"/><path d="M5 15c3 0 4-1.5 7-6.5 3 5 4 6.5 7 6.5"/><path d="M8 19c1.4 1 2.6 1.5 4 1.5s2.6-.5 4-1.5"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v6.5M14 10.5V5.5a1.5 1.5 0 0 1 3 0v8c0 4-2.5 7-6.5 7-3 0-4.5-1.6-6-4.4l-1.4-2.6a1.5 1.5 0 0 1 2.5-1.6L8 14"/></symbol>
+    <symbol id="i-tongue" viewBox="0 0 24 24"><path d="M3 9c3 2 15 2 18 0"/><path d="M7 10.5v3.5a5 5 0 0 0 10 0v-3.5"/><path d="M12 11v4"/></symbol>
+    <symbol id="i-micro" viewBox="0 0 24 24"><path d="M5 21h14M8 17.5h8"/><path d="M9.5 3.5h3l.8 7h-4.6z"/><path d="M11 10.5v2.5M14.5 8a6.5 6.5 0 0 1 .5 9.5"/></symbol>
+    <symbol id="i-apple" viewBox="0 0 24 24"><path d="M12 7.5c-2-2-7.5-2-7.5 4.5 0 5.2 3 9.5 5.2 9.5 1 0 1.5-.6 2.3-.6s1.3.6 2.3.6c2.2 0 5.2-4.3 5.2-9.5 0-6.5-5.5-6.5-7.5-4.5z"/><path d="M12 7.5c0-2.2 1-4 3-4.5"/></symbol>
+    <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.4"/></symbol>
+    <symbol id="i-hat" viewBox="0 0 24 24"><path d="M6.5 14.5a4 4 0 1 1 1.8-7.6 4.2 4.2 0 0 1 7.4 0 4 4 0 1 1 1.8 7.6V20h-11z"/><path d="M6.5 17h11"/></symbol>
+    <symbol id="i-wheat" viewBox="0 0 24 24"><path d="M12 21V8"/><path d="M12 8C9 8 8 5.5 8 3c3 0 4 2.5 4 5zM12 8c3 0 4-2.5 4-5-3 0-4 2.5-4 5zM12 13.5c-3 0-4-2.5-4-5 3 0 4 2.5 4 5zM12 13.5c3 0 4-2.5 4-5-3 0-4 2.5-4 5zM12 19c-3 0-4-2.5-4-5 3 0 4 2.5 4 5zM12 19c3 0 4-2.5 4-5-3 0-4 2.5-4 5z"/></symbol>
+    <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.8 2M10 2.5h4M12 2.5V5"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/><circle cx="12" cy="12" r="6.5"/></symbol>
+    <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12z"/></symbol>
+    <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8.5L19 7.5V21H6z"/><path d="M14 3v5h5M9 12.5h7M9 16.5h7"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M2.5 5.5c3-1.2 6.7-1 9.5 1 2.8-2 6.5-2.2 9.5-1v13.5c-3-1.2-6.7-1-9.5 1-2.8-2-6.5-2.2-9.5-1z"/><path d="M12 6.5V20"/></symbol>
+    <symbol id="i-meat" viewBox="0 0 24 24"><path d="M14.5 3.5c3.5 0 6 2.5 6 6 0 5-6 9-11 9-2 0-3-1-3-3 0-5 3-12 8-12z"/><circle cx="14.5" cy="9.5" r="2"/><path d="M6.5 15.5 3 19a1.5 1.5 0 0 0 2 2l3.5-3.5"/></symbol>
+    <symbol id="i-bird" viewBox="0 0 24 24"><path d="M7 7.5a3 3 0 1 1 5.5 1.7L14 11c3 0 6.5 1.5 7 4.5-2.5 0-4 1-5.5 3S11.5 21 9 21c-3 0-5-2.5-5-5.5 0-2 1-3.6 2.4-4.5L7 7.5z"/><path d="M4.5 6 7 7.5"/></symbol>
+    <symbol id="i-fish" viewBox="0 0 24 24"><path d="M2.5 12c3-4.5 7-6 11-6 3.5 0 6 2.5 7.5 6-1.5 3.5-4 6-7.5 6-4 0-8-1.5-11-6z"/><path d="M2.5 12 1 8.5M2.5 12 1 15.5"/><circle cx="16" cy="10.5" r=".8"/></symbol>
+    <symbol id="i-can" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="6.5" ry="2"/><path d="M5.5 5v14c0 1.1 2.9 2 6.5 2s6.5-.9 6.5-2V5"/><path d="M5.5 9.5c0 1.1 2.9 2 6.5 2s6.5-.9 6.5-2"/></symbol>
+    <symbol id="i-tick" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+
+    <!-- Продукти (flat-lay) -->
+    <symbol id="f-citrus" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="47" style="fill:var(--sa)"/>
+      <circle cx="50" cy="50" r="39" style="fill:none;stroke:var(--sb);stroke-width:2.5"/>
+      <path d="M50 50L50 14M50 50L75.5 24.5M50 50L86 50M50 50L75.5 75.5M50 50L50 86M50 50L24.5 75.5M50 50L14 50M50 50L24.5 24.5" style="stroke:var(--sb);stroke-width:2.5;stroke-linecap:round"/>
+      <circle cx="50" cy="50" r="4" style="fill:var(--sb)"/>
+    </symbol>
+    <symbol id="f-tomato" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="47" style="fill:var(--sa)"/>
+      <circle cx="50" cy="50" r="40" style="fill:none;stroke:var(--sb);stroke-width:2"/>
+      <g style="fill:none;stroke:var(--sb);stroke-width:2.2">
+        <ellipse cx="50" cy="29" rx="12" ry="15"/>
+        <ellipse cx="50" cy="29" rx="12" ry="15" transform="rotate(120 50 50)"/>
+        <ellipse cx="50" cy="29" rx="12" ry="15" transform="rotate(240 50 50)"/>
+      </g>
+      <g style="fill:var(--sb)">
+        <circle cx="46" cy="26" r="2.2"/><circle cx="54" cy="32" r="2.2"/><circle cx="50" cy="20" r="2"/>
+        <circle cx="46" cy="26" r="2.2" transform="rotate(120 50 50)"/><circle cx="54" cy="32" r="2.2" transform="rotate(120 50 50)"/>
+        <circle cx="46" cy="26" r="2.2" transform="rotate(240 50 50)"/><circle cx="54" cy="32" r="2.2" transform="rotate(240 50 50)"/>
+      </g>
+    </symbol>
+    <symbol id="f-leaf" viewBox="0 0 100 100">
+      <path d="M50 3C82 25 84 70 50 97C16 70 18 25 50 3Z" style="fill:var(--sa)"/>
+      <path d="M50 10L50 92M50 30L65 21M50 45L69 35M50 60L67 51M50 75L62 68M50 30L35 21M50 45L31 35M50 60L33 51M50 75L38 68" style="fill:none;stroke:var(--sb);stroke-width:2.2;stroke-linecap:round"/>
+    </symbol>
+    <symbol id="f-anise" viewBox="0 0 100 100">
+      <g style="fill:var(--sa)">
+        <ellipse cx="50" cy="25" rx="9" ry="22"/>
+        <ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(45 50 50)"/>
+        <ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(90 50 50)"/>
+        <ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(135 50 50)"/>
+        <ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(180 50 50)"/>
+        <ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(225 50 50)"/>
+        <ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(270 50 50)"/>
+        <ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(315 50 50)"/>
+      </g>
+      <g style="fill:var(--sb)">
+        <ellipse cx="50" cy="27" rx="3.2" ry="6"/>
+        <ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(45 50 50)"/>
+        <ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(90 50 50)"/>
+        <ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(135 50 50)"/>
+        <ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(180 50 50)"/>
+        <ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(225 50 50)"/>
+        <ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(270 50 50)"/>
+        <ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(315 50 50)"/>
+        <circle cx="50" cy="50" r="6"/>
+      </g>
+    </symbol>
+    <symbol id="f-pepper" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="40" style="fill:var(--sa)"/>
+      <path d="M28 40A25 25 0 0 1 48 24" style="fill:none;stroke:var(--sb);stroke-width:7;stroke-linecap:round"/>
+    </symbol>
+    <symbol id="f-chili" viewBox="0 0 100 100">
+      <path d="M22 28C30 68 58 90 92 86C70 80 46 60 36 24Z" style="fill:var(--sa)"/>
+      <path d="M27 28C23 18 29 9 39 7M24 27C30 22 36 22 40 26" style="fill:none;stroke:var(--sb);stroke-width:5;stroke-linecap:round"/>
+    </symbol>
+    <symbol id="f-mushroom" viewBox="0 0 100 100">
+      <path d="M8 52C8 18 92 18 92 52Z" style="fill:var(--sa)"/>
+      <path d="M38 52L35 88C35 93 65 93 65 88L62 52Z" style="fill:var(--sa)"/>
+      <path d="M20 52L30 40M35 52L40 38M50 52L50 37M65 52L60 38M80 52L70 40" style="fill:none;stroke:var(--sb);stroke-width:2.4;stroke-linecap:round"/>
+    </symbol>
+    <symbol id="f-carrot" viewBox="0 0 100 100">
+      <circle cx="50" cy="50" r="46" style="fill:var(--sa)"/>
+      <circle cx="50" cy="50" r="28" style="fill:none;stroke:var(--sb);stroke-width:2.5;stroke-dasharray:4 6"/>
+      <circle cx="50" cy="50" r="11" style="fill:none;stroke:var(--sb);stroke-width:3"/>
+    </symbol>
+    <!-- Тема 2: додаткові іконки -->
+    <symbol id="i-steam" viewBox="0 0 24 24"><path d="M7 21c-2-3 2-5 0-8s2-5 0-8M12 21c-2-3 2-5 0-8s2-5 0-8M17 21c-2-3 2-5 0-8s2-5 0-8"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M14 14.5V5a2 2 0 0 0-4 0v9.5a4 4 0 1 0 4 0z"/><path d="M12 9v7.5"/></symbol>
+    <symbol id="i-pan" viewBox="0 0 24 24"><circle cx="9.5" cy="12" r="7"/><path d="M16.5 12h6"/><circle cx="9.5" cy="12" r="2.6"/></symbol>
+    <symbol id="i-magnet" viewBox="0 0 24 24"><path d="M5 3v9a7 7 0 0 0 14 0V3h-4.5v9a2.5 2.5 0 0 1-5 0V3z"/><path d="M5 7.5h4.5M14.5 7.5H19"/></symbol>
+    <symbol id="i-rays" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M5.5 10c1-1.4 2-1.4 3 0s2 1.4 3 0M5.5 14c1-1.4 2-1.4 3 0s2 1.4 3 0M15.5 8v8M18.5 9.5v1M18.5 13.5v1"/></symbol>
+    <symbol id="i-fan" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.8"/><path d="M12 10.2C12 6 13 3 15.8 3c2 0 2.1 3-1.2 5.2M13.8 12c4.2 0 7.2 1 7.2 3.8 0 2-3 2.1-5.2-1.2M12 13.8c0 4.2-1 7.2-3.8 7.2-2 0-2.1-3 1.2-5.2M10.2 12C6 12 3 11 3 8.2c0-2 3-2.1 5.2 1.2"/></symbol>
+    <symbol id="i-smoke" viewBox="0 0 24 24"><path d="M8 21c-2.5-2 0-4 2-5.5s2-4-.5-5.5M14 21c-2.5-2 0-4 2-5.5s2-4-.5-5.5M12 6.5c1.5-1 2.5-2.5 1.5-4"/></symbol>
+    <symbol id="i-oven" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="2.5"/><rect x="6" y="9" width="12" height="8.5" rx="1.2"/><path d="M6.5 6.2h1.5M10 6.2h1.5M15 6.2h3"/></symbol>
+    <symbol id="i-grill" viewBox="0 0 24 24"><path d="M3.5 10h17a8.5 8 0 0 1-17 0z"/><path d="M8 17.5l-2 4M16 17.5l2 4M8 6.5c0-1.2 1-1.2 1-2.5M12 6.5c0-1.2 1-1.2 1-2.5M16 6.5c0-1.2 1-1.2 1-2.5"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M3.5 17a8.5 8.5 0 1 1 17 0"/><path d="M12 17l4.2-5.2"/><circle cx="12" cy="17" r="1.3"/><path d="M6 13.5l1 .6M8.6 9.8l.6 1M12 8.5v1.2"/></symbol>
+    <symbol id="i-wok" viewBox="0 0 24 24"><path d="M2.5 10.5h19a9.5 6.5 0 0 1-19 0z"/><path d="M21.5 10.5l1.5-1.5M7 7l.8-2M12 6.5V3.5M17 7l-.8-2"/></symbol>
+    <symbol id="i-air" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h7"/></symbol>
+    <symbol id="i-oil" viewBox="0 0 24 24"><path d="M9 3h6M10 3v3.5c-3 1.3-5 4.3-5 7.8a7 7 0 0 0 14 0c0-3.5-2-6.5-5-7.8V3"/><path d="M8.5 15.5c.6 1.6 2 2.6 3.5 2.6"/></symbol>
+    <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M3.8 16.8l16.4-9.6M9.5 4.5 12 7l2.5-2.5M9.5 19.5 12 17l2.5 2.5"/></symbol>
+    <symbol id="i-lid" viewBox="0 0 24 24"><path d="M3 13h18M5 13a7 7 0 0 1 14 0M10.5 6h3M12 6v-2"/><path d="M5 16h14v3a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/></symbol>
+
+    <!-- Тема 2: яйце для сковорідки -->
+    <symbol id="f-egg" viewBox="0 0 100 100">
+      <path d="M50 6C70 4 90 18 89 40C97 62 80 92 54 90C28 97 6 78 10 54C3 30 26 8 50 6Z" style="fill:var(--sa)"/>
+      <circle cx="47" cy="47" r="17" style="fill:var(--sb)"/>
+      <circle cx="41" cy="41" r="4.5" style="fill:#FFF8EE;opacity:.7"/>
+    </symbol>
+
+    <!-- Тема 3: додаткові іконки -->
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.5 6h11v10h-11zM13.5 9.5h4l3 3.5V16h-7z"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v15M7 20h10M5 7h14M5 7l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7l-2.5 6a2.5 2.5 0 0 0 5 0z"/><circle cx="12" cy="4" r="1.2"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></symbol>
+    <symbol id="i-fridge" viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M5 10h14M8.5 6v1.5M8.5 13v3"/></symbol>
+    <symbol id="i-sieve" viewBox="0 0 24 24"><path d="M3 9h18l-7 7v5l-4-2v-3z"/><path d="M7 5.5h.01M11 4h.01M15 5.5h.01"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6 8v3M9.5 8v4.5M13 8v3M16.5 8v4.5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6.5h16M9.5 6.5V4h5v2.5M6 6.5l1 14h10l1-14M10 10.5v6M14 10.5v6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></symbol>
+    <symbol id="i-hook" viewBox="0 0 24 24"><path d="M12 2.5v6M12 8.5a4 4 0 1 1-4 4"/><path d="M8 3h8"/></symbol>
+    <symbol id="i-cake" viewBox="0 0 24 24"><path d="M4 20.5h16V13a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2zM4 15.5c2 1.5 4 1.5 5.3 0 1.4 1.5 4 1.5 5.4 0 1.3 1.5 3.3 1.5 5.3 0M12 11V8"/><path d="M12 8c-1 0-1.5-.8-1.5-1.6S12 4 12 4s1.5 1.6 1.5 2.4S13 8 12 8z"/></symbol>
+    <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 11h18a9 7 0 0 1-18 0zM8 21h8"/><path d="M9 8c0-1.2 1-1.2 1-2.5M14 8c0-1.2 1-1.2 1-2.5"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M4.5 9h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM16.5 11h1.5a2.5 2.5 0 0 1 0 5h-1.6"/><path d="M8.5 6c0-1.2 1-1.2 1-2.5M12.5 6c0-1.2 1-1.2 1-2.5"/></symbol>
+    <symbol id="i-jar" viewBox="0 0 24 24"><path d="M7.5 3h9M8 3v2.5c-1.6.9-2.5 2.5-2.5 4.3V19a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V9.8c0-1.8-.9-3.4-2.5-4.3V3"/><path d="M5.5 12.5h13"/></symbol>
+    <symbol id="i-bread" viewBox="0 0 24 24"><path d="M4 11a4 4 0 0 1 3-6.5h10A4 4 0 0 1 20 11v8.5H4z"/><path d="M9 9.5l1.5-2M13 9.5l1.5-2"/></symbol>
+
+    <symbol id="f-potato" viewBox="0 0 100 100">
+      <path d="M18 34C30 12 70 8 86 28C98 44 92 72 72 84C50 96 20 88 10 66C4 54 10 44 18 34Z" style="fill:var(--sa)"/>
+      <g style="fill:var(--sb)"><circle cx="34" cy="38" r="3.2"/><circle cx="62" cy="30" r="2.6"/><circle cx="70" cy="60" r="3.2"/><circle cx="40" cy="68" r="2.6"/><circle cx="52" cy="50" r="2.2"/></g>
+    </symbol>
+    <!-- Тема 4: додаткові іконки -->
+    <symbol id="i-boat" viewBox="0 0 24 24"><path d="M3 10.5h15.5c1.8 0 3-1.2 3-2.5M3 10.5c0 4 3 7 7.5 7S18 15 18.5 10.5M3 10.5L1.5 8.5M8 17.5l-1 3h7l-1-3"/></symbol>
+    <symbol id="i-whisk" viewBox="0 0 24 24"><path d="M14.5 9.5 21 3M14.5 9.5c-3 3-7.5 5.5-10 3s0-7 3-10c3-3 6-2.5 7-1.5s1.5 4.5-.5 7.5zM6 12c-1-2 1.5-6 4.5-8M8.5 13.5c-.5-2.5 2.5-6.5 5-8"/></symbol>
+    <symbol id="i-ladle" viewBox="0 0 24 24"><path d="M20.5 3.5 11 13M11 13a5 5 0 1 1-7 0 5 5 0 0 1 7 0z"/></symbol>
+    <symbol id="i-milk" viewBox="0 0 24 24"><path d="M8 2.5h8M8.5 2.5v3L6 9.5V21h12V9.5l-2.5-4v-3"/><path d="M6 13c2-1.5 4 1.5 6 0s4-1.5 6 0"/></symbol>
+    <symbol id="i-butter" viewBox="0 0 24 24"><path d="M3 15.5 8 10h13v5.5zM3 15.5V19h18v-3.5M8 10V7.5l5-2.5h8V10"/></symbol>
+    <symbol id="i-berry" viewBox="0 0 24 24"><circle cx="8.5" cy="14.5" r="4"/><circle cx="15.5" cy="15.5" r="4"/><path d="M12 10.5c0-3 1-5 3.5-7M12 10.5c-2-2-4-2.5-6-2"/></symbol>
+    <symbol id="i-choc" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M5 9h14M5 15h14M12 3v18"/></symbol>
+    <symbol id="i-sour" viewBox="0 0 24 24"><path d="M5 8h14l-1.5 12.5a1.5 1.5 0 0 1-1.5 1.5H8a1.5 1.5 0 0 1-1.5-1.5zM4 8h16M7.5 8c0-3 2-5 4.5-5s4.5 2 4.5 5"/></symbol>
+    <symbol id="i-bottle" viewBox="0 0 24 24"><path d="M10 2.5h4M10.5 2.5v4.5c-2 1-3 2.5-3 4.5v9.5h9v-9.5c0-2-1-3.5-3-4.5V2.5"/><path d="M7.5 13h9"/></symbol>
+    <symbol id="i-sieve2" viewBox="0 0 24 24"><path d="M3 8.5a9 7 0 0 0 18 0zM21 8.5l2-1M6.5 12h.01M10 13.5h.01M14 13.5h.01M17.5 12h.01M12 15.5v5"/></symbol>
+    <symbol id="i-citrus2" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8.5"/><path d="M12 4.5c0 3 0 6 0 8.5M12 4.5c1-2 2.5-2.5 4-2.5"/></symbol>
+  </defs>
+</svg>
+
+<div class="slides-wrapper" id="deck">
+
+  <!-- Паралакс-фон: 3 шари «продуктів» на різній глибині (генерується в JS) -->
+  <div class="px-bg" id="pxBg" aria-hidden="true"></div>
+
+  <!-- =========================================================
+       1 · ТИТУЛ  (томатна тема)
+       ========================================================= -->
+  <section class="slide" data-theme="tomato">
+    <div class="cover">
+      <div>
+        <div class="kicker anim">Лекція · Тема 4</div>
+        <h1 class="anim" style="font-size:58px">Асортимент і технологія соусів</h1>
+        <div class="hand anim">на бульйонах, молоці, сметані, маслі, олії — і солодких</div>
+        <div class="hint anim">← → · клік · свайп · F — на весь екран</div>
+      </div>
+      <!-- Сотейник із соусом: кожен елемент на своїй «висоті» (data-depth) -->
+      <div class="plate-wrap anim">
+        <div class="saute-handle" data-depth="0.45"></div>
+        <div class="saute" data-depth="0.5"></div>
+        <svg class="sauce-swirl" viewBox="0 0 336 336" data-depth="0.8" aria-hidden="true">
+          <circle cx="168" cy="168" r="150" fill="#C8432A"/>
+          <circle cx="168" cy="168" r="150" fill="url(#t4-sheen)"/>
+          <defs><radialGradient id="t4-sheen" cx="38%" cy="32%" r="70%"><stop offset="0" stop-color="#F07A55" stop-opacity=".9"/><stop offset="1" stop-color="#A8301C" stop-opacity="0"/></radialGradient></defs>
+          <path d="M168 80c50 0 86 36 86 82s-38 78-84 78-74-30-74-66 28-60 62-60 52 22 52 46-18 40-40 40" fill="none" stroke="#FFF1E0" stroke-width="9" stroke-linecap="round" opacity=".9"/>
+        </svg>
+        <div class="food" data-depth="1.4" style="left:116px;top:150px;width:80px;height:80px;rotate:-30deg;--sa:#3E7A4A;--sb:#9CCB98"><svg><use href="#f-leaf"/></svg></div>
+        <div class="food" data-depth="1.7" style="left:300px;top:330px;width:72px;height:72px;rotate:60deg;--sa:#6E8A3A;--sb:#C8D69C"><svg><use href="#f-leaf"/></svg></div>
+        <div class="food" data-depth="2.1" style="left:250px;top:210px;width:22px;height:22px;--sa:#1A100A;--sb:#5A3B2D"><svg><use href="#f-pepper"/></svg></div>
+        <div class="food" data-depth="2.1" style="left:180px;top:330px;width:20px;height:20px;--sa:#1A100A;--sb:#5A3B2D"><svg><use href="#f-pepper"/></svg></div>
+        <div class="food" data-depth="2.1" style="left:330px;top:250px;width:18px;height:18px;--sa:#1A100A;--sb:#5A3B2D"><svg><use href="#f-pepper"/></svg></div>
+        <div class="food" data-depth="2.5" style="left:420px;top:30px;width:140px;height:140px;--sa:#E14B31;--sb:#FFD2C2"><svg><use href="#f-tomato"/></svg></div>
+        <div class="food" data-depth="2.8" style="left:430px;top:400px;width:110px;height:110px;--sa:#F2C94C;--sb:#FFF4D6"><svg><use href="#f-citrus"/></svg></div>
+        <div class="food" data-depth="2.9" style="left:0;top:470px;width:70px;height:70px;rotate:20deg;--sa:#7A3E22;--sb:#C9875E"><svg><use href="#f-anise"/></svg></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       2 · ПЛАН (шість розділів)
+       ========================================================= -->
+  <section class="slide" data-theme="cream">
+    <div class="slide-head"><span class="tag">Зміст лекції</span><span class="slide-no"></span></div>
+    <h2 class="anim">Шість розділів — <span class="acc">шість кольорів</span></h2>
+    <div class="plan-grid six">
+      <div class="plan-tile anim" style="background:var(--c-herb)"><div class="big-num">01</div><div class="ghost"><svg viewBox="0 0 24 24"><use href="#i-boat"/></svg></div><h3>Значення і класифікація соусів</h3></div>
+      <div class="plan-tile anim" style="background:var(--c-tomato)"><div class="big-num">02</div><div class="ghost"><svg viewBox="0 0 24 24"><use href="#i-pot"/></svg></div><h3>Червоні й білі соуси на бульйонах</h3></div>
+      <div class="plan-tile anim" style="background:var(--c-milk)"><div class="big-num">03</div><div class="ghost"><svg viewBox="0 0 24 24"><use href="#i-milk"/></svg></div><h3>Соуси на молоці та сметані</h3></div>
+      <div class="plan-tile anim" style="background:var(--c-plum)"><div class="big-num">04</div><div class="ghost"><svg viewBox="0 0 24 24"><use href="#i-check"/></svg></div><h3>Вимоги до якості й зберігання</h3></div>
+      <div class="plan-tile anim" style="background:var(--c-saffron);color:#2A1A0C"><div class="big-num">05</div><div class="ghost"><svg viewBox="0 0 24 24" style="stroke:#2A1A0C"><use href="#i-butter"/></svg></div><h3>Соуси на маслі, олії, оцті</h3></div>
+      <div class="plan-tile anim" style="background:var(--c-berry)"><div class="big-num">06</div><div class="ghost"><svg viewBox="0 0 24 24"><use href="#i-berry"/></svg></div><h3>Солодкі соуси</h3></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       3 · РОЗДІЛЮВАЧ 01
+       ========================================================= -->
+  <section class="slide" data-theme="herb">
+    <div class="divider">
+      <div>
+        <div class="big-num anim">01</div>
+        <h1 class="anim">Значення і класифікація</h1>
+        <div class="hand anim">навіщо страві соус</div>
+        <div class="inside anim"><span>визначення</span><span>харчова цінність</span><span>5 ознак класифікації</span><span>основні й похідні</span><span>норми й зберігання</span></div>
+      </div>
+      <div class="hero anim" data-depth="1.4"><svg viewBox="0 0 100 100" class="sway" style="--sa:#3E7A4A;--sb:#DDEFD3"><use href="#f-leaf"/></svg></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       4 · ЩО ТАКЕ СОУС І ПОРЦІЯ
+       ========================================================= -->
+  <section class="slide" data-theme="herb-cream">
+    <div class="slide-head"><span class="tag">01 · Значення</span><span class="slide-no"></span></div>
+    <h2 class="anim">Соус — <span class="acc">додатковий компонент страви</span></h2>
+    <div class="grid2" style="grid-template-columns:1.05fr 1fr;align-items:center">
+      <div>
+        <p class="quote-big anim" style="font-size:24px">Компонент з <span class="mark">напіврідкою консистенцією</span>, який використовують під час приготування страви або подають до готової страви, щоб поліпшити її смак і аромат.</p>
+        <div class="anim" style="margin-top:20px">
+          <span class="pill"><span class="stk"><svg><use href="#i-ladle"/></svg></span>поливають основний продукт</span>
+          <span class="pill"><span class="stk"><svg><use href="#i-bowl"/></svg></span>заправляють супи</span>
+          <span class="pill"><span class="stk"><svg><use href="#i-boat"/></svg></span>подають окремо в соуснику</span>
+        </div>
+      </div>
+      <div class="card anim">
+        <span class="label">Порція соусу до страви</span>
+        <div class="boats" style="margin-top:16px">
+          <div><svg width="58" height="44" viewBox="0 0 120 90"><path d="M8 34h86c10 0 18-7 18-14M8 34c0 22 18 38 44 38s40-16 42-38M8 34 2 24" fill="var(--soft)" stroke="var(--accent)" stroke-width="5" stroke-linejoin="round"/></svg><b>25 г</b><span>інколи</span></div>
+          <div><svg width="78" height="58" viewBox="0 0 120 90"><path d="M8 34h86c10 0 18-7 18-14M8 34c0 22 18 38 44 38s40-16 42-38M8 34 2 24" fill="var(--soft)" stroke="var(--accent)" stroke-width="4.5" stroke-linejoin="round"/></svg><b>50 г</b></div>
+          <div><svg width="98" height="74" viewBox="0 0 120 90"><path d="M8 34h86c10 0 18-7 18-14M8 34c0 22 18 38 44 38s40-16 42-38M8 34 2 24" fill="var(--soft)" stroke="var(--accent)" stroke-width="4" stroke-linejoin="round"/></svg><b>75 г</b></div>
+          <div><svg width="118" height="88" viewBox="0 0 120 90"><path d="M8 34h86c10 0 18-7 18-14M8 34c0 22 18 38 44 38s40-16 42-38M8 34 2 24" fill="var(--soft)" stroke="var(--accent)" stroke-width="3.5" stroke-linejoin="round"/></svg><b>100 г</b></div>
+        </div>
+        <p class="small muted" style="margin:14px 0 0">Окремо соус подають у металевих чи фарфорових соусниках, які ставлять поряд зі стравою на тарілочці.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       5 · ЗНАЧЕННЯ: ЧОМУ СОУС ВАЖЛИВИЙ
+       ========================================================= -->
+  <section class="slide" data-theme="herb-cream">
+    <div class="slide-head"><span class="tag">01 · Значення</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Що соус <span class="acc">дає страві</span></h2>
+    <div class="grid4">
+      <div class="card anim"><span class="stk pop"><svg><use href="#i-palette"/></svg></span><h3>Різноманітність</h3><p class="small muted" style="margin:0">урізноманітнює смак і зовнішній вигляд їжі</p></div>
+      <div class="card anim"><span class="stk pop" style="rotate:5deg"><svg><use href="#i-drop"/></svg></span><h3>Соковитість</h3><p class="small muted" style="margin:0">робить страву соковитішою, що полегшує засвоюваність</p></div>
+      <div class="card anim"><span class="stk pop"><svg><use href="#i-bolt"/></svg></span><h3>Енергія</h3><p class="small muted" style="margin:0">вершкове масло, олія, сметана, борошно підвищують енергетичну цінність</p></div>
+      <div class="card anim"><span class="stk pop" style="rotate:4deg"><svg><use href="#i-nose"/></svg></span><h3>Апетит</h3><p class="small muted" style="margin:0">соуси на м'ясних, рибних, грибних бульйонах багаті на екстрактивні речовини</p></div>
+    </div>
+    <span class="label anim" style="display:block;margin:20px 0 10px">Правильні пари</span>
+    <div class="grid3 anim" style="gap:10px">
+      <div class="soft-row"><b>Польський</b> → нежирна відварна тріска, судак: збагачує жирами</div>
+      <div class="soft-row"><b>Сухарний</b> → відварна капуста: енергетична цінність <b>більш як ×2</b></div>
+      <div class="soft-row"><b>Хрін, гірчиця, цибуля</b> → негострі страви: відварна яловичина, свинина</div>
+      <div class="soft-row"><b>Грибні</b> → рисові й картопляні котлети, запіканки, рулети</div>
+      <div class="soft-row"><b>Сметанні</b> → відварна й припущена птиця; зі сметаною й яйцями — овочі</div>
+      <div class="soft-row"><b>Солодкі</b> → страви з борошна, круп, сиру</div>
+    </div>
+    <p class="hand anim" style="margin-top:14px;font-size:22px">тушкування м'яса з гострими соусами переводить колаген у глютин і розм'якшує м'ясо</p>
+  </section>
+
+  <!-- =========================================================
+       6 · КЛАСИФІКАЦІЯ
+       ========================================================= -->
+  <section class="slide" data-theme="herb-cream">
+    <div class="slide-head"><span class="tag">01 · Класифікація</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Як класифікують <span class="acc">соуси</span></h2>
+    <div class="grid3" style="gap:12px">
+      <div class="card anim" style="padding:18px 20px"><span class="label">За способом приготування</span><div style="margin-top:10px"><span class="chip">із загусниками — пасероване борошно, крохмаль</span><span class="chip">без загусників</span></div></div>
+      <div class="card anim" style="padding:18px 20px"><span class="label">За температурою подачі</span>
+        <div class="stat-row" style="padding:8px 0"><span class="stat" style="font-size:24px;color:#C8432A">65–70 °C</span><p>гарячі</p></div>
+        <div class="stat-row" style="padding:8px 0"><span class="stat" style="font-size:24px;color:#2E6F95">10–12 °C</span><p>холодні</p></div></div>
+      <div class="card anim" style="padding:18px 20px"><span class="label">За кольором</span>
+        <div class="row" style="margin-top:12px;gap:18px"><div class="row" style="gap:8px"><i style="width:34px;height:34px;border-radius:50%;background:#B5532A;display:block"></i><b>червоні</b></div><div class="row" style="gap:8px"><i style="width:34px;height:34px;border-radius:50%;background:#F4E8D2;border:2px solid #D8C4A0;display:block"></i><b>білі</b></div></div></div>
+      <div class="card anim" style="padding:18px 20px"><span class="label">За рідкою основою</span><div style="margin-top:10px"><span class="chip">бульйони: м'ясні, рибні, грибні</span><span class="chip">молоко</span><span class="chip">сметана</span><span class="chip">вершкове масло</span><span class="chip">олія</span><span class="chip">оцет</span></div>
+        <p class="small muted" style="margin:4px 0 0">Окрема група — солодкі; для дієтичного харчування — на воді, овочевих і круп'яних відварах.</p></div>
+      <div class="card anim" style="padding:18px 20px"><span class="label">За консистенцією</span>
+        <p class="small" style="margin:10px 0 4px"><b>Рідкі</b> — поливання і тушкування</p>
+        <p class="small" style="margin:0 0 4px"><b>Середньої густини</b> — запікання, овочеві страви, начинки</p>
+        <p class="small" style="margin:0"><b>Густі</b> — фарширування, в'язка основа</p></div>
+      <div class="card anim" style="padding:18px 20px"><span class="label">За технологією</span>
+        <p class="small" style="margin:10px 0 4px"><b>Основні</b> — на певній рідкій основі з максимальною кількістю продуктів</p>
+        <p class="small" style="margin:0"><b>Похідні</b> — основний соус + інші продукти й приправи</p></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       7 · ОСНОВНІ ПРАВИЛА: ПЛІВКА, ЗБЕРІГАННЯ, НОРМИ
+       ========================================================= -->
+  <section class="slide" data-theme="herb-cream">
+    <div class="slide-head"><span class="tag">01 · Загальні правила</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Загальні правила <span class="acc">соусного відділення</span></h2>
+    <div class="grid3" style="gap:14px">
+      <div class="card anim">
+        <span class="stk pop"><svg><use href="#i-butter"/></svg></span><h3>Без плівки</h3>
+        <p class="small muted" style="margin:0 0 8px">На поверхню кладуть шматочок вершкового масла або маргарину — «защипують». Якщо плівка з'явилась — знімають або проціджують.</p>
+        <p class="hand" style="font-size:20px;margin:0">швидко охолоджений, а потім розігрітий соус смачніший за той, що тримали гарячим</p>
+      </div>
+      <div class="card anim">
+        <span class="stk pop" style="rotate:5deg"><svg><use href="#i-fridge"/></svg></span><h3>Охолоджені соуси</h3>
+        <div class="stat" style="font-size:30px;margin:2px 0 8px">0–5 °C · до 3 діб</div>
+        <p class="small muted" style="margin:0">Добре середовище для мікроорганізмів, тому — у холодильній камері, у закритому фарфоровому, керамічному посуді або каструлі з нержавіючої сталі.</p>
+      </div>
+      <div class="card anim">
+        <span class="stk pop"><svg><use href="#i-scale"/></svg></span><h3>Норми на 1 кг соусу</h3>
+        <div class="stat-row" style="padding:6px 0"><span class="stat" style="font-size:22px">10 г</span><p>сіль (молочний — 8 г)</p></div>
+        <div class="stat-row" style="padding:6px 0"><span class="stat" style="font-size:22px">0,5 г</span><p>перець</p></div>
+        <div class="stat-row" style="padding:6px 0"><span class="stat" style="font-size:22px">0,2 г</span><p>лавровий лист; на маринад ще гвоздика 1 г, кориця 1 г</p></div>
+      </div>
+    </div>
+    <div class="equation anim" style="margin:18px 0 0;justify-content:center">
+      <div class="eq-item"><span class="stk sm"><svg><use href="#i-flask"/></svg></span>1 г лимонної кислоти</div><div class="eq-op">=</div>
+      <div class="eq-item"><span class="stk sm"><svg><use href="#i-drop"/></svg></span>8 г лимонного соку</div><div class="eq-op">=</div>
+      <div class="eq-main" style="font-size:16px">20 г лимона</div>
+    </div>
+    <p class="small muted anim" style="text-align:center;margin:8px 0 0">Кислоту розчиняють у теплій перевареній воді 1 : 5 і вводять у готову підливу. Готують у соусному відділенні гарячого цеху: казани, сотейники з товстим дном, копистки, вінчики, сита, цідилки.</p>
+  </section>
+
+  <!-- =========================================================
+       8 · РОЗДІЛЮВАЧ 02
+       ========================================================= -->
+  <section class="slide" data-theme="tomato">
+    <div class="divider">
+      <div>
+        <div class="big-num anim">02</div>
+        <h1 class="anim">Червоні й білі соуси</h1>
+        <div class="hand anim">на м'ясних і рибних бульйонах</div>
+        <div class="inside anim"><span>червоний основний</span><span>7 похідних</span><span>білий на м'ясному</span><span>білий на рибному</span></div>
+      </div>
+      <div class="hero anim" data-depth="1.4"><svg viewBox="0 0 100 100" class="spin" style="--sa:#C93A22;--sb:#FFE3D6"><use href="#f-tomato"/></svg></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       9 · ЧЕРВОНИЙ ОСНОВНИЙ — ТЕХНОЛОГІЯ
+       ========================================================= -->
+  <section class="slide" data-theme="tomato-cream">
+    <div class="slide-head"><span class="tag">02 · Червоний основний</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Соус червоний основний: <span class="acc">крок за кроком</span></h2>
+    <div class="stages5">
+      <svg class="wire" viewBox="0 0 1136 150" preserveAspectRatio="none" aria-hidden="true"><path class="draw" d="M114 75 H1022" fill="none" stroke="#E14B31" stroke-width="3"/></svg>
+      <div class="st5 anim"><div class="disc" style="background:#E8742A"><svg><use href="#i-pan"/></svg></div><div class="n">01 · 10–15 хв</div><h3>Пасерування</h3><p>цибуля, морква, петрушка з жиром + томатне пюре</p></div>
+      <div class="st5 anim"><div class="disc" style="background:#B5532A;rotate:6deg"><svg><use href="#i-whisk"/></svg></div><div class="n">02 · 70–80 °C</div><h3>Пасеровка 1 : 4</h3><p>червону борошняну пасеровку розводять теплим бульйоном</p></div>
+      <div class="st5 anim"><div class="disc" style="background:#C8432A"><svg><use href="#i-pot"/></svg></div><div class="n">03 · 1 год</div><h3>Варіння</h3><p>у киплячий коричневий бульйон + овочі; слабке кипіння</p></div>
+      <div class="st5 anim"><div class="disc" style="background:#8A3A1E;rotate:6deg"><svg><use href="#i-flask"/></svg></div><div class="n">04 · за 10–15 хв</div><h3>Заправлення</h3><p>сіль, цукор, лавровий лист, перець; соус Південний, м'ясний сік</p></div>
+      <div class="st5 anim"><div class="disc" style="background:#5A2A16"><svg><use href="#i-sieve2"/></svg></div><div class="n">05</div><h3>Проціджування</h3><p>протерти овочі й довести до кипіння — для стерилізації</p></div>
+    </div>
+    <div class="grid2 anim" style="margin-top:14px">
+      <div class="soft-row"><b>Чому густішає?</b> Під час варіння крохмаль борошна клейстеризується — соус стає в'язким.</div>
+      <div class="soft-row"><b>Подають</b> до страв з котлетної маси, варених субпродуктів, сосисок, сардельок. Із соусної пасти — 20 хв варіння.</div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       10 · ПОХІДНІ ЧЕРВОНОГО
+       ========================================================= -->
+  <section class="slide" data-theme="tomato-cream">
+    <div class="slide-head"><span class="tag">02 · Похідні червоного</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Сім похідних <span class="acc">червоного соусу</span></h2>
+    <div class="tree">
+      <div class="root anim" style="background:#B5532A"><span class="big-num">Червоний основний</span><p>+ продукти й приправи → похідний соус; варять зазвичай 10–15 хв</p></div>
+      <div class="leaves">
+        <div class="leaf anim"><h3>Цибулевий</h3><p>цибуля на маргарині з оцтом і спеціями · <b>котлетна маса, свинина</b></p></div>
+        <div class="leaf anim"><h3>З цибулею і огірками</h3><p>кислувато-гострий · <b>філе, лангет, січене м'ясо</b></p></div>
+        <div class="leaf anim"><h3>Цибулевий з гірчицею</h3><p>гострий; <b>з гірчицею не кип'ятять</b> · <b>сардельки, ковбаса, шинка</b></p></div>
+        <div class="leaf anim"><h3>З цибулею і грибами</h3><p>сушені гриби, біле вино · <b>смажена дичина, баранина, телятина</b></p></div>
+        <div class="leaf anim"><h3>З корінням</h3><p>морква, цибуля, селера, зелений перець · <b>для тушкування м'яса</b></p></div>
+        <div class="leaf anim"><h3>З вином</h3><p>мадера, мускат, портвейн · <b>смажене м'ясо, свинина, язик</b></p></div>
+        <div class="leaf anim" style="grid-column:span 2"><h3>Кисло-солодкий</h3><p>чорнослив без кісточок, ізюм, оцет · <b>відварне, тушковане м'ясо і птиця</b></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       11 · БІЛІ СОУСИ НА М'ЯСНОМУ БУЛЬЙОНІ
+       ========================================================= -->
+  <section class="slide" data-theme="tomato-cream">
+    <div class="slide-head"><span class="tag">02 · Білі на м'ясному бульйоні</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Білий соус <span class="acc">на м'ясному бульйоні</span></h2>
+    <div class="tree">
+      <div class="root anim" style="background:#C9A97A;color:#2A1A0C"><span class="big-num">Білий основний</span><p>біла жирова пасеровка + гарячий бульйон, петрушка, селера, цибуля; <b>25–30 хв</b>. Заправляють лимонною кислотою і жиром.</p><p>Подають до вареного й припущеного м'яса і птиці.</p></div>
+      <div class="leaves">
+        <div class="leaf anim"><h3>З щавлем</h3><p>щавель припущений, вино або лимонна кислота</p></div>
+        <div class="leaf anim"><h3>Паровий</h3><p>на бульйоні після припускання; біле вино + лимонний сік · <b>відварне м'ясо, птиця, котлети з телятини</b></p></div>
+        <div class="leaf anim"><h3>З яйцем</h3><p>жовтки з маслом на водяній бані 60–70 °C; з'єднують не вище 70 °C · <b>телятина, птиця, дичина</b></p></div>
+        <div class="leaf anim"><h3>Томатний</h3><p>овочі з томатом + білий соус, 25–30 хв · <b>м'ясо, субпродукти, овочі</b></p></div>
+        <div class="leaf anim" style="grid-column:span 2"><h3>Томатний з грибами</h3><p>цибуля, гриби, вино; заправляють маслом або маргарином · <b>варене, смажене м'ясо птиці, котлетна маса</b></p></div>
+      </div>
+    </div>
+    <p class="hand anim" style="margin-top:14px;font-size:21px">білі соуси містять менше екстрактивних речовин, ніж червоні; лимонна кислота поліпшує смак і засвоєння</p>
+  </section>
+
+  <!-- =========================================================
+       12 · БІЛІ СОУСИ НА РИБНОМУ БУЛЬЙОНІ
+       ========================================================= -->
+  <section class="slide" data-theme="tomato-cream">
+    <div class="slide-head"><span class="tag">02 · Білі на рибному бульйоні</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:8px">На рибному бульйоні — <span class="acc">тільки для риби</span></h2>
+    <p class="lead anim" style="margin-bottom:14px">Основа — рибний бульйон і пшеничне борошно, спасероване до світло-кремового кольору на жирі або без нього. Заправляють лимонною кислотою, сухим виноградним вином.</p>
+    <div class="tree">
+      <div class="root anim" style="background:#2E6F95"><span class="big-num">Білий рибний основний</span><p>гаряча пасеровка + гарячий рибний бульйон + біле коріння, цибуля; <b>30 хв</b>, знімаючи піну.</p><p>Для запікання — без коріння і цибулі; для похідних — без кислоти й маргарину.</p></div>
+      <div class="leaves">
+        <div class="leaf anim"><h3>Паровий</h3><p>на концентрованому бульйоні · <b>припущена риба</b></p></div>
+        <div class="leaf anim"><h3>З вином</h3><p>охолодити до 75–80 °C, ввести жовтки з маслом · <b>варена й припущена риба</b></p></div>
+        <div class="leaf anim"><h3>З розсолом</h3><p>прокип'ячений огірковий розсіл, 5–10 хв · <b>варена, припущена риба</b></p></div>
+        <div class="leaf anim"><h3>Томатний</h3><p>як на м'ясному · <b>припущена, смажена, запечена риба</b></p></div>
+        <div class="leaf anim" style="grid-column:span 2"><h3>Томатний з овочами</h3><p>морква, петрушка, цибуля кубиками; вино можна не додавати · <b>варена, припущена, смажена риба, рибна котлетна маса</b></p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       13 · ЧЕРВОНИЙ VS БІЛИЙ
+       ========================================================= -->
+  <section class="slide" data-theme="tomato-cream">
+    <div class="slide-head"><span class="tag">02 · Порівняння</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:18px">Червоний чи білий: <span class="acc">у чому різниця</span></h2>
+    <div class="grid2">
+      <div class="card anim" style="background:#7A2E14;color:#FFF6EA">
+        <div class="row"><span class="stk" style="background:#F2AE2E"><svg style="stroke:#2A1A0C"><use href="#i-pot"/></svg></span><div class="big-num" style="font-size:32px">Червоний</div></div>
+        <div class="stat-row" style="border-color:rgba(255,246,234,.2)"><span class="stat" style="color:#FFD2A6;font-size:22px">пасеровка</span><p>червона борошняна, охолоджена до 70–80 °C, + теплий бульйон 1 : 4</p></div>
+        <div class="stat-row" style="border-color:rgba(255,246,234,.2)"><span class="stat" style="color:#FFD2A6;font-size:22px">бульйон</span><p>коричневий</p></div>
+        <div class="stat-row" style="border-color:rgba(255,246,234,.2)"><span class="stat" style="color:#FFD2A6;font-size:22px">1 год</span><p>варіння при слабкому кипінні</p></div>
+        <div class="stat-row"><span class="stat" style="color:#FFD2A6;font-size:22px">більше</span><p>екстрактивних речовин</p></div>
+      </div>
+      <div class="card anim" style="background:#FBF5EA">
+        <div class="row"><span class="stk" style="background:#C9A97A"><svg style="stroke:#2A1A0C"><use href="#i-pot"/></svg></span><div class="big-num" style="font-size:32px;color:#8A6A3A">Білий</div></div>
+        <div class="stat-row"><span class="stat" style="color:#8A6A3A;font-size:22px">пасеровка</span><p>біла жирова, розводять гарячим бульйоном</p></div>
+        <div class="stat-row"><span class="stat" style="color:#8A6A3A;font-size:22px">бульйон</span><p>концентрований м'ясний або рибний; бульйони після варіння й припускання</p></div>
+        <div class="stat-row"><span class="stat" style="color:#8A6A3A;font-size:22px">25–30 хв</span><p>м'ясний · 30 хв — рибний</p></div>
+        <div class="stat-row"><span class="stat" style="color:#8A6A3A;font-size:22px">лимонна кислота</span><p>для смаку й кращого засвоєння</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       14 · РОЗДІЛЮВАЧ 03
+       ========================================================= -->
+  <section class="slide" data-theme="ice">
+    <div class="divider">
+      <div>
+        <div class="big-num anim">03</div>
+        <h1 class="anim">Соуси на молоці і сметані</h1>
+        <div class="hand anim">ніжні, білі, на вершковому маслі</div>
+        <div class="inside anim"><span>молочний основний</span><span>3 консистенції</span><span>сметанні</span><span>похідні</span></div>
+      </div>
+      <div class="hero anim" data-depth="1.4"><svg viewBox="0 0 100 100" class="spin" style="--sa:#2C6286;--sb:#DCEBF3"><use href="#f-citrus"/></svg></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       15 · МОЛОЧНИЙ СОУС І КОНСИСТЕНЦІЯ
+       ========================================================= -->
+  <section class="slide" data-theme="ice-cream">
+    <div class="slide-head"><span class="tag">03 · Молочні соуси</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:8px">Молочний соус: <span class="acc">густоту дає борошно</span></h2>
+    <p class="lead anim" style="margin-bottom:14px">Біла пасеровка — <b style="color:var(--fg)">тільки на вершковому маслі</b>, без зміни кольору: інші жири дають неприємний смак. Гарячу пасеровку розводять гарячим молоком і варять 7–10 хв у посуді з товстим дном. Сіль — 8 г на 1 кг.</p>
+    <div class="flour">
+      <div class="anim"><div class="jar"><svg viewBox="0 0 120 150" width="110" height="138" aria-hidden="true"><path d="M28 20h64l-4 14c10 6 14 14 14 26v72a10 10 0 0 1-10 10H28a10 10 0 0 1-10-10V60c0-12 4-20 14-26z" fill="var(--bg)" stroke="var(--accent)" stroke-width="3"/><clipPath id="jc50"><path d="M28 20h64l-4 14c10 6 14 14 14 26v72a10 10 0 0 1-10 10H28a10 10 0 0 1-10-10V60c0-12 4-20 14-26z"/></clipPath><rect clip-path="url(#jc50)" x="0" y="95" width="120" height="55" fill="#EAD7B4"/><path clip-path="url(#jc50)" d="M0 95 q15 -6 30 0 t30 0 t30 0 t30 0" fill="#F6EBD6"/><path d="M24 12h72" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/></svg></div><span class="stat">50 г</span><h3>Рідкий</h3><p>поливання овочевих і круп'яних страв</p></div>
+      <div class="anim"><div class="jar"><svg viewBox="0 0 120 150" width="110" height="138" aria-hidden="true"><path d="M28 20h64l-4 14c10 6 14 14 14 26v72a10 10 0 0 1-10 10H28a10 10 0 0 1-10-10V60c0-12 4-20 14-26z" fill="var(--bg)" stroke="var(--accent)" stroke-width="3"/><clipPath id="jc100"><path d="M28 20h64l-4 14c10 6 14 14 14 26v72a10 10 0 0 1-10 10H28a10 10 0 0 1-10-10V60c0-12 4-20 14-26z"/></clipPath><rect clip-path="url(#jc100)" x="0" y="58" width="120" height="92" fill="#EAD7B4"/><path clip-path="url(#jc100)" d="M0 58 q15 -6 30 0 t30 0 t30 0 t30 0" fill="#F6EBD6"/><path d="M24 12h72" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/></svg></div><span class="stat">100 г</span><h3>Середньої густини</h3><p>запікання страв з овочів, м'яса, риби; заправлення варених і припущених овочів</p></div>
+      <div class="anim"><div class="jar"><svg viewBox="0 0 120 150" width="110" height="138" aria-hidden="true"><path d="M28 20h64l-4 14c10 6 14 14 14 26v72a10 10 0 0 1-10 10H28a10 10 0 0 1-10-10V60c0-12 4-20 14-26z" fill="var(--bg)" stroke="var(--accent)" stroke-width="3"/><clipPath id="jc130"><path d="M28 20h64l-4 14c10 6 14 14 14 26v72a10 10 0 0 1-10 10H28a10 10 0 0 1-10-10V60c0-12 4-20 14-26z"/></clipPath><rect clip-path="url(#jc130)" x="0" y="36" width="120" height="114" fill="#EAD7B4"/><path clip-path="url(#jc130)" d="M0 36 q15 -6 30 0 t30 0 t30 0 t30 0" fill="#F6EBD6"/><path d="M24 12h72" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/></svg></div><span class="stat">130 г</span><h3>Густий</h3><p>фарширування; зв'язуюча основа в деяких стравах</p></div>
+    </div>
+    <p class="hand anim" style="text-align:center;margin-top:12px;font-size:22px">борошна на 1 л соусу</p>
+  </section>
+
+  <!-- =========================================================
+       16 · ПОХІДНІ МОЛОЧНОГО І СМЕТАННІ
+       ========================================================= -->
+  <section class="slide" data-theme="ice-cream">
+    <div class="slide-head"><span class="tag">03 · Похідні</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Похідні молочного і <span class="acc">два сметанні основні</span></h2>
+    <div class="grid2" style="grid-template-columns:1fr 1.3fr">
+      <div style="display:grid;gap:12px">
+        <div class="card anim"><span class="label">Молочний з цибулею</span><p class="small" style="margin:6px 0 0">Цибуля на маслі без зміни кольору, припущена під кришкою; 5–10 хв з соусом, протерти. <b>До смаженої баранини.</b></p></div>
+        <div class="card anim"><span class="label">Молочний солодкий</span><p class="small" style="margin:6px 0 0">Цукор і ванілін, 3–5 хв. <b>До круп'яних страв і сирників.</b></p></div>
+        <div class="soft-row anim row"><span class="stk sm"><svg><use href="#i-milk"/></svg></span><p class="small" style="margin:0">Молоко — незбиране або розведене бульйоном чи водою. Соус защипують вершковим маслом, щоб не було плівки.</p></div>
+      </div>
+      <div class="card anim">
+        <div class="row"><span class="stk"><svg><use href="#i-sour"/></svg></span><h3 style="margin:0">Сметанні соуси</h3></div>
+        <div class="grid2" style="gap:12px;margin-top:14px">
+          <div class="soft-row"><b>Натуральний</b><br><span class="small">борошно пасерують <b>без масла</b>, охолоджують, додають масло; зі сметаною — варять 3–5 хв</span></div>
+          <div class="soft-row"><b>На основі білого</b><br><span class="small">у гарячий білий соус додають сметану, сіль; 3–5 хв</span></div>
+        </div>
+        <p class="small muted" style="margin:12px 0 0">На м'ясному бульйоні чи овочевому відварі — до м'ясних і овочевих страв; на рибному — <b style="color:var(--fg)">тільки до рибних</b>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       17 · ПОХІДНІ СМЕТАННОГО
+       ========================================================= -->
+  <section class="slide" data-theme="ice-cream">
+    <div class="slide-head"><span class="tag">03 · Похідні сметанного</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Чотири похідні <span class="acc">сметанного соусу</span></h2>
+    <div class="grid4">
+      <div class="card anim cardv" style="min-height:380px"><span class="stk pop"><svg><use href="#i-nose"/></svg></span><h3>З хріном</h3><p class="small muted">Хрін прогрівають з маслом без зміни кольору, з оцтом і спеціями 3–5 хв, спеції видаляють.</p><div class="vis"><span class="chip">варене м'ясо, язик</span><span class="chip">жирна свинина</span></div></div>
+      <div class="card anim cardv" style="min-height:380px"><span class="stk pop" style="rotate:5deg"><svg><use href="#i-jar"/></svg></span><h3>З томатом</h3><p class="small muted">Томатне пюре уварюють до половини об'єму. Колір — рожевий.</p><div class="vis"><span class="chip">запечені овочеві страви</span></div></div>
+      <div class="card anim cardv" style="min-height:380px"><span class="stk pop"><svg><use href="#i-pan"/></svg></span><h3>З цибулею</h3><p class="small muted">Цибуля соломкою на маслі до розм'якшення, не підрум'янюючи; 7–10 хв, соус Південний.</p><div class="vis"><span class="chip">натуральні смажені страви з м'яса</span></div></div>
+      <div class="card anim cardv" style="min-height:380px"><span class="stk pop" style="rotate:4deg"><svg><use href="#i-pot"/></svg></span><h3>З цибулею і томатом</h3><p class="small muted">Цибуля на маслі + томатне пюре 5–7 хв, потім у соус.</p><div class="vis"><span class="chip">котлетна маса</span><span class="chip">голубці</span></div></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       18 · РОЗДІЛЮВАЧ 04
+       ========================================================= -->
+  <section class="slide" data-theme="plum">
+    <div class="divider">
+      <div>
+        <div class="big-num anim">04</div>
+        <h1 class="anim">Якість і зберігання</h1>
+        <div class="hand anim">колір, консистенція, смак — і скільки тримати</div>
+        <div class="inside anim"><span>вимоги до якості</span><span>дефекти</span><span>водяна баня</span><span>терміни</span></div>
+      </div>
+      <div class="hero anim" data-depth="1.4"><svg viewBox="0 0 100 100" class="sway" style="--sa:#57305F;--sb:#D9B8DF"><use href="#f-mushroom"/></svg></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       19 · ВИМОГИ ДО ЯКОСТІ: КОЛІР І СМАК
+       ========================================================= -->
+  <section class="slide" data-theme="plum-cream">
+    <div class="slide-head"><span class="tag">04 · Вимоги до якості</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Який вигляд має <span class="acc">якісний соус</span></h2>
+    <div class="swatch-row">
+      <div class="swatch anim"><svg viewBox="0 0 200 86" aria-hidden="true"><defs><linearGradient id="sw1" x1="0" x2="1"><stop offset="0" stop-color="#C98A52"/><stop offset=".55" stop-color="#8A4A22"/><stop offset="1" stop-color="#D2722A"/></linearGradient></defs><path d="M10 50C30 18 80 12 120 26s70 8 74 30-40 30-90 26S-6 80 10 50Z" fill="url(#sw1)"/></svg>
+        <h3>Червоні</h3><p>Від світло-коричневого до коричневого з <b>оксамитово-оранжевим</b> відтінком.</p><p>Напіврідкі, злегка в'язкі, еластичні; смак насиченого бульйону, злегка гострий, кисло-солодкий.</p></div>
+      <div class="swatch anim"><svg viewBox="0 0 200 86" aria-hidden="true"><path d="M10 50C30 18 80 12 120 26s70 8 74 30-40 30-90 26S-6 80 10 50Z" fill="#F1E3C6" stroke="#D8C4A0" stroke-width="2"/></svg>
+        <h3>Білі</h3><p>Від білого до <b>світло-кремового</b>, без грудочок, овочі протерті.</p><p>Смак насиченого бульйону з ароматом білого коріння; паровий — кислуватий; томатний — кисло-солодкий.</p></div>
+      <div class="swatch anim"><svg viewBox="0 0 200 86" aria-hidden="true"><path d="M10 50C30 18 80 12 120 26s70 8 74 30-40 30-90 26S-6 80 10 50Z" fill="#FBF6EC" stroke="#E2D8C4" stroke-width="2"/></svg>
+        <h3>Молочні</h3><p>Від білого до світло-кремового, <b>присмак молока</b>.</p><p>Однорідні, еластичні; з цибулею — легкий присмак цибулі, солодкий — аромат ваніліну.</p></div>
+      <div class="swatch anim"><svg viewBox="0 0 200 86" aria-hidden="true"><path d="M10 50C30 18 80 12 120 26s70 8 74 30-40 30-90 26S-6 80 10 50Z" fill="#F7E6D8" stroke="#E2CDBA" stroke-width="2"/><path d="M110 30c40-6 70 6 74 24-30 10-60 8-80-4z" fill="#F2B6A6" opacity=".8"/></svg>
+        <h3>Сметанні</h3><p>Від білого до світло-кремового, <b>з томатом — рожевий</b>.</p><p>Смак і запах сметани з ароматом наповнювачів; в'язкі, напіврідкі.</p></div>
+    </div>
+    <div class="note-w anim" style="margin-top:16px"><b>Не допускається:</b> смак і запах сирого чи підгорілого борошна, сирого томату; клейкість; плівка на поверхні; грудочки борошна; запах лаврового листу і смак оцту; у гірчичному — крупинки гірчиці, що зсілася.</div>
+  </section>
+
+  <!-- =========================================================
+       20 · СКІЛЬКИ ТРИМАТИ (діаграма в JS)
+       ========================================================= -->
+  <section class="slide" data-theme="plum-cream">
+    <div class="slide-head"><span class="tag">04 · Зберігання</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:8px">Скільки соус може <span class="acc">чекати гарячим</span></h2>
+    <p class="lead anim" style="margin-bottom:12px">Гарячі соуси зберігають на водяній бані; молочний соус середньої густини не зберігають узагалі — готують безпосередньо перед використанням.</p>
+    <div class="chart rc anim" data-depth="0.3"><div id="holdChart"></div></div>
+  </section>
+
+  <!-- =========================================================
+       21 · ОХОЛОДЖЕНЕ ЗБЕРІГАННЯ
+       ========================================================= -->
+  <section class="slide" data-theme="plum-cream">
+    <div class="slide-head"><span class="tag">04 · Зберігання</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:18px">А якщо <span class="acc">охолодити?</span></h2>
+    <div class="grid3">
+      <div class="card anim cardv" style="min-height:330px"><span class="stk lg pop"><svg><use href="#i-fridge"/></svg></span><h3 style="font-size:20px">Соуси загалом</h3><div class="stat" style="font-size:30px;margin:4px 0 10px">0–5 °C · до 3 діб</div><p class="small muted" style="margin:0">У закритому фарфоровому, керамічному посуді або каструлі з нержавіючої сталі.</p><div class="vis"><svg viewBox="0 0 200 40" style="width:100%;height:34px"><rect x="2" y="12" width="196" height="16" rx="8" fill="var(--soft)"/><rect x="2" y="12" width="196" height="16" rx="8" fill="var(--accent)"/></svg></div><p class="small muted" style="margin:6px 0 0">3 доби</p></div>
+      <div class="card anim cardv" style="min-height:330px"><span class="stk lg pop" style="rotate:5deg"><svg><use href="#i-jar"/></svg></span><h3 style="font-size:20px">Маринади й соус хрін</h3><div class="stat" style="font-size:30px;margin:4px 0 10px">2–4 °C · 2–3 доби</div><p class="small muted" style="margin:0">У посуді, що не окислюється, з закритою кришкою.</p><div class="vis"><svg viewBox="0 0 200 40" style="width:100%;height:34px"><rect x="2" y="12" width="196" height="16" rx="8" fill="var(--soft)"/><rect x="2" y="12" width="150" height="16" rx="8" fill="var(--accent)"/></svg></div><p class="small muted" style="margin:6px 0 0">2–3 доби</p></div>
+      <div class="card anim cardv" style="min-height:330px"><span class="stk lg pop"><svg><use href="#i-milk"/></svg></span><h3 style="font-size:20px">Густий молочний</h3><div class="stat" style="font-size:30px;margin:4px 0 10px">1 доба</div><p class="small muted" style="margin:0">Охолоджують і зберігають одну добу.</p><div class="vis"><svg viewBox="0 0 200 40" style="width:100%;height:34px"><rect x="2" y="12" width="196" height="16" rx="8" fill="var(--soft)"/><rect x="2" y="12" width="66" height="16" rx="8" fill="var(--accent)"/></svg></div><p class="small muted" style="margin:6px 0 0">1 доба</p></div>
+    </div>
+    <p class="hand anim" style="margin-top:18px;text-align:center">охолоджені соуси — добре середовище для мікроорганізмів, тому лише в холоді й під кришкою</p>
+  </section>
+
+  <!-- =========================================================
+       22 · РОЗДІЛЮВАЧ 05
+       ========================================================= -->
+  <section class="slide" data-theme="saffron">
+    <div class="divider">
+      <div>
+        <div class="big-num anim">05</div>
+        <h1 class="anim">На маслі, олії, оцті</h1>
+        <div class="hand anim">соуси без борошна</div>
+        <div class="inside anim"><span>яєчно-масляні</span><span>Голландський</span><span>масляні суміші</span><span>маринади</span><span>хрін і гірчиця</span></div>
+      </div>
+      <div class="hero anim" data-depth="1.4"><svg viewBox="0 0 100 100" class="spin" style="--sa:#C98A12;--sb:#FFF2C8"><use href="#f-citrus"/></svg></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       23 · ЯЄЧНО-МАСЛЯНІ СОУСИ
+       ========================================================= -->
+  <section class="slide" data-theme="saffron-cream">
+    <div class="slide-head"><span class="tag">05 · Яєчно-масляні</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Яєчно-масляні: <span class="acc">не вище 70 °C</span></h2>
+    <div class="grid3">
+      <div class="card anim cardv" style="min-height:360px"><span class="stk lg pop"><svg><use href="#i-butter"/></svg></span><h3 style="font-size:21px">Польський</h3><p class="small muted">Розтоплене масло + круто зварені січені яйця, зелень петрушки чи кропу, лимонний сік, сіль. Може бути каламутним.</p><div class="vis"><span class="chip">нежирна варена риба</span></div></div>
+      <div class="card anim cardv" style="min-height:360px"><span class="stk lg pop" style="rotate:5deg"><svg><use href="#i-whisk"/></svg></span><h3 style="font-size:21px">Голландський</h3><p class="small muted">Сирі жовтки + холодна вода + ⅓ масла на водяній бані, потім решта масла, сіль, лимонна кислота. З білим соусом — менше жиру, більше стійкості.</p><div class="vis"><span class="chip">варена риба, спаржа, цвітна капуста</span></div></div>
+      <div class="card anim cardv" style="min-height:360px"><span class="stk lg pop"><svg><use href="#i-bread"/></svg></span><h3 style="font-size:21px">Сухарний</h3><p class="small muted">Мелені сухарі підсмажують до світло-золотистого; масло прогрівають до світло-коричневого осаду, проціджують, з'єднують.</p><div class="vis"><span class="chip">відварна капуста, артишоки, спаржа</span></div></div>
+    </div>
+    <div class="grid2 anim" style="margin-top:14px">
+      <div class="soft-row"><b>Щоб жовтки не зсілися</b> — перед проварюванням у суміш вливають холодну воду і безперервно помішують.</div>
+      <div class="soft-row"><b>Голландський з оцтом</b> — до лангета, філе; <b>з гірчицею</b> — до смаженої осетрини. Лимонної кислоти — 1–2 г на 1 кг.</div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       24 · МАСЛЯНІ СУМІШІ
+       ========================================================= -->
+  <section class="slide" data-theme="saffron-cream">
+    <div class="slide-head"><span class="tag">05 · Масляні суміші</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:10px">Масляні суміші: <span class="acc">шматочки по 10–15 г</span></h2>
+    <p class="lead anim" style="margin-bottom:12px">Вершкове масло, розтерте з наповнювачем, формують, охолоджують і нарізають. Для бутербродів, страв з яєць і овочевих гарячих страв.</p>
+    <div class="shapes anim" style="margin-bottom:16px">
+      <div><svg viewBox="0 0 54 54"><circle cx="27" cy="27" r="22" fill="#F7DC8A" stroke="#D9B44A" stroke-width="2"/></svg>кружальце</div>
+      <div><svg viewBox="0 0 54 54"><rect x="6" y="14" width="42" height="26" rx="3" fill="#F7DC8A" stroke="#D9B44A" stroke-width="2"/></svg>прямокутник</div>
+      <div><svg viewBox="0 0 54 54"><path d="M27 4 50 27 27 50 4 27Z" fill="#F7DC8A" stroke="#D9B44A" stroke-width="2"/></svg>ромб</div>
+      <div><svg viewBox="0 0 54 54"><path d="M27 6c12 0 20 9 20 21s-8 21-20 21S7 39 7 27 15 6 27 6Z" fill="#F7DC8A" stroke="#D9B44A" stroke-width="2"/><path d="M27 8v38" stroke="#D9B44A" stroke-width="2"/></svg>горішок</div>
+      <div><svg viewBox="0 0 54 54"><circle cx="27" cy="27" r="20" fill="#F7DC8A" stroke="#D9B44A" stroke-width="2"/><circle cx="20" cy="20" r="5" fill="#FFF4D0"/></svg>кулька</div>
+      <div><svg viewBox="0 0 54 54"><g fill="#F7DC8A" stroke="#D9B44A" stroke-width="2"><circle cx="27" cy="13" r="9"/><circle cx="40" cy="25" r="9"/><circle cx="35" cy="40" r="9"/><circle cx="19" cy="40" r="9"/><circle cx="14" cy="25" r="9"/></g><circle cx="27" cy="28" r="6" fill="#E8A33D"/></svg>квітка</div>
+    </div>
+    <div class="grid3" style="gap:10px">
+      <div class="leaf anim"><h3>Масло зелене</h3><p>зелень петрушки, лимонна кислота · <b>антрекот, риба фрі</b></p></div>
+      <div class="leaf anim"><h3>Масло кількове</h3><p>протерте філе кільки · <b>бутерброди, рибне асорті, млинці</b></p></div>
+      <div class="leaf anim"><h3>Масло з гірчицею</h3><p>брусочки · <b>сандвічі, канапе</b></p></div>
+      <div class="leaf anim"><h3>Масло сирне</h3><p>тертий рокфор · <b>закуски, бутерброди</b></p></div>
+      <div class="leaf anim"><h3>Масло рожеве</h3><p>томатне пюре · <b>бутерброди</b></p></div>
+      <div class="leaf anim"><h3>Паста жовткова</h3><p>протерті варені жовтки · <b>канапе, бенкетні страви</b></p></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       25 · МАРИНАДИ, ХРІН, ГІРЧИЦЯ
+       ========================================================= -->
+  <section class="slide" data-theme="saffron-cream">
+    <div class="slide-head"><span class="tag">05 · На оцті</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:16px">Маринади, хрін і <span class="acc">гірчиця</span></h2>
+    <div class="grid3">
+      <div class="card anim">
+        <span class="stk pop"><svg><use href="#i-fish"/></svg></span><h3>Маринад овочевий</h3>
+        <p class="small muted" style="margin:0 0 8px">Морква, петрушка, селера, багато цибулі на олії + рибний бульйон, оцет, 15–20 хв. З томатом або без (тоді — крохмаль чи борошно для загустіння).</p>
+        <div class="shapes" style="gap:8px;margin-bottom:8px">
+          <div><svg viewBox="0 0 54 54" style="width:38px;height:38px"><rect x="8" y="24" width="38" height="6" rx="3" fill="#E8742A"/></svg>соломка</div>
+          <div><svg viewBox="0 0 54 54" style="width:38px;height:38px"><circle cx="27" cy="27" r="16" fill="#E8742A"/><circle cx="27" cy="27" r="6" fill="#FFD2A6"/></svg>кружальце</div>
+          <div><svg viewBox="0 0 54 54" style="width:38px;height:38px"><path d="M27 6l6 14 15 1-12 9 4 15-13-8-13 8 4-15-12-9 15-1z" fill="#E8742A"/></svg>зірочка</div>
+          <div><svg viewBox="0 0 54 54" style="width:38px;height:38px"><circle cx="27" cy="27" r="13" fill="#E8742A"/><g stroke="#E8742A" stroke-width="7"><path d="M27 6v8M27 40v8M6 27h8M40 27h8M12 12l6 6M36 36l6 6M12 42l6-6M36 18l6-6"/></g></svg>шестерня</div>
+        </div>
+        <p class="hand" style="font-size:19px;margin:0">гарячим маринадом заливають рибу з різким запахом</p>
+      </div>
+      <div class="card anim">
+        <span class="stk pop" style="rotate:5deg"><svg><use href="#i-nose"/></svg></span><h3>Соус хрін</h3>
+        <p class="small muted" style="margin:0 0 8px">Натертий хрін заливають окропом, охолоджують під кришкою, додають оцет і цукор. Можна з вареними тертими буряками або зі сметаною.</p>
+        <span class="chip">холодні м'ясні й рибні страви</span><span class="chip">відварне порося, холодець</span>
+        <p class="small" style="margin:8px 0 0"><b>Якість:</b> однорідний, білий, гострий, кисло-солодкий.</p>
+      </div>
+      <div class="card anim">
+        <span class="stk pop"><svg><use href="#i-jar"/></svg></span><h3>Гірчиця звичайна</h3>
+        <div class="stat-row" style="padding:7px 0"><span class="stat" style="font-size:22px">окріп</span><p>заварити порошок до густої маси</p></div>
+        <div class="stat-row" style="padding:7px 0"><span class="stat" style="font-size:22px">12 год</span><p>під холодною водою — до зникнення гіркості</p></div>
+        <div class="stat-row" style="padding:7px 0"><span class="stat" style="font-size:22px">1 доба</span><p>дозрівання після заправлення</p></div>
+        <p class="small muted" style="margin:6px 0 0">Цукор, сіль, олія, ароматизований оцет, відвар кориці й гвоздики. Колір — жовтий.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       26 · РОЗДІЛЮВАЧ 06
+       ========================================================= -->
+  <section class="slide" data-theme="berry">
+    <div class="divider">
+      <div>
+        <div class="big-num anim">06</div>
+        <h1 class="anim">Солодкі соуси</h1>
+        <div class="hand anim">до десертів, запіканок і пудингів</div>
+        <div class="inside anim"><span>основа</span><span>загусник</span><span>яблучний</span><span>абрикосовий</span><span>журавлинний</span><span>шоколадний</span></div>
+      </div>
+      <div class="hero anim" data-depth="1.4"><svg viewBox="0 0 100 100" class="spin" style="--sa:#9E2C52;--sb:#FFE0EA"><use href="#f-tomato"/></svg></div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       27 · СОЛОДКІ СОУСИ
+       ========================================================= -->
+  <section class="slide" data-theme="berry-cream">
+    <div class="slide-head"><span class="tag">06 · Солодкі соуси</span><span class="slide-no"></span></div>
+    <h2 class="anim" style="margin-bottom:14px">Чотири <span class="acc">солодкі соуси</span></h2>
+    <div class="equation anim" style="margin-bottom:16px">
+      <div class="eq-item"><span class="stk sm"><svg><use href="#i-berry"/></svg></span>фрукти, ягоди, соки,<br>пюре, сиропи, молоко</div><div class="eq-op">+</div>
+      <div class="eq-item"><span class="stk sm"><svg><use href="#i-cake"/></svg></span>цукор, ванілін, какао,<br>кориця, лимонна кислота</div><div class="eq-op">+</div>
+      <div class="eq-main" style="font-size:16px">картопляний крохмаль<br>або борошно</div>
+    </div>
+    <div class="grid4">
+      <div class="card anim cardv" style="min-height:300px"><span class="stk pop" style="background:#9AB94A"><svg><use href="#i-apple"/></svg></span><h3>Яблучний</h3><p class="small muted">Яблука припускають, протирають, з відваром, цукром, лимонною кислотою; крохмаль; кориця.</p><div class="vis"><span class="chip">запіканки, пудинги, млинці, грінки</span></div></div>
+      <div class="card anim cardv" style="min-height:300px"><span class="stk pop" style="background:#E8962A;rotate:5deg"><svg><use href="#i-citrus2"/></svg></span><h3>Абрикосовий</h3><p class="small muted">Свіжі — під цукром 3–4 год, проварюють 5–8 хв; або курага. Лимонна кислота 1 г на 1 кг.</p><div class="vis"><span class="chip">каша гур'євська, пудинги, яблука в тісті</span></div></div>
+      <div class="card anim cardv" style="min-height:300px"><span class="stk pop" style="background:#B5355E"><svg><use href="#i-berry"/></svg></span><h3>Журавлинний</h3><p class="small muted">Сік вичавлюють; вичавки варять 5–8 хв; сироп + крохмаль, а <b style="color:var(--fg)">сік вливають наприкінці</b>.</p><div class="vis"><span class="chip">круп'яні страви, бісквіти, пудинги</span></div></div>
+      <div class="card anim cardv" style="min-height:300px"><span class="stk pop" style="background:#5A3424;rotate:4deg"><svg><use href="#i-choc"/></svg></span><h3>Шоколадний</h3><p class="small muted">Какао з цукром + гаряче розведене згущене молоко, проціджують, охолоджують; ванілін — в охолоджений.</p><div class="vis"><span class="chip">солодкі страви</span></div></div>
+    </div>
+    <p class="small muted anim" style="margin-top:12px"><b style="color:var(--fg)">Якість:</b> однорідні, без грудочок завареного крохмалю; солодкі, з ароматом компонентів. Подають холодними й гарячими.</p>
+  </section>
+
+  <!-- =========================================================
+       28 · ФІНАЛ — головне
+       ========================================================= -->
+  <section class="slide" data-theme="cream">
+    <div class="slide-head"><span class="tag">Підсумок</span><span class="slide-no"></span></div>
+    <h2 class="anim">Головне з <span class="acc">лекції</span></h2>
+    <div class="sum-grid six">
+      <div class="sum anim" style="background:var(--c-herb)"><div class="big-num">01</div><h3>Класифікація</h3><p>Порція 50–100 г. Гарячі 65–70 °C, холодні 10–12 °C; червоні й білі; основні й похідні.</p></div>
+      <div class="sum anim" style="background:var(--c-tomato)"><div class="big-num">02</div><h3>На бульйонах</h3><p>Червоний: пасеровка 1:4, 1 год. Білий: 25–30 хв, лимонна кислота. Рибні — тільки до риби.</p></div>
+      <div class="sum anim" style="background:var(--c-milk)"><div class="big-num">03</div><h3>Молоко, сметана</h3><p>Пасеровка лише на вершковому маслі; борошно 50 / 100 / 130 г на 1 л.</p></div>
+      <div class="sum anim" style="background:var(--c-plum)"><div class="big-num">04</div><h3>Якість</h3><p>Без грудочок і плівки; водяна баня 80 °C 3–4 год; охолоджені 0–5 °C до 3 діб.</p></div>
+      <div class="sum anim" style="background:var(--c-saffron);color:#2A1A0C"><div class="big-num">05</div><h3>Масло, оцет</h3><p>Яєчно-масляні не вище 70 °C; суміші по 10–15 г; гірчиця 12 год + доба.</p></div>
+      <div class="sum anim" style="background:var(--c-berry)"><div class="big-num">06</div><h3>Солодкі</h3><p>Фрукти, ягоди, молоко + цукор; загусник — крохмаль; без грудочок.</p></div>
+    </div>
+    <div class="thanks anim">
+      <span class="hand">Дякую за увагу!</span>
+      <svg width="120" height="60" viewBox="0 0 120 60" aria-hidden="true"><path class="arrow-hand draw" d="M6 40C30 6 62 6 74 30C82 48 100 50 114 36M104 30l10 6-6 11"/></svg>
+    </div>
+  </section>
+
+  <!-- Навігація -->
+  <div class="progress" id="progress"></div>
+  <nav class="slide-dots" id="dots" aria-label="Навігація слайдами"></nav>
+  <div class="nav-btns">
+    <button id="prevBtn" aria-label="Попередній слайд">←</button>
+    <button id="nextBtn" aria-label="Наступний слайд">→</button>
+    <button id="fsBtn" aria-label="На весь екран (F)" title="На весь екран (F)">⛶</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+/* =========================================================
+   МАСШТАБУВАННЯ: полотно 1280×720 масштабується цілком
+   ========================================================= */
+const SLIDE_W = 1280, SLIDE_H = 720;
+const deck = document.getElementById('deck');
+function scaleToViewport() {
+  const s = Math.min(window.innerWidth / SLIDE_W, window.innerHeight / SLIDE_H);
+  deck.style.transform = `scale(${s})`;
+  deck.style.transformOrigin = '0 0';
+  deck.style.left = (window.innerWidth - SLIDE_W * s) / 2 + 'px';
+  deck.style.top = (window.innerHeight - SLIDE_H * s) / 2 + 'px';
+}
+window.addEventListener('resize', scaleToViewport);
+document.addEventListener('fullscreenchange', scaleToViewport);
+scaleToViewport();
+
+// ?static у адресі — без анімацій (для друку/скріншотів)
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches || location.search.includes('static');
+const hasGsap = typeof gsap !== 'undefined';
+if (reduceMotion) document.documentElement.style.transition = 'none';   // теми змінюються миттєво
+const NS = 'http://www.w3.org/2000/svg';
+
+/* =========================================================
+   ГЕНЕРАТОРИ ДІАГРАМ (тема 4)
+   ========================================================= */
+if (location.search.includes('static')) document.documentElement.classList.add('static');
+
+/* Горизонтальні смуги-діапазони.
+   rows: [назва, пояснення, від, до, підпис]
+   o: {min, max, ticks:[[значення, підпис]], color(row, i), mark:[значення, текст], left} */
+function rangeChart(id, rows, o) {
+  const el = document.getElementById(id); if (!el) return;
+  const W = 1000, rowH = o.rowH || 54, top = o.mark ? 34 : 10, left = o.left || 330, right = 24, H = top + rows.length * rowH + 32;
+  const x = v => left + (v - o.min) / (o.max - o.min) * (W - left - right);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label || 'Діаграма'}">`;
+  o.ticks.forEach(([v, t]) => {
+    s += `<line x1="${x(v)}" x2="${x(v)}" y1="${top - 6}" y2="${H - 28}" class="tc-grid"/>` +
+         `<text x="${x(v)}" y="${H - 8}" text-anchor="middle" class="tc-ax">${t}</text>`;
+  });
+  rows.forEach((r, i) => {
+    const [name, sub, a, b, lab] = r, y = top + i * rowH + 4;
+    s += `<text x="0" y="${y + 18}" class="tc-t">${name}</text><text x="0" y="${y + 38}" class="tc-s">${sub}</text>`;
+    const x0 = x(a), x1 = Math.max(x(b), x0 + 16);
+    s += `<rect class="grow" x="${x0}" y="${y + 6}" width="${x1 - x0}" height="30" rx="15" fill="${o.color(r, i)}"/>`;
+    if (r[5]) s += `<rect x="${x(r[5])}" y="${y + 6}" width="${x1 - x(r[5])}" height="30" rx="15" fill="#fff" opacity=".28"/>`;
+    if (x1 - x0 > 250 && !r[5]) s += `<text x="${x1 - 14}" y="${y + 27}" text-anchor="end" class="tc-in">${lab}</text>`;
+    else               s += `<text x="${x1 + 12}" y="${y + 27}" class="tc-v">${lab}</text>`;
+  });
+  el.innerHTML = s + '</svg>';
+}
+
+// Слайд 20 — скільки соус можна тримати гарячим (години); 6-й елемент — початок «діапазону»
+rangeChart('holdChart', [
+  ['Червоні соуси',               'водяна баня · 80 °C',            0, 4,    '80 °C · 3–4 год', 3],
+  ['Білі на м’ясному й рибному', 'водяна баня · 80 °C',        0, 3,    '80 °C · 3 год'],
+  ['Сметанні соуси',              'з моменту приготування',         0, 2,    '75 °C · ≤ 2 год'],
+  ['Польський і сухарний',        'яєчно-масляні',                  0, 2,    '75 °C · до 2 год'],
+  ['Молочні рідкі',               'гарячими',                       0, 1.5,  '60–70 °C · 1–1,5 год', 1],
+  ['Голландський',                'найменш стійкий',                0, 0.67, '30–40 хв', 0.5],
+  ['Молочні середньої густини',   'готують перед використанням',    0, 0,    'не зберігають']
+], { min: 0, max: 5.4, ticks: [[0, '0'], [1, '1 год'], [2, '2 год'], [3, '3 год'], [4, '4 год']], rowH: 52, left: 360,
+     color: (r, i) => ['#B5532A', '#C9A97A', '#E2A98F', '#E3B33D', '#7FAECB', '#D99A2B', '#B9A9B6'][i], label: 'Терміни гарячого зберігання соусів' });
+
+/* =========================================================
+   НАВІГАЦІЯ
+   ========================================================= */
+const slides = [...document.querySelectorAll('.slide')];
+let current = 0;
+slides.forEach((s, i) => { const no = s.querySelector('.slide-no'); if (no) no.textContent = String(i + 1).padStart(2, '0') + ' / ' + slides.length; });
+
+const dotsNav = document.getElementById('dots');
+slides.forEach((_, i) => {
+  const d = document.createElement('button');
+  d.className = 'dot';
+  d.setAttribute('aria-label', 'Слайд ' + (i + 1));
+  d.addEventListener('click', e => { e.stopPropagation(); goToSlide(i); });
+  dotsNav.appendChild(d);
+});
+function updateChrome() {
+  document.querySelectorAll('.slide-dots .dot').forEach((d, i) => d.classList.toggle('active', i === current));
+  document.getElementById('progress').style.width = ((current + 1) / slides.length * 100) + '%';
+  document.documentElement.dataset.theme = slides[current].dataset.theme;   // перемикання кольорової теми
+}
+
+// Анімація появи вмісту слайда
+function animateIn(slide) {
+  if (!hasGsap || reduceMotion) return;
+  gsap.fromTo(slide.querySelectorAll('.anim'), { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: .7, stagger: .08, ease: 'power3.out', delay: .15 });
+  gsap.fromTo(slide.querySelectorAll('.pop'), { scale: 0, transformOrigin: '50% 50%' }, { scale: 1, duration: .55, stagger: .05, ease: 'back.out(2.2)', delay: .45 });
+  slide.querySelectorAll('.draw').forEach(p => {
+    if (!p.getTotalLength) return;
+    const L = p.getTotalLength();
+    gsap.fromTo(p, { strokeDasharray: L, strokeDashoffset: L }, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut', delay: .4 });
+  });
+  const grows = slide.querySelectorAll('.grow');
+  if (grows.length) gsap.fromTo(grows, { scaleX: 0 }, { scaleX: 1, transformOrigin: 'left center', duration: 1.1, stagger: .12, ease: 'power3.out', delay: .5 });
+  // віяло документів розкривається
+  const fan = slide.querySelectorAll('.fan-card');
+  if (fan.length) gsap.fromTo(fan, { y: 140, opacity: 0 }, { y: 0, opacity: 1, duration: .7, stagger: .09, ease: 'back.out(1.4)', delay: .3 });
+}
+
+function goToSlide(i) {
+  if (i < 0 || i >= slides.length || i === current) return;
+  const prev = slides[current], next = slides[i];
+  const dir = i > current ? 1 : -1;
+  current = i;
+  if (hasGsap && !reduceMotion) {
+    gsap.killTweensOf([prev, next]);
+    gsap.to(prev, { opacity: 0, x: -70 * dir, duration: .4, ease: 'power2.in', onComplete: () => { prev.classList.remove('active'); gsap.set(prev, { x: 0 }); } });
+    next.classList.add('active');
+    gsap.fromTo(next, { opacity: 0, x: 70 * dir }, { opacity: 1, x: 0, duration: .75, ease: 'power3.out' });
+  } else {
+    prev.classList.remove('active'); prev.style.opacity = 0;
+    next.classList.add('active'); next.style.opacity = 1;
+  }
+  animateIn(next);
+  updateChrome();
+  moveLayers();
+}
+const nextSlide = () => goToSlide(current + 1);
+const prevSlide = () => goToSlide(current - 1);
+
+document.addEventListener('keydown', e => {
+  if (['ArrowRight', 'PageDown', ' '].includes(e.key)) { e.preventDefault(); nextSlide(); }
+  if (['ArrowLeft', 'PageUp'].includes(e.key)) { e.preventDefault(); prevSlide(); }
+  if (e.key === 'Home') goToSlide(0);
+  if (e.key === 'End') goToSlide(slides.length - 1);
+  // F — повноекранний режим. e.code — фізична клавіша, тож працює на будь-якій розкладці (укр/рос «А»)
+  if (e.code === 'KeyF' && !e.ctrlKey && !e.metaKey && !e.altKey) { e.preventDefault(); toggleFullscreen(); }
+});
+function toggleFullscreen() {
+  const el = document.documentElement;
+  if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+    (el.requestFullscreen || el.webkitRequestFullscreen)?.call(el);
+  } else {
+    (document.exitFullscreen || document.webkitExitFullscreen)?.call(document);
+  }
+}
+document.getElementById('fsBtn').addEventListener('click', e => { e.stopPropagation(); toggleFullscreen(); });
+document.addEventListener('webkitfullscreenchange', scaleToViewport);
+document.addEventListener('click', e => {
+  if (e.target.closest('button, a, input, [data-no-nav]')) return;
+  e.clientX > window.innerWidth / 2 ? nextSlide() : prevSlide();
+});
+let touchX = 0;
+document.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+document.addEventListener('touchend', e => { const d = touchX - e.changedTouches[0].clientX; if (Math.abs(d) > 50) d > 0 ? nextSlide() : prevSlide(); }, { passive: true });
+let wheelLock = false;
+document.addEventListener('wheel', e => {
+  if (wheelLock || Math.abs(e.deltaY) < 10) return;
+  wheelLock = true; setTimeout(() => wheelLock = false, 800);
+  e.deltaY > 0 ? nextSlide() : prevSlide();
+}, { passive: true });
+document.getElementById('nextBtn').addEventListener('click', e => { e.stopPropagation(); nextSlide(); });
+document.getElementById('prevBtn').addEventListener('click', e => { e.stopPropagation(); prevSlide(); });
+
+/* =========================================================
+   ПАРАЛАКС
+   1) Три шари «продуктів» за слайдами. Далекий — дрібний і розмитий
+      (як мала глибина різкості у фуд-фото), ближній — великий і чіткий.
+      Під час гортання шари зсуваються з різною швидкістю.
+   2) Шари й декор слайдів (data-depth) м'яко реагують на мишу / нахил.
+   ========================================================= */
+const PX_SLIDE_TRAVEL = 55;   // зсув фону на 1 слайд (× depth шару)
+const PX_BG_MOUSE     = 45;   // сила реакції фону на мишу
+const PX_FG_MOUSE     = 14;   // сила реакції елементів слайдів на мишу
+
+function seeded(seed) { return () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; }; }
+const rnd = seeded(7331);
+const FOODS = ['f-citrus', 'f-tomato', 'f-leaf', 'f-anise', 'f-pepper', 'f-chili', 'f-mushroom', 'f-carrot'];
+const SPIN = ['f-citrus', 'f-anise', 'f-carrot', 'f-tomato'];
+
+const pxBg = document.getElementById('pxBg');
+const LAYERS = [], floaters = [], spinners = [];
+function makeLayer(depth, count, sizeMin, sizeMax, blur, edgeOnly) {
+  const layer = document.createElement('div');
+  layer.className = 'px-layer';
+  pxBg.appendChild(layer);
+  LAYERS.push({ el: layer, depth });
+  for (let k = 0; k < count; k++) {
+    const id = FOODS[Math.floor(rnd() * FOODS.length)];
+    const s = sizeMin + rnd() * (sizeMax - sizeMin) * (id === 'f-pepper' ? .35 : 1);
+    const x = (k + rnd() * .8) * (2800 / count);
+    // ближній шар — лише біля верхнього/нижнього краю, щоб не заважати змісту
+    const y = edgeOnly ? (k % 2 ? 690 + rnd() * 120 : -40 + rnd() * 110) : rnd() * 820;
+    const d = document.createElement('div');
+    d.className = 'px-shape';
+    d.style.cssText = `left:${x}px;top:${y}px;width:${s}px;height:${s}px;rotate:${Math.floor(rnd() * 360)}deg;` + (blur ? `filter:blur(${blur}px);` : '');
+    d.innerHTML = `<svg viewBox="0 0 100 100"><use href="#${id}"/></svg>`;
+    layer.appendChild(d);
+    floaters.push(d);
+    if (SPIN.includes(id)) spinners.push(d);
+  }
+}
+makeLayer(0.3, 16, 50, 100, 2.5, false);   // далекий: дрібні, розмиті
+makeLayer(0.65, 12, 110, 190, 0, false);   // середній
+makeLayer(1.15, 10, 210, 330, 0, true);    // ближній: великі, біля країв
+
+// Декор у слайдах, що реагує на мишу: [селектор, глибина]
+const PX_TARGETS = [
+  ['.divider .big-num', 0.5], ['.plan-tile .ghost', 1.4], ['.eq-main', 0.4], ['.donut', 0.6],
+  ['.chevrons', 0.3], ['.stamp', 1.2], ['.ring svg', 0.4], ['.ring .center', 0.9], ['.pr .wm', 1.3],
+  ['.dice svg', 0.8], ['.sum .big-num', 0.6], ['.slide h2', 0.12], ['.cover > div:first-child', 0.2]
+];
+PX_TARGETS.forEach(([sel, d]) => document.querySelectorAll(sel).forEach(el => { if (!el.dataset.depth) el.dataset.depth = d; }));
+const slideDepthEls = slides.map(s => [...s.querySelectorAll('[data-depth]')]);
+
+function moveLayers(instant) {
+  LAYERS.forEach(({ el, depth }) => {
+    const x = -current * PX_SLIDE_TRAVEL * depth;
+    if (hasGsap && !reduceMotion && !instant) gsap.to(el, { x, duration: 1.2, ease: 'power3.out' });
+    else el.style.transform = `translateX(${x}px)`;
+  });
+}
+
+if (!reduceMotion) {
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  window.addEventListener('mousemove', e => {
+    tx = (e.clientX / window.innerWidth - .5) * 2;
+    ty = (e.clientY / window.innerHeight - .5) * 2;
+  }, { passive: true });
+  document.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
+  window.addEventListener('deviceorientation', e => {
+    if (e.gamma == null) return;
+    tx = Math.max(-1, Math.min(1, e.gamma / 25));
+    ty = Math.max(-1, Math.min(1, (e.beta - 45) / 25));
+  });
+  (function tick() {
+    cx += (tx - cx) * .06; cy += (ty - cy) * .06;
+    LAYERS.forEach(({ el, depth }) => { el.style.translate = `${(-cx * PX_BG_MOUSE * depth).toFixed(2)}px ${(-cy * PX_BG_MOUSE * depth).toFixed(2)}px`; });
+    slideDepthEls[current].forEach(el => { const d = +el.dataset.depth; el.style.translate = `${(-cx * PX_FG_MOUSE * d).toFixed(2)}px ${(-cy * PX_FG_MOUSE * d).toFixed(2)}px`; });
+    requestAnimationFrame(tick);
+  })();
+
+  if (hasGsap) {
+    // продукти повільно пливуть і обертаються
+    floaters.forEach(f => gsap.to(f, { y: -(12 + rnd() * 26), duration: 3 + rnd() * 4, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: rnd() * 3 }));
+    spinners.forEach(f => gsap.to(f, { rotation: (rnd() > .5 ? 360 : -360), duration: 90 + rnd() * 80, repeat: -1, ease: 'none' }));
+    // великі ілюстрації на розділювачах
+    gsap.utils.toArray('.hero .spin').forEach(h => gsap.to(h, { rotation: 360, duration: 120, repeat: -1, ease: 'none', transformOrigin: '50% 50%' }));
+    gsap.utils.toArray('.hero .sway').forEach(h => gsap.to(h, { rotation: 12, duration: 4, repeat: -1, yoyo: true, ease: 'sine.inOut', transformOrigin: '50% 100%' }));
+    // продукти на тарілці злегка «дихають»
+    gsap.utils.toArray('.plate-wrap .food').forEach((f, k) => gsap.to(f, { y: -6 - (k % 3) * 3, duration: 2.5 + k * .3, repeat: -1, yoyo: true, ease: 'sine.inOut' }));
+      }
+}
+
+/* =========================================================
+   СТАРТ (можна відкрити потрібний слайд: index.html#7)
+   ========================================================= */
+const startAt = Math.min(Math.max((parseInt(location.hash.slice(1), 10) || 1) - 1, 0), slides.length - 1);
+current = startAt;
+slides[startAt].classList.add('active');
+updateChrome();
+moveLayers(true);
+animateIn(slides[startAt]);
+</script>
+</body>
+</html>

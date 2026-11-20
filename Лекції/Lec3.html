@@ -1,0 +1,2132 @@
+<!DOCTYPE html><html lang="uk" data-sec="map"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"><style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+<title>Тема 3 · Стадії процесу</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Caveat:wght@600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Структура: HUD → hero → липкі вкладки → одна активна панель-розділ.
+   Усередині розділу: шапка → зміст (праворуч / згори на мобільних) → тематичні групи → нумеровані блоки → висновок.
+   Стиль «Food-постер»: кожен розділ має свій кулінарний колір (--acc), фон — паперовий зошит у клітинку з паралаксом продуктів. */
+
+/* акцент активного розділу плавно перетікає */
+@property --acc { syntax:'<color>'; inherits:true; initial-value:#E14B31; }
+
+:root{
+  --bg:#F7EEDF; --bg-panel:#FFFCF6; --bg-soft:#F8EFE2; --grid:rgba(140,80,30,.06);
+  --ink:#2A1A12; --ink-soft:#6F5444; --on-acc:#ffffff;
+  --tomato:#E14B31; --herb:#2F7A4A; --saffron:#C98000; --saffron-fill:#F2AE2E; --plum:#7B3F86;
+  --red:#C8283B; --ok:#2F8F6B; --sim:#E07A1F;
+  --core:#3A2418; --core-2:#5A3524;
+  --line:#EBDCC7; --line-strong:#DCC6AA; --nav-bg:rgba(255,252,246,.86);
+  --tint-red:rgba(200,40,59,.08); --tint-ok:rgba(47,143,107,.1); --tint-sim:rgba(224,122,31,.1);
+  --shadow:0 1px 2px rgba(60,30,10,.04), 0 10px 28px rgba(60,30,10,.07);
+  --shadow-lg:0 2px 6px rgba(60,30,10,.05), 0 26px 60px rgba(60,30,10,.14);
+  --radius:20px;
+  --hero-bg:radial-gradient(600px 360px at 90% 0%, rgba(255,214,170,.35), transparent 60%), linear-gradient(135deg,#E8553A 0%,#DB4229 60%,#C9381F 100%);
+  --f-display:'Unbounded', 'Segoe UI', system-ui, sans-serif;
+  --f-body:'Manrope', 'Segoe UI', system-ui, sans-serif;
+  --f-mono:'JetBrains Mono', ui-monospace, Consolas, monospace;
+  --f-hand:'Caveat', cursive;
+  --acc:var(--tomato);
+  --acc-t:color-mix(in srgb, var(--acc) 11%, transparent);
+  --px-a:color-mix(in srgb, var(--acc) 9%, var(--bg));
+  --px-b:color-mix(in srgb, var(--acc) 20%, var(--bg));
+  transition:--acc .7s ease;
+}
+/* темна тема — теплий «вечірній» варіант */
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#15100C; --bg-panel:#201812; --bg-soft:#281F17; --grid:rgba(255,220,180,.035);
+    --ink:#F5EBDD; --ink-soft:#BBA894; --on-acc:#1A120C;
+    --tomato:#FF6A4D; --herb:#5CC285; --saffron:#FFC24D; --saffron-fill:#FFC24D; --plum:#C890D6;
+    --red:#FF5C6E; --ok:#4FD19E; --sim:#FFA04D; --core:#4A3526; --core-2:#5E4330;
+    --line:#382B21; --line-strong:#4A3A2C; --nav-bg:rgba(32,24,18,.86);
+    --tint-red:rgba(255,92,110,.12); --tint-ok:rgba(79,209,158,.11); --tint-sim:rgba(255,160,77,.12);
+    --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35); --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5);
+    --hero-bg:radial-gradient(600px 360px at 90% 0%, rgba(255,150,100,.22), transparent 60%), linear-gradient(135deg,#A9311B 0%,#8A2614 60%,#6E1D0F 100%);
+    --px-a:color-mix(in srgb, var(--acc) 10%, var(--bg)); --px-b:color-mix(in srgb, var(--acc) 22%, var(--bg)); color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#15100C; --bg-panel:#201812; --bg-soft:#281F17; --grid:rgba(255,220,180,.035);
+  --ink:#F5EBDD; --ink-soft:#BBA894; --on-acc:#1A120C;
+  --tomato:#FF6A4D; --herb:#5CC285; --saffron:#FFC24D; --saffron-fill:#FFC24D; --plum:#C890D6;
+  --red:#FF5C6E; --ok:#4FD19E; --sim:#FFA04D; --core:#4A3526; --core-2:#5E4330;
+  --line:#382B21; --line-strong:#4A3A2C; --nav-bg:rgba(32,24,18,.86);
+  --tint-red:rgba(255,92,110,.12); --tint-ok:rgba(79,209,158,.11); --tint-sim:rgba(255,160,77,.12);
+  --shadow:0 1px 2px rgba(0,0,0,.3), 0 10px 30px rgba(0,0,0,.35); --shadow-lg:0 2px 6px rgba(0,0,0,.3), 0 26px 64px rgba(0,0,0,.5);
+  --hero-bg:radial-gradient(600px 360px at 90% 0%, rgba(255,150,100,.22), transparent 60%), linear-gradient(135deg,#A9311B 0%,#8A2614 60%,#6E1D0F 100%);
+  --px-a:color-mix(in srgb, var(--acc) 10%, var(--bg)); --px-b:color-mix(in srgb, var(--acc) 22%, var(--bg)); color-scheme:dark;
+}
+/* колір активного розділу */
+[data-sec="s1"], [data-sec="map"], [data-sec="practice"], [data-sec="quiz"], [data-sec="ref"]{ --acc:var(--tomato); }
+[data-sec="s2"]{ --acc:var(--herb); }
+[data-sec="s3"]{ --acc:var(--saffron); }
+[data-sec="s4"]{ --acc:var(--plum); }
+
+/* ---------- база ---------- */
+*{box-sizing:border-box;}
+body{
+  background:linear-gradient(var(--grid) 1px, transparent 1px) 0 0/32px 32px, linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0/32px 32px, var(--bg);
+  background-attachment:fixed;
+  color:var(--ink); font-family:var(--f-body); font-size:16px; line-height:1.68; min-height:100vh; -webkit-font-smoothing:antialiased; overflow-x:hidden;}
+body::after{content:""; position:fixed; inset:0; pointer-events:none; z-index:90; opacity:.06; mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+::selection{background:var(--acc); color:var(--on-acc);}
+h1,h2,h3,h4{margin:0 0 .5em; text-wrap:balance; line-height:1.25;}
+h3,h4{font-family:var(--f-body); font-weight:800; letter-spacing:-.005em;}
+.mono{font-family:var(--f-mono);}
+p{margin:0 0 .8em;}
+b,strong{font-weight:800;}
+.frame{position:relative; z-index:1; max-width:1240px; margin:0 auto; padding-block:18px 80px; padding-left:max(16px, env(safe-area-inset-left,0px)); padding-right:max(16px, env(safe-area-inset-right,0px));}
+.hand{font-family:var(--f-hand); font-weight:700; color:var(--acc); font-size:26px; line-height:1.1;}
+.mark{background:linear-gradient(transparent 58%, color-mix(in srgb, var(--acc) 22%, transparent) 58%); padding:0 2px;}
+
+/* ---------- паралакс-фон ---------- */
+.px-bg{position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden;}
+.px-layer{position:absolute; left:0; right:0; top:0; will-change:transform;}
+.px-shape{position:absolute; --sa:var(--px-a); --sb:var(--px-b);}
+.px-shape svg{width:100%; height:100%; display:block; overflow:visible;}
+
+/* ---------- HUD ---------- */
+.hud-bar{display:flex; flex-wrap:wrap; gap:10px; align-items:center; justify-content:space-between; padding:9px 10px 9px 18px; background:var(--nav-bg);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); border:1px solid var(--line); border-radius:14px; margin-bottom:14px; box-shadow:var(--shadow);
+  font-family:var(--f-mono); font-size:11.5px; letter-spacing:.04em; color:var(--ink-soft);}
+.hud-bar .dot{display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--acc); margin-right:8px; box-shadow:0 0 0 3px var(--acc-t);}
+.theme-btn{font-family:var(--f-body); font-weight:700; font-size:12.5px; background:var(--bg-soft); color:var(--ink); border:1px solid var(--line); border-radius:999px; padding:7px 14px; cursor:pointer; transition:.18s;}
+.theme-btn:hover{border-color:var(--acc); color:var(--acc); background:var(--acc-t);}
+
+/* ---------- HERO (томатний постер) ---------- */
+header.hero{position:relative; isolation:isolate; overflow:hidden; border-radius:28px; color:#FFF4E6; background:var(--hero-bg); box-shadow:var(--shadow-lg);
+  padding:clamp(26px,4.6vw,54px) clamp(20px,4.5vw,54px); margin-bottom:16px; display:grid; grid-template-columns:minmax(0,1.25fr) minmax(0,1fr); gap:20px; align-items:center;}
+.hero-num{position:absolute; left:-10px; bottom:-0.3em; z-index:-1; font-family:var(--f-display); font-weight:800; line-height:1; font-size:clamp(150px,24vw,300px); letter-spacing:-.06em;
+  color:transparent; -webkit-text-stroke:1.5px rgba(255,244,230,.16); user-select:none; pointer-events:none;}
+.hero-shape{position:absolute; z-index:-1; pointer-events:none; --sa:rgba(0,0,0,.08); --sb:rgba(255,230,210,.22);}
+.hero-shape svg{width:100%; height:100%;}
+.hero-tag{display:inline-block; font-family:var(--f-mono); font-size:11.5px; letter-spacing:.14em; color:#FFF4E6; border:1.5px solid rgba(255,244,230,.6); padding:5px 13px; border-radius:20px; margin-bottom:20px;}
+header.hero h1{font-family:var(--f-display); font-size:clamp(24px,3.5vw,44px); font-weight:800; text-transform:uppercase; line-height:1.08; letter-spacing:-.01em; margin:0;}
+header.hero .hand{color:#FFF4E6; font-size:clamp(24px,2.6vw,34px); margin-top:12px; display:block;}
+header.hero p.sub{color:rgba(255,244,230,.88); max-width:640px; font-size:16.5px; margin:14px 0 24px; line-height:1.6;}
+.hero-meta{display:flex; flex-wrap:wrap; gap:10px;}
+header.hero .chip{display:inline-flex; align-items:baseline; gap:8px; background:rgba(255,244,230,.12); border:1px solid rgba(255,244,230,.3); color:#FFF4E6; padding:8px 14px; border-radius:999px; font-size:13.5px; font-weight:600;}
+header.hero .chip b{font-family:var(--f-display); font-size:16px;}
+.plate-wrap{position:relative; width:min(420px,100%); aspect-ratio:1; margin-left:auto;}
+.plate{position:absolute; inset:7%; border-radius:50%; background:#FFF6EA; box-shadow:0 30px 60px rgba(90,20,5,.35), inset 0 0 0 14px #FBEBD8, inset 0 0 0 16px #F3DAC0;}
+.food{position:absolute;} .food svg{width:100%; height:100%; display:block; overflow:visible;}
+@media(max-width:760px){ header.hero{grid-template-columns:minmax(0,1fr);} .plate-wrap{width:min(300px,80%); margin:6px auto 0;} }
+
+/* ---------- вкладки ---------- */
+nav.tabs{position:sticky; top:calc(env(safe-area-inset-top,0px) + 8px); z-index:50; display:flex; gap:4px; overflow-x:auto; background:var(--nav-bg);
+  backdrop-filter:blur(14px) saturate(1.3); -webkit-backdrop-filter:blur(14px) saturate(1.3); border:1px solid var(--line); border-radius:18px; padding:6px; margin-bottom:20px; box-shadow:var(--shadow); scrollbar-width:none;}
+nav.tabs::-webkit-scrollbar{display:none;}
+nav.tabs button{flex:0 0 auto; font-family:var(--f-body); font-weight:700; font-size:13.5px; background:transparent; color:var(--ink-soft); border:1px solid transparent; padding:9px 15px; border-radius:12px; cursor:pointer; transition:.18s; white-space:nowrap; display:inline-flex; align-items:center; gap:8px;}
+nav.tabs button i{width:9px; height:9px; border-radius:50%; flex:none;}
+nav.tabs button:hover{background:var(--bg-soft); color:var(--ink);}
+nav.tabs button.active{background:var(--acc); color:var(--on-acc); box-shadow:0 6px 16px color-mix(in srgb, var(--acc) 35%, transparent);}
+nav.tabs button.active i{background:var(--on-acc) !important;}
+.nav-progress{position:absolute; left:16px; right:16px; bottom:0; height:3px; border-radius:2px; overflow:hidden; pointer-events:none;}
+.nav-progress i{display:block; height:100%; width:0; background:var(--acc); transition:width .12s linear;}
+button:focus-visible, .opt:focus-visible, summary:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, a:focus-visible{outline:2px solid var(--acc); outline-offset:2px;}
+
+/* ---------- панель-розділ ---------- */
+section.panel{display:none; margin-bottom:22px;}
+section.panel.active{display:grid; grid-template-columns:minmax(0,1fr) 262px; gap:20px 24px; align-items:start; animation:fadeIn .4s ease;}
+section.panel.plain.active{display:block;}
+@keyframes fadeIn{from{opacity:.3; transform:translateY(8px);} to{opacity:1; transform:none;}}
+.sec-head{grid-column:1 / -1; position:relative; overflow:hidden; isolation:isolate; display:grid; grid-template-columns:auto minmax(0,1fr); gap:clamp(14px,3vw,30px); align-items:start;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:24px; padding:clamp(20px,3.4vw,34px); padding-right:clamp(20px,22vw,250px); box-shadow:var(--shadow);}
+section.panel.plain .sec-head{margin-bottom:18px; padding-right:clamp(20px,3.4vw,34px);}
+.sec-head::before{content:""; position:absolute; left:0; top:0; bottom:0; width:6px; background:var(--acc);}
+.sec-deco{position:absolute; right:-40px; top:50%; translate:0 -50%; width:clamp(150px,22vw,270px); aspect-ratio:1; z-index:-1; pointer-events:none;
+  --sa:color-mix(in srgb, var(--acc) 85%, #000 0%); --sb:var(--bg-panel);}
+.sec-deco svg{width:100%; height:100%; overflow:visible;}
+.sec-idx{font-family:var(--f-display); font-weight:800; font-size:clamp(46px,7vw,84px); line-height:.9; letter-spacing:-.05em; color:var(--acc); min-width:1.2em;}
+.sec-kicker{font-family:var(--f-mono); font-size:11.5px; letter-spacing:.16em; text-transform:uppercase; color:var(--acc); font-weight:700;}
+.sec-head h2{font-family:var(--f-display); font-weight:700; font-size:clamp(19px,2.4vw,27px); line-height:1.25; letter-spacing:-.01em; margin:8px 0 6px;}
+.sec-head .hand{display:block; margin-bottom:10px;}
+.sec-head .lede{margin:0; max-width:76ch;}
+.sec-meta{display:flex; flex-wrap:wrap; gap:8px; margin-top:16px;}
+.sec-meta:empty{display:none;}
+.sec-meta span{font-size:12.5px; font-weight:600; padding:5px 11px; border-radius:999px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.sec-meta span b{font-family:var(--f-display); color:var(--ink); margin-right:3px;}
+.sec-main{min-width:0; grid-column:1; grid-row:2;}
+.sec-head, .sec-toc{min-width:0;}
+@media(max-width:760px){ .sec-head{padding-right:clamp(20px,3.4vw,34px);} .sec-deco{opacity:.25; right:-60px;} }
+@media(max-width:640px){ .sec-head{grid-template-columns:minmax(0,1fr); gap:4px;} }
+
+/* ---------- зміст розділу + scroll-spy ---------- */
+.sec-toc{grid-column:2; grid-row:2; position:sticky; top:84px; max-height:calc(100vh - 104px); overflow:auto; scrollbar-width:thin;
+  background:var(--bg-panel); border:1px solid var(--line); border-radius:20px; padding:16px 12px 14px; box-shadow:var(--shadow);}
+.toc-title{font-family:var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-soft); padding:0 8px 6px;}
+.toc-list{display:flex; flex-direction:column; gap:1px;}
+.toc-group{font-size:11.5px; font-weight:800; color:var(--ink); padding:12px 8px 4px; display:flex; gap:8px; align-items:center;}
+.toc-group i{font-style:normal; font-family:var(--f-display); font-size:10.5px; color:var(--on-acc); background:var(--acc); width:20px; height:20px; border-radius:50%; display:grid; place-items:center; flex:none;}
+.toc-list a{--k:var(--acc); --kt:var(--acc-t); display:flex; gap:8px; padding:6px 8px; border-radius:10px; font-size:13px; line-height:1.38; color:var(--ink-soft); text-decoration:none; transition:.15s;}
+.toc-list a[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+.toc-list a[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+.toc-list a[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.toc-list a[data-kind="end"]{--k:var(--acc); margin-top:8px; border-top:1px dashed var(--line); padding-top:10px; border-radius:0 0 10px 10px;}
+.toc-list a .toc-no{font-family:var(--f-mono); font-size:11px; font-weight:700; color:var(--k); min-width:30px; padding-top:1px;}
+.toc-list a:hover{background:var(--bg-soft); color:var(--ink);}
+.toc-list a.on{background:var(--kt); color:var(--ink); font-weight:700; box-shadow:inset 3px 0 0 var(--k);}
+.toc-legend{display:flex; flex-wrap:wrap; gap:6px 12px; margin:12px 8px 0; padding-top:12px; border-top:1px solid var(--line); font-size:11px; color:var(--ink-soft);}
+.toc-legend span::before{content:""; display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; background:var(--k);}
+@media(max-width:1020px){
+  section.panel.active{grid-template-columns:minmax(0,1fr);}
+  .sec-toc{grid-column:1; grid-row:auto; position:sticky; top:72px; z-index:40; max-height:none; overflow:visible; padding:8px; border-radius:16px; background:var(--nav-bg); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);}
+  .sec-main{grid-row:auto;}
+  .toc-title, .toc-group, .toc-legend{display:none;}
+  .toc-list{flex-direction:row; overflow-x:auto; gap:4px; scrollbar-width:none;}
+  .toc-list::-webkit-scrollbar{display:none;}
+  .toc-list a{flex:0 0 auto; white-space:nowrap; max-width:240px; overflow:hidden; text-overflow:ellipsis; border:1px solid var(--line); background:var(--bg-panel);}
+  .toc-list a[data-kind="end"]{margin-top:0; border-top:1px solid var(--line); padding-top:6px; border-radius:10px;}
+}
+
+/* ---------- тематичні групи ---------- */
+.group-label{display:flex; align-items:center; gap:12px; margin:32px 2px 14px; font-weight:800; font-size:13px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.sec-main > .group-label:first-child{margin-top:4px;}
+.group-label b{font-family:var(--f-display); font-size:12.5px; color:var(--on-acc); background:var(--acc); width:32px; height:32px; border-radius:50%; display:grid; place-items:center; letter-spacing:0; flex:none; rotate:-6deg;}
+.group-label::after{content:""; flex:1; height:0; border-top:2px dashed var(--line-strong);}
+
+/* ---------- блоки ---------- */
+article.block{--k:var(--acc); --kt:var(--acc-t); position:relative; background:var(--bg-panel); border:1px solid var(--line); border-radius:var(--radius);
+  padding:22px clamp(16px,2.6vw,28px) 24px; box-shadow:var(--shadow); margin-bottom:16px; scroll-margin-top:90px; min-width:0;}
+@media(max-width:1020px){ article.block{scroll-margin-top:136px;} }
+article.block::before{content:""; position:absolute; left:-1px; top:24px; height:44px; width:5px; border-radius:0 5px 5px 0; background:var(--k);}
+article.block[data-kind="sim"]{--k:var(--sim); --kt:var(--tint-sim);}
+article.block[data-kind="data"]{--k:var(--ok); --kt:var(--tint-ok);}
+article.block[data-kind="extra"]{--k:var(--ink-soft); --kt:var(--bg-soft);}
+.block-head{display:flex; gap:14px; align-items:center; margin-bottom:14px;}
+.block-no{flex:none; min-width:50px; height:50px; padding:0 8px; border-radius:50%; display:grid; place-items:center; rotate:-5deg;
+  font-family:var(--f-display); font-weight:700; font-size:14px; color:var(--k); background:var(--kt); border:1.5px solid color-mix(in srgb, var(--k) 35%, transparent);}
+.kind{display:block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--k);}
+.block[data-kind="theory"] .kind::before{content:"◆  Теорія";}
+.block[data-kind="sim"] .kind::before{content:"▶  Симулятор";}
+.block[data-kind="data"] .kind::before{content:"▦  Схема · таблиця";}
+.block[data-kind="extra"] .kind::before{content:"＋  Поглиблення";}
+.block-head h3{margin:3px 0 0; font-size:clamp(17px,1.9vw,19.5px); line-height:1.3;}
+
+/* ---------- текст ---------- */
+.lede{color:var(--ink-soft); font-size:16px; max-width:78ch;}
+.prose{max-width:80ch;}
+.muted{color:var(--ink-soft);}
+.mini-title{display:block; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft); margin:20px 0 10px;}
+.mini-title:first-child{margin-top:4px;}
+.tag-sim{display:inline-block; font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.1em; color:var(--sim); background:var(--tint-sim); border:1px solid color-mix(in srgb, var(--sim) 40%, transparent); border-radius:6px; padding:1px 7px; margin:0 2px; vertical-align:middle;}
+.definition{position:relative; padding:20px 22px 20px 24px; border-radius:18px; background:linear-gradient(135deg, var(--acc-t), transparent 80%); border:1px solid color-mix(in srgb, var(--acc) 28%, transparent); margin-bottom:12px;}
+.definition .term{display:block; font-family:var(--f-display); font-weight:700; font-size:17px; color:var(--acc); margin-bottom:4px;}
+.definition p{margin:0; font-size:16.5px;}
+.points{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:12px; margin:14px 0;}
+.point{padding:14px 16px; border-radius:16px; background:var(--bg-soft); border:1px solid var(--line); border-top:4px solid var(--acc);}
+.point.warn{border-top-color:var(--red);} .point.ok{border-top-color:var(--ok);}
+.point b{display:block; font-weight:800; margin-bottom:4px;}
+.point p{margin:0; color:var(--ink-soft); font-size:15px; line-height:1.6;}
+.checklist{list-style:none; padding:0; margin:0; display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:8px;}
+.checklist li{display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-radius:12px; background:var(--tint-ok); border:1px solid color-mix(in srgb,var(--ok) 25%,transparent); font-weight:600; font-size:15px; line-height:1.45;}
+.checklist li::before{content:"✓"; color:var(--ok); font-weight:800;}
+.chip{display:inline-block; font-size:13px; font-weight:700; padding:5px 12px; border-radius:999px; background:var(--acc-t); color:var(--ink); margin:0 6px 7px 0; line-height:1.4;}
+.equation{display:flex; flex-wrap:wrap; align-items:center; gap:12px 16px; margin:6px 0 4px;}
+.eq-main{background:var(--acc); color:var(--on-acc); border-radius:18px; padding:14px 20px; font-family:var(--f-display); font-weight:600; font-size:17px; line-height:1.2; rotate:-1.5deg;}
+.eq-op{font-family:var(--f-display); font-weight:800; font-size:28px; color:var(--acc);}
+.eq-item{display:flex; align-items:center; gap:10px; font-weight:800; font-size:15px; line-height:1.25;}
+.stk{width:46px; height:46px; border-radius:50%; background:var(--acc); display:grid; place-items:center; rotate:-6deg; flex-shrink:0; box-shadow:0 6px 14px rgba(0,0,0,.12);}
+.stk svg{width:24px; height:24px; fill:none; stroke:var(--on-acc); stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round;}
+.ic{width:26px; height:26px; fill:none; stroke:var(--acc); stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+
+/* ---------- висновок ---------- */
+.takeaway{position:relative; overflow:hidden; display:grid; grid-template-columns:auto minmax(0,1fr); gap:18px; align-items:start; padding:24px clamp(18px,3vw,28px);
+  border-radius:22px; margin:26px 0 6px; color:#FFF4E6; scroll-margin-top:90px;
+  background:radial-gradient(420px 220px at 100% 0%, color-mix(in srgb, var(--acc) 55%, transparent), transparent 65%), linear-gradient(135deg, #3A2418, #24160F); box-shadow:var(--shadow-lg);}
+.tk-icon{width:48px; height:48px; border-radius:50%; background:var(--acc); display:grid; place-items:center; font-size:20px; font-weight:800; color:var(--on-acc); rotate:-6deg;}
+.tk-label{font-family:var(--f-hand); font-size:28px; font-weight:700; color:#FFD9A8; line-height:1;}
+.takeaway p{margin:8px 0 0; color:rgba(255,244,230,.92); font-size:16.5px; line-height:1.65; max-width:84ch;}
+
+/* ---------- акордеони ---------- */
+details.acc{border:1px solid var(--line); border-radius:16px; margin-bottom:10px; overflow:hidden; background:var(--bg-panel); transition:border-color .2s, box-shadow .2s;}
+details.acc[open]{border-color:color-mix(in srgb, var(--acc) 40%, var(--line)); box-shadow:0 6px 20px rgba(60,30,10,.07);}
+details.acc summary{cursor:pointer; list-style:none; padding:14px 16px 14px 18px; display:flex; justify-content:space-between; gap:12px; align-items:center; font-weight:700; font-size:15.5px; line-height:1.4; transition:background .15s;}
+details.acc summary::-webkit-details-marker{display:none;}
+details.acc summary:hover{background:var(--bg-soft); color:var(--acc);}
+details.acc summary .arrow{flex:0 0 auto; width:28px; height:28px; border-radius:50%; display:grid; place-items:center; font-size:9px; color:var(--acc); background:var(--acc-t); transition:transform .25s;}
+details.acc[open] summary .arrow{transform:rotate(90deg);}
+details.acc .acc-body{padding:14px 20px 8px; max-width:86ch; border-top:1px dashed var(--line);}
+
+/* ---------- сітки й картки ---------- */
+.grid2{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:14px;}
+.grid3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.grid4{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px;}
+.grid5{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px;}
+@media(max-width:900px){.grid4{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:800px){.grid2,.grid3{grid-template-columns:minmax(0,1fr);}}
+@media(max-width:480px){.grid4{grid-template-columns:minmax(0,1fr);}}
+.card{background:var(--bg-soft); border:1px solid var(--line); border-radius:16px; padding:16px 18px; min-width:0; line-height:1.55;}
+.card h4{color:var(--acc); font-size:15.5px; margin-bottom:6px;}
+.card p:last-child{margin-bottom:0;}
+.card .k{font-family:var(--f-mono); font-size:11.5px; color:var(--ink-soft);}
+a.card{color:inherit; text-decoration:none; cursor:pointer; transition:.2s;}
+a.card:hover{transform:translateY(-4px) rotate(-.4deg); box-shadow:var(--shadow-lg);}
+.plan-card{display:flex; flex-direction:column; gap:4px; color:#FFF6EA !important; border:0; position:relative; overflow:hidden; min-height:200px;}
+.plan-card .plan-n{font-family:var(--f-display); font-weight:800; font-size:42px; line-height:1; margin-bottom:8px;}
+.plan-card h4{color:inherit !important; font-size:17px;}
+.plan-card p{font-size:14px; flex:1; opacity:.9;}
+.plan-card .k{color:inherit !important; font-weight:700; opacity:.9;}
+.plan-card .ghost{position:absolute; right:-24px; top:16px; width:120px; height:120px; opacity:.22;}
+.plan-card .ghost svg{width:100%; height:100%; fill:none; stroke:currentColor; stroke-width:.8;}
+
+/* ---------- кнопки ---------- */
+.btn{font-family:var(--f-body); font-weight:700; font-size:13.5px; cursor:pointer; border:1.5px solid var(--acc); background:var(--acc); color:var(--on-acc); padding:9px 16px; border-radius:999px; transition:.18s; line-height:1.3;}
+.btn:hover{filter:brightness(1.07); transform:translateY(-1px);}
+.btn.ghost{background:var(--bg-panel); color:var(--ink); border-color:var(--line-strong);}
+.btn.ghost:hover{border-color:var(--acc); color:var(--acc); background:var(--acc-t); filter:none;}
+.btn.warn{background:var(--bg-panel); color:var(--red); border-color:color-mix(in srgb, var(--red) 45%, transparent);}
+.btn.warn:hover{background:var(--tint-red);}
+.btn.small{padding:6px 13px; font-size:12.5px;}
+.btn.active{background:var(--acc); border-color:var(--acc); color:var(--on-acc); box-shadow:0 4px 12px color-mix(in srgb, var(--acc) 30%, transparent);}
+.btn:disabled{opacity:.5; cursor:default; transform:none;}
+.btn.active:disabled{opacity:1;}
+.btnrow{display:flex; gap:8px; flex-wrap:wrap; margin:12px 0; align-items:center;}
+
+/* ---------- сцени ---------- */
+.mindmap-wrap{background:radial-gradient(color-mix(in srgb, var(--acc) 18%, transparent) 1px, transparent 1.2px) 0 0/18px 18px, var(--bg-soft); border:1px solid var(--line); border-radius:18px; padding:14px; margin:14px 0; overflow-x:auto;}
+.mindmap-wrap svg{width:100%; min-width:560px; height:auto; display:block;}
+.sim-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:18px; padding:12px; overflow-x:auto;}
+.sim-stage svg{width:100%; height:auto; display:block;}
+.sim-log{position:relative; background:var(--bg-soft); border:1px solid var(--line); border-radius:14px; padding:11px 16px 11px 34px; font-size:14.5px; line-height:1.55; min-height:46px; margin-top:10px; color:var(--ink);}
+.sim-log::before{content:"›"; position:absolute; left:14px; top:8px; font-family:var(--f-mono); font-weight:700; font-size:18px; color:var(--sim);}
+.result-box{background:linear-gradient(135deg, var(--acc-t), transparent 85%), var(--bg-panel); border:1px solid color-mix(in srgb, var(--acc) 35%, var(--line)); border-radius:16px; padding:16px 20px; margin-top:10px;}
+.result-box .big{font-size:22px; line-height:1.3; color:var(--acc); font-family:var(--f-display); font-weight:700; margin:2px 0;}
+
+/* svg-токени */
+.sv-bg{fill:var(--bg-soft);} .sv-node{fill:var(--bg-panel); stroke:var(--line-strong); stroke-width:2;}
+.sv-core{fill:var(--core);} .sv-core-t{fill:#FFF4E6;} .sv-core-t2{fill:#FFD9A8;}
+.sv-t{fill:var(--ink); font-family:var(--f-body); font-size:13px;} .sv-ts{fill:var(--ink-soft); font-family:var(--f-mono); font-size:10.5px;}
+.sv-line{stroke:var(--line-strong); stroke-width:2; fill:none;} .sv-arrow{fill:var(--ink-soft);}
+.st-tomato{stroke:var(--tomato);} .st-herb{stroke:var(--herb);} .st-saffron{stroke:var(--saffron);} .st-plum{stroke:var(--plum);} .st-acc{stroke:var(--acc);}
+.sv-node.on{fill:var(--acc-t); stroke:var(--acc); stroke-width:3;}
+
+/* ---------- поля, калькулятори, kv ---------- */
+.field{display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--ink-soft);}
+.field input, .field select{font-family:var(--f-mono); font-size:15px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:12px; background:var(--bg-panel); color:var(--ink); width:100%;}
+.field input[type=range]{padding:0; accent-color:var(--acc); border:0; background:none;}
+.field input:focus, .field select:focus, .field textarea:focus{outline:none; border-color:var(--acc); box-shadow:0 0 0 3px var(--acc-t);}
+.calc{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:14px; margin:12px 0; padding:16px; border-radius:16px; background:var(--bg-soft); border:1px solid var(--line);}
+.kv{display:grid; grid-template-columns:repeat(auto-fit,minmax(170px,1fr)); gap:10px; margin-top:10px;}
+.kv > div{background:var(--bg-panel); border:1px solid var(--line); border-radius:16px; padding:12px 14px; min-width:0;}
+.kv .l{font-family:var(--f-mono); font-size:10.5px; font-weight:700; color:var(--ink-soft); letter-spacing:.08em;}
+.kv .v{font-family:var(--f-display); font-weight:700; font-size:20px; line-height:1.35;}
+.kv .v.red{color:var(--red);} .kv .v.ok{color:var(--ok);} .kv .v.acc{color:var(--acc);}
+.kv .k{font-size:12px; color:var(--ink-soft);}
+
+/* класифікатор */
+.cls-item{display:flex; flex-wrap:wrap; gap:8px 12px; align-items:center; justify-content:space-between; padding:11px 14px; border:1px solid var(--line); border-radius:14px; background:var(--bg-panel); margin-bottom:8px; transition:.2s;}
+.cls-item .txt{flex:1 1 240px; min-width:0; font-weight:600;}
+.cls-item .opts{display:flex; gap:6px; flex-wrap:wrap;}
+.cls-item.right{border-color:var(--ok); background:var(--tint-ok);}
+.cls-item.wrong{border-color:var(--red); background:var(--tint-red);}
+.cls-item .fb{flex-basis:100%; font-size:14px; color:var(--ink-soft);}
+.badge{display:inline-block; font-family:var(--f-mono); font-size:11px; font-weight:700; padding:2px 9px; border-radius:20px; border:1px solid currentColor;}
+.badge.ok{color:var(--ok);} .badge.red{color:var(--red);} .badge.acc{color:var(--acc);}
+
+/* ---------- спецелементи теми ---------- */
+/* цикл: кнопки-стадії */
+.stage-tg{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:8px; margin:12px 0;}
+.stage-tg button{font:inherit; font-size:13.5px; font-weight:700; text-align:left; cursor:pointer; padding:10px 12px; border-radius:14px; border:1.5px solid var(--acc); background:var(--acc-t); color:var(--ink); display:flex; gap:10px; align-items:center; transition:.18s;}
+.stage-tg button b{font-family:var(--f-display); color:var(--acc); font-size:15px;}
+.stage-tg button.off{border-style:dashed; border-color:var(--line-strong); background:var(--bg-panel); color:var(--ink-soft); text-decoration:line-through;}
+.cyc-row{display:grid; grid-template-columns:200px minmax(0,1fr); gap:20px; align-items:center;}
+@media(max-width:560px){ .cyc-row{grid-template-columns:minmax(0,1fr);} .cyc-row svg{max-width:200px;} }
+/* шеврони */
+.chevrons{display:grid; grid-template-columns:repeat(3,1fr); margin:6px 0 14px;}
+.chev{min-height:96px; display:flex; align-items:center; gap:14px; padding:0 26px 0 56px; color:var(--on-acc); margin-right:-22px;
+  clip-path:polygon(0 0, calc(100% - 36px) 0, 100% 50%, calc(100% - 36px) 100%, 0 100%, 36px 50%);}
+.chev:first-child{padding-left:24px; clip-path:polygon(0 0, calc(100% - 36px) 0, 100% 50%, calc(100% - 36px) 100%, 0 100%); border-radius:18px 0 0 18px;}
+.chev:last-child{margin-right:0;}
+.chev .r{font-family:var(--f-display); font-weight:800; font-size:34px; line-height:1;}
+.chev h4{margin:0; font-family:var(--f-display); font-size:16px; font-weight:700; color:inherit;}
+@media(max-width:700px){ .chevrons{grid-template-columns:1fr; gap:6px;} .chev,.chev:first-child{clip-path:none; border-radius:14px; margin:0; padding:14px 18px; min-height:0;} }
+/* чек кулінарної готовності */
+.ticket{position:relative; background:var(--bg-panel); border:1px solid var(--line); border-radius:6px; padding:22px 24px 40px; margin:12px 0 30px; box-shadow:var(--shadow);}
+.check-row{display:flex; gap:12px; align-items:center; padding:9px 0; border-bottom:1.5px dashed var(--line); font-weight:700;}
+.check-row:last-of-type{border:0;}
+.check-row i{width:24px; height:24px; border-radius:7px; background:var(--acc); display:grid; place-items:center; flex-shrink:0; color:var(--on-acc); font-style:normal; font-size:13px; font-weight:800;}
+.stamp{position:absolute; right:-6px; bottom:-20px; rotate:-10deg; border:3.5px solid var(--acc); color:var(--acc); border-radius:12px; padding:8px 14px; font-family:var(--f-display); font-weight:800; font-size:12.5px; line-height:1.2; text-align:center; background:var(--bg-panel);}
+/* Венн */
+.venn-grid{display:grid; grid-template-columns:minmax(0,440px) minmax(0,1fr); gap:20px; align-items:center;}
+.venn svg{width:100%; height:auto; display:block; overflow:visible;}
+.venn .blend{mix-blend-mode:multiply;}
+:root[data-theme="dark"] .venn .blend{mix-blend-mode:normal;}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .venn .blend{mix-blend-mode:normal;} }
+@media(max-width:860px){ .venn-grid{grid-template-columns:minmax(0,1fr);} .venn{max-width:420px; margin:0 auto;} }
+/* органи чуття */
+.senses{display:grid; grid-template-columns:repeat(5,1fr); gap:8px; margin:12px 0;}
+.sense{text-align:center; padding:12px 6px; border-radius:16px; border:1.5px dashed var(--line-strong); color:var(--ink-soft); font-size:12.5px; font-weight:700; transition:.25s;}
+.sense .ic{display:block; margin:0 auto 6px; stroke:var(--ink-soft); width:30px; height:30px;}
+.sense.on{border-style:solid; border-color:var(--acc); background:var(--acc-t); color:var(--ink);}
+.sense.on .ic{stroke:var(--acc);}
+@media(max-width:480px){ .senses{grid-template-columns:repeat(3,1fr);} }
+/* ризик-шкала */
+.risk{display:grid; gap:8px; margin-top:10px;}
+.risk div{font-size:14px; font-weight:700;}
+.risk i{display:block; height:10px; border-radius:5px; margin-top:3px;}
+/* кубики */
+.dice-row{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; align-items:center;}
+@media(max-width:700px){ .dice-row{grid-template-columns:minmax(0,1fr);} }
+.speed{height:16px; border-radius:8px; background:var(--bg-panel); border:1px solid var(--line); overflow:hidden; margin-top:6px;}
+.speed i{display:block; height:100%; background:linear-gradient(90deg, var(--acc), var(--sim)); width:0; transition:width .5s cubic-bezier(.2,.8,.2,1);}
+/* віяло документів */
+.docs-grid{display:grid; grid-template-columns:minmax(0,1fr) minmax(0,460px); gap:20px; align-items:center;}
+@media(max-width:860px){ .docs-grid{grid-template-columns:minmax(0,1fr);} }
+.doc-list{list-style:none; padding:0; margin:0;}
+.doc-list li{display:grid; grid-template-columns:72px 1fr; gap:10px; padding:9px 0; border-bottom:1.5px dashed var(--line); font-weight:600; align-items:center;}
+.doc-list b{font-family:var(--f-display); color:var(--acc); font-size:14px;}
+.fan{position:relative; aspect-ratio:1.3; container-type:inline-size;}
+.fan-card{position:absolute; left:34%; bottom:3%; width:32%; height:66%; border-radius:16px; background:var(--bg-panel); border:1px solid var(--line); box-shadow:0 16px 40px rgba(60,20,60,.16); transform-origin:50% 230%; padding:5cqw 4cqw; transition:translate .35s cubic-bezier(.3,1.5,.6,1);}
+.fan-card:hover{translate:0 -5cqw;}
+.fan-card .ab{font-family:var(--f-display); font-weight:800; font-size:5cqw; color:var(--acc); line-height:1; white-space:nowrap;}
+.fan-card .lines{margin-top:4cqw;}
+.fan-card .lines i{display:block; height:1.2cqw; border-radius:1cqw; background:var(--acc-t); margin-bottom:1.8cqw;}
+/* закладки збірника */
+.tabs3{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr)); gap:50px 14px; margin-top:50px;}
+.tabcard{position:relative; border-top-left-radius:0;}
+.tabcard .tab{position:absolute; top:-38px; left:-1px; height:38px; padding:0 16px; border-radius:14px 14px 0 0; background:var(--acc); color:var(--on-acc); font-family:var(--f-display); font-weight:600; font-size:13px; display:flex; align-items:center;}
+/* аркуш ГСТ */
+.paper{background:var(--bg-panel); border:1px solid var(--line); border-radius:6px; padding:26px 26px 18px; rotate:1deg; box-shadow:var(--shadow-lg); position:relative; margin-top:14px;}
+.paper::before{content:""; position:absolute; top:-13px; left:50%; width:110px; height:26px; margin-left:-55px; background:color-mix(in srgb, var(--acc) 30%, transparent); rotate:-3deg;}
+.paper .ph{display:flex; justify-content:space-between; align-items:baseline; border-bottom:2px solid var(--ink); padding-bottom:8px; margin-bottom:6px;}
+.paper .ph b{font-family:var(--f-display); font-size:22px;}
+.paper .ph span{font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.14em; color:var(--ink-soft);}
+.paper ul{list-style:none; padding:0; margin:0;}
+.paper li{display:grid; grid-template-columns:24px 1fr; gap:8px; padding:7px 0; border-bottom:1px solid var(--line); font-size:14.5px; line-height:1.45; font-weight:600;}
+.paper li:last-child{border:0;}
+.paper li::before{content:"✓"; color:var(--acc); font-weight:800;}
+/* вибір пунктів ГСТ */
+.pick{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:8px;}
+.pick button{font:inherit; font-size:14.5px; font-weight:600; text-align:left; cursor:pointer; padding:10px 14px; border-radius:14px; border:1.5px solid var(--line-strong); background:var(--bg-panel); color:var(--ink); transition:.15s; display:flex; gap:10px; align-items:flex-start;}
+.pick button::before{content:""; flex:none; width:18px; height:18px; margin-top:2px; border-radius:6px; border:2px solid var(--line-strong);}
+.pick button.on{border-color:var(--acc); background:var(--acc-t);}
+.pick button.on::before{background:var(--acc); border-color:var(--acc);}
+.pick button.right{border-color:var(--ok); background:var(--tint-ok);}
+.pick button.wrong{border-color:var(--red); background:var(--tint-red);}
+
+/* ---------- практика й тест ---------- */
+.quiz-q{border:1px solid var(--line); border-radius:var(--radius); padding:20px clamp(16px,2.6vw,24px); margin-bottom:14px; background:var(--bg-panel); box-shadow:var(--shadow);}
+.quiz-q h4{font-size:16.5px; margin-bottom:12px; display:flex; gap:10px; align-items:baseline;}
+.quiz-q textarea{font-family:var(--f-body); font-size:15px; padding:9px 11px; border:1px solid var(--line-strong); border-radius:12px; background:var(--bg-panel); color:var(--ink); width:100%;}
+.opt{display:block; width:100%; text-align:left; margin-bottom:8px; padding:11px 14px; border-radius:14px; border:1px solid var(--line-strong); background:var(--bg-soft); color:var(--ink); cursor:pointer; font-family:var(--f-body); font-size:15px; font-weight:600; transition:.15s;}
+.opt:hover:not(:disabled){border-color:var(--acc); background:var(--acc-t);}
+.opt:disabled{cursor:default;}
+.opt.correct{background:var(--tint-ok); border-color:var(--ok);}
+.opt.correct::after{content:"  ✓"; color:var(--ok); font-weight:800;}
+.opt.wrong{background:var(--tint-red); border-color:var(--red);}
+.quiz-fb{font-size:14.5px; margin-top:8px; color:var(--ink-soft); padding:10px 14px; border-radius:12px; background:var(--bg-soft);}
+#quizScoreBar{position:sticky; bottom:calc(env(safe-area-inset-bottom,0px) + 12px); background:linear-gradient(135deg, #3A2418, #24160F); color:#FFF4E6; padding:12px 14px 12px 20px; border-radius:999px; font-weight:700; display:flex; flex-wrap:wrap; gap:10px; justify-content:space-between; align-items:center; box-shadow:var(--shadow-lg);}
+#quizScore{font-family:var(--f-display);}
+#quizScoreBar .btn{background:#FFF4E6; color:#3A2418; border-color:#FFF4E6;}
+.idx{font-family:var(--f-mono); font-size:12px; color:#fff; background:linear-gradient(135deg, var(--sim), var(--tomato)); padding:3px 10px; border-radius:999px; font-weight:700; flex:0 0 auto;}
+.callout{--c:var(--red); --ct:var(--tint-red); position:relative; border:1px solid color-mix(in srgb, var(--c) 26%, transparent); border-left:4px solid var(--c); background:var(--ct);
+  padding:13px 18px; border-radius:6px 16px 16px 6px; margin:14px 0; max-width:88ch; line-height:1.6;}
+.callout.acc{--c:var(--acc); --ct:var(--acc-t);} .callout.ok{--c:var(--ok); --ct:var(--tint-ok);}
+.callout > b:first-child{display:block; color:var(--c); font-weight:800; margin-bottom:2px;}
+
+/* ---------- глосарій ---------- */
+.gloss{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:0;}
+@media(max-width:800px){.gloss{grid-template-columns:minmax(0,1fr);}}
+.gloss div{padding:14px 16px; border:1px solid var(--line); border-radius:16px; background:var(--bg-panel); border-left:4px solid var(--c, var(--acc));}
+.gloss dt{font-weight:800; color:var(--c, var(--acc)); font-size:15.5px;}
+.gloss dd{margin:4px 0 0; color:var(--ink-soft); font-size:15px; line-height:1.55;}
+footer{text-align:center; color:var(--ink-soft); font-family:var(--f-mono); font-size:11.5px; padding:24px 0 0;}
+
+/* ---------- поява під час прокручування ---------- */
+.rv{opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .8s cubic-bezier(.16,1,.3,1); transition-delay:calc(var(--i,0) * 70ms);}
+.rv.from-top{transform:translateY(-26px);}
+.rv.in{opacity:1; transform:none;}
+
+/* ---------- ментальні карти ---------- */
+.mindmap-wrap svg, .sim-stage svg{overflow:visible;}
+.mm-node .mm-in{transform-box:fill-box; transform-origin:center;}
+.mm-node rect{transition:stroke-width .2s, filter .25s;}
+.mm-node.mm-hot rect{stroke-width:3; filter:drop-shadow(0 8px 16px rgba(90,40,10,.25));}
+.mm-wait .mm-in, .mm-wait .mm-link{opacity:0;}
+.mm-anim .mm-in{animation:mmPop .75s cubic-bezier(.2,1.35,.4,1) both; animation-delay:calc(var(--i,0) * 95ms + 80ms);}
+@keyframes mmPop{from{opacity:0; transform:translateY(14px) scale(.8);} to{opacity:1; transform:none;}}
+
+/* ---------- картки-перевертні ---------- */
+.fcard{position:relative; perspective:1100px; cursor:pointer; outline:none; min-width:0; -webkit-tap-highlight-color:transparent;}
+.fcard-inner{display:grid; height:100%; transform-style:preserve-3d; transition:transform .8s cubic-bezier(.3,1.3,.45,1);}
+.fcard:hover .fcard-inner{transform:rotateY(-8deg) rotateX(3deg);}
+.fcard.flipped .fcard-inner{transform:rotateY(180deg);}
+.fcard.flipped:hover .fcard-inner{transform:rotateY(172deg) rotateX(3deg);}
+.fcard:focus-visible .fcard-face{outline:2px solid var(--acc); outline-offset:2px;}
+.fcard-face{grid-area:1 / 1; position:relative; overflow:hidden; display:flex; flex-direction:column; min-height:140px; padding:16px 18px; border-radius:18px; border:1px solid var(--line); -webkit-backface-visibility:hidden; backface-visibility:hidden;}
+.fcard-face.front{background:linear-gradient(155deg, var(--bg-panel) 30%, var(--bg-soft)); box-shadow:var(--shadow);}
+.fcard-face.front::after{content:""; position:absolute; right:-36px; top:-36px; width:120px; height:120px; border-radius:50%; background:var(--acc-t); pointer-events:none;}
+.fcard-face.front h4{margin:auto 0 0; padding-top:14px; font-size:16.5px; line-height:1.3; color:var(--ink);}
+.fnum{font-family:var(--f-display); font-weight:800; font-size:13px; color:var(--acc);}
+.fic{width:54px; height:54px; margin-top:16px; fill:none; stroke:var(--acc); stroke-width:1.3; stroke-linecap:round; stroke-linejoin:round; position:relative; z-index:1;}
+.fhint{margin-top:10px; font-family:var(--f-hand); font-size:19px; color:var(--ink-soft); transition:color .2s;}
+.fcard:hover .fhint{color:var(--acc);}
+.fcard-face.back{transform:rotateY(180deg); font-size:14.5px; line-height:1.55; color:var(--ink); background:linear-gradient(155deg, var(--acc-t), transparent 75%), var(--bg-panel); border-color:color-mix(in srgb, var(--acc) 40%, var(--line)); box-shadow:var(--shadow);}
+.fback-t{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--acc); margin-bottom:8px;}
+.fcard-face.back p{margin:6px 0 0;}
+.fcard-face.back .ex{margin-top:10px; padding-top:10px; border-top:1px dashed var(--line-strong); font-size:14px; color:var(--ink-soft);}
+.fcard.lvl .lvl-n{position:absolute; right:14px; top:2px; font-family:var(--f-display); font-weight:800; font-size:58px; line-height:1; color:var(--acc); opacity:.16;}
+
+@media (prefers-reduced-motion: reduce){ .rv{opacity:1; transform:none;} *{animation:none !important; transition:none !important;} html{scroll-behavior:auto;} }
+
+/* ---------- граф понять ---------- */
+.cg{margin-top:4px;}
+.cg-bar{display:flex; flex-wrap:wrap; gap:8px 10px; align-items:center; margin-bottom:12px;}
+.cg-search{flex:1 1 200px; min-width:0; max-width:300px; font-family:var(--f-body); font-size:14px; padding:8px 14px; border:1px solid var(--line-strong); border-radius:999px; background:var(--bg-panel); color:var(--ink);}
+.cg-search:focus{outline:none; border-color:var(--acc); box-shadow:0 0 0 3px var(--acc-t);}
+.cg-chips{display:flex; flex-wrap:wrap; gap:6px;}
+.cg-chip{font-family:var(--f-body); font-size:12.5px; font-weight:700; cursor:pointer; padding:6px 11px; border-radius:999px; border:1px solid var(--line-strong); background:var(--bg-panel); color:var(--ink-soft); display:inline-flex; align-items:center; gap:7px; transition:.2s;}
+.cg-chip i{width:10px; height:10px; border-radius:50%; background:var(--c, var(--ink-soft)); display:inline-block;}
+.cg-chip:hover{border-color:var(--c, var(--acc)); color:var(--ink);}
+.cg-chip.on{border-color:var(--c, var(--acc)); background:color-mix(in srgb, var(--c, var(--acc)) 14%, var(--bg-panel)); color:var(--ink);}
+.cg-body{display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:14px; align-items:stretch;}
+.cg-stage{background:var(--bg-soft); border:1px solid var(--line); border-radius:18px; overflow-x:auto; overflow-y:hidden;}
+.cg-stage svg{display:block; width:100%; min-width:720px; height:auto; user-select:none; -webkit-user-select:none;}
+.cg .s1{--c:var(--tomato);} .cg .s2{--c:var(--herb);} .cg .s3{--c:var(--saffron);} .cg .s4{--c:var(--plum);}
+.cg-zone{fill:none; stroke:var(--c); stroke-opacity:.25; stroke-width:1.5; stroke-dasharray:5 7;}
+.cg-zt{fill:var(--c); opacity:.8; font-family:var(--f-mono); font-size:12px; font-weight:700; letter-spacing:.12em;}
+.cg-e{stroke:var(--line-strong); stroke-width:1.4; opacity:.8; transition:opacity .25s, stroke .25s, stroke-width .25s;}
+.cg-e.on{stroke:var(--ink-soft); stroke-width:2.6; opacity:1;}
+.cg-e.dim{opacity:.1;}
+.cg-n{cursor:pointer; outline:none; transition:opacity .25s;}
+.cg-n circle{fill:color-mix(in srgb, var(--c) 24%, var(--bg-panel)); stroke:var(--c); stroke-width:2; transition:stroke-width .2s, fill .2s;}
+.cg-n text{fill:var(--ink); font-family:var(--f-body); font-size:13px; font-weight:700; paint-order:stroke; stroke:var(--bg-soft); stroke-width:4px; stroke-linejoin:round;}
+.cg-n:hover circle, .cg-n:focus-visible circle, .cg-n.focus circle{stroke-width:3.5; fill:color-mix(in srgb, var(--c) 45%, var(--bg-panel));}
+.cg-n.sel circle{fill:var(--c); stroke:var(--ink); stroke-width:3;}
+.cg-n.dim{opacity:.16;}
+.cg-panel{background:var(--bg-panel); border:1px solid var(--line); border-radius:18px; padding:16px 18px; min-width:0; max-height:560px; overflow:auto;}
+.cg-tag{display:inline-flex; align-items:center; gap:7px; font-family:var(--f-mono); font-size:11px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--c);}
+.cg-tag i{width:9px; height:9px; border-radius:50%; background:var(--c);}
+.cg-title{font-family:var(--f-display); font-size:18px; font-weight:700; line-height:1.25; margin:8px 0 6px; color:var(--ink);}
+.cg-def{margin:0 0 12px; font-size:15px; line-height:1.6;}
+.cg-sub{font-family:var(--f-mono); font-size:10.5px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--ink-soft); margin:12px 0 8px;}
+.cg-links{list-style:none; padding:0; margin:0; display:grid; gap:6px;}
+.cg-links button{width:100%; text-align:left; cursor:pointer; display:grid; grid-template-columns:auto minmax(0,1fr); gap:2px 9px; align-items:center; padding:8px 10px; border-radius:12px; border:1px solid var(--line); background:var(--bg-soft); color:var(--ink); font-family:var(--f-body); transition:.2s;}
+.cg-links button:hover, .cg-links button:focus-visible{border-color:var(--c); background:color-mix(in srgb, var(--c) 10%, var(--bg-soft)); outline:none;}
+.cg-links i{grid-row:span 2; width:10px; height:10px; border-radius:50%; background:var(--c);}
+.cg-links b{font-size:14px;} .cg-links small{font-size:12px; color:var(--ink-soft);}
+.cg-go{margin-top:14px; width:100%;}
+.cg-hint{font-size:14px; color:var(--ink-soft); line-height:1.55; margin:0 0 10px;}
+.cg-stat{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 4px;}
+.cg-stat span{font-family:var(--f-mono); font-size:12px; padding:4px 9px; border-radius:999px; background:var(--bg-soft); border:1px solid var(--line); color:var(--ink-soft);}
+.cg-stat b{color:var(--ink);}
+.cg-flash{animation:cgFlash 1.8s ease;}
+@keyframes cgFlash{0%,100%{box-shadow:var(--shadow);} 25%,60%{box-shadow:0 0 0 3px var(--acc), var(--shadow-lg);}}
+@media (max-width:860px){ .cg-body{grid-template-columns:minmax(0,1fr);} .cg-panel{max-height:none;} }
+.cg-swipe{display:none; font-family:var(--f-hand); font-size:18px; color:var(--ink-soft); text-align:center; margin:6px 0 0;}
+@media (max-width:760px){ .cg-swipe{display:block;} }
+
+@media print{ .px-bg, nav.tabs, .hud-bar, .sec-toc, body::after{display:none !important;} section.panel{display:block !important;} .rv{opacity:1 !important; transform:none !important;} }
+
+/* =========================================================
+   ТЕМА 2 — додаткові компоненти
+   ========================================================= */
+/* сковорідка в hero */
+.plate.pan{background:radial-gradient(circle at 42% 38%, #4B3428, #24160F 72%); box-shadow:0 30px 60px rgba(90,20,5,.42), inset 0 0 0 12px #3A2720, inset 0 0 0 15px #5A3B2D;}
+.pan-handle{position:absolute; left:84%; top:56%; width:34%; height:9%; border-radius:999px; background:linear-gradient(#3A2720,#1E120C); rotate:-14deg; transform-origin:0 50%; box-shadow:0 14px 26px rgba(90,20,5,.35);}
+.pan-handle::after{content:""; position:absolute; right:12%; top:32%; width:20%; height:36%; border-radius:999px; background:#E14B31;}
+.hero-steam{position:absolute; left:24%; top:-4%; width:52%; height:26%; overflow:visible;}
+.hero-steam path{fill:none; stroke:#FFF4E6; stroke-width:3.5; stroke-linecap:round; opacity:0; animation:k2steam 3.2s ease-in-out infinite;}
+.hero-steam path:nth-child(2){animation-delay:1s;} .hero-steam path:nth-child(3){animation-delay:2s;}
+@keyframes k2steam{0%{transform:translateY(14px); opacity:0;} 40%{opacity:.8;} 100%{transform:translateY(-24px); opacity:0;}}
+
+/* схеми нагрівання */
+.heat3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px;}
+.heat3 > div{background:var(--bg-soft); border:1px solid var(--line); border-radius:18px; padding:14px; text-align:center;}
+.heat3 svg{width:140px; height:140px; display:block; margin:0 auto 6px; overflow:visible;}
+.heat3 b{display:block; font-family:var(--f-display); font-size:15px; color:var(--acc);}
+.heat3 p{margin:4px 0 0; font-size:14px; color:var(--ink-soft); line-height:1.5;}
+@media(max-width:700px){ .heat3{grid-template-columns:minmax(0,1fr);} }
+
+/* симулятор способу нагрівання */
+.heat-sim{display:grid; grid-template-columns:220px minmax(0,1fr); gap:20px; align-items:center;}
+.heat-sim svg{width:100%; max-width:220px; display:block; margin:0 auto; overflow:visible;}
+@media(max-width:640px){ .heat-sim{grid-template-columns:minmax(0,1fr);} }
+
+/* індукційна плита */
+.ind-sim{display:grid; grid-template-columns:minmax(0,320px) minmax(0,1fr); gap:20px; align-items:center;}
+.ind-sim svg{width:100%; display:block; overflow:visible;}
+.ind-sim .lamp{display:inline-flex; align-items:center; gap:10px; font-family:var(--f-display); font-weight:700; font-size:20px;}
+.ind-sim .lamp i{width:18px; height:18px; border-radius:50%; background:var(--line-strong); box-shadow:0 0 0 5px var(--bg-soft);}
+.ind-sim .lamp.on i{background:var(--ok); box-shadow:0 0 0 5px var(--tint-ok), 0 0 18px var(--ok);}
+.toggle{display:flex; gap:10px; align-items:center; font-weight:700; font-size:14.5px; cursor:pointer; margin:6px 0;}
+.toggle input{width:20px; height:20px; accent-color:var(--acc);}
+@media(max-width:700px){ .ind-sim{grid-template-columns:minmax(0,1fr);} }
+
+/* температурні шкали */
+.tchart svg{display:block; width:100%; min-width:760px; height:auto; overflow:visible;}
+@media(max-width:800px){ .tchart::after{content:"← гортайте шкалу вбік →"; display:block; text-align:center; font-family:var(--f-hand); font-size:18px; color:var(--ink-soft); margin-top:4px; position:sticky; left:0;} }
+.tchart .tc-grid{stroke:var(--line); stroke-width:1;}
+.tchart .tc-ax{font-family:var(--f-display); font-size:13px; fill:var(--ink-soft);}
+.tchart .tc-t{font-family:var(--f-body); font-weight:800; font-size:16px; fill:var(--ink);}
+.tchart .tc-s{font-family:var(--f-body); font-weight:600; font-size:13px; fill:var(--ink-soft);}
+.tchart .tc-v{font-family:var(--f-display); font-weight:600; font-size:14px; fill:var(--ink);}
+.tchart .tc-mark{stroke:var(--acc); stroke-width:2; stroke-dasharray:6 6;}
+.tchart .tc-mk{font-family:var(--f-hand); font-weight:700; font-size:20px; fill:var(--acc);}
+.tchart .row{cursor:pointer;}
+.tchart .row rect.bg{fill:transparent;}
+.tchart .row.on rect.bg{fill:var(--acc-t);}
+.tchart .row.dim .bar{opacity:.3;}
+
+/* гідромодуль */
+.hm-row{display:grid; grid-template-columns:minmax(0,280px) minmax(0,1fr); gap:20px; align-items:center;}
+.hm-row svg{width:100%; display:block;}
+@media(max-width:640px){ .hm-row{grid-template-columns:minmax(0,1fr);} }
+
+/* етапи запікання */
+.steps-v{display:grid; gap:8px; counter-reset:sv;}
+.steps-v div{display:flex; gap:12px; align-items:flex-start; padding:11px 14px; border-radius:14px; border:1.5px solid var(--line); background:var(--bg-panel); color:var(--ink-soft); font-weight:600; transition:.25s;}
+.steps-v div::before{counter-increment:sv; content:counter(sv); flex:none; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-family:var(--f-display); font-size:12px; background:var(--bg-soft); color:var(--ink-soft);}
+.steps-v div.on{border-color:var(--acc); background:var(--acc-t); color:var(--ink);}
+.steps-v div.on::before{background:var(--acc); color:var(--on-acc);}
+.steps-v div.done{color:var(--ink);}
+.steps-v div.done::before{background:color-mix(in srgb, var(--acc) 40%, var(--bg-soft)); color:var(--ink);}
+
+/* плитки коптіння */
+.tiles3{display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:12px 0;}
+.tiles3 div{border-radius:18px; padding:16px 18px; color:#FFF6EA; font-family:var(--f-display); font-weight:700; font-size:17px; min-height:92px; display:flex; flex-direction:column; justify-content:space-between;}
+.tiles3 div span{font-size:28px; font-weight:800;}
+@media(max-width:560px){ .tiles3{grid-template-columns:minmax(0,1fr);} }
+.grid5 .card.keep{font-size:13.5px; line-height:1.45; padding:14px; overflow-wrap:anywhere;}
+.stat-big{font-family:var(--f-display); font-weight:800; font-size:30px; line-height:1.05; color:var(--acc); white-space:nowrap;}
+
+
+/* =========================================================
+   ТЕМА 3 — п'ять розділів: додано колір «лід» для зберігання сировини
+   s1 приймання — томат · s2 зберігання — лід · s3 мех. обробка — зелень
+   s4 теплова — шафран · s5 готова продукція — баклажан
+   ========================================================= */
+:root{ --ice:#2E6F95; }
+:root[data-theme="dark"]{ --ice:#6FB2D8; }
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ --ice:#6FB2D8; } }
+[data-sec="s2"]{ --acc:var(--ice); }
+[data-sec="s3"]{ --acc:var(--herb); }
+[data-sec="s4"]{ --acc:var(--saffron); }
+[data-sec="s5"]{ --acc:var(--plum); }
+.cg .s2{--c:var(--ice);} .cg .s3{--c:var(--herb);} .cg .s4{--c:var(--saffron);} .cg .s5{--c:var(--plum);}
+.grid5f{display:grid; grid-template-columns:repeat(5,minmax(0,1fr)); gap:12px;}
+@media(max-width:1000px){ .grid5f{grid-template-columns:repeat(2,minmax(0,1fr));} }
+@media(max-width:480px){ .grid5f{grid-template-columns:minmax(0,1fr);} }
+.grid5f .plan-card{min-height:220px; padding:18px;}
+.grid5f .plan-card h4{font-size:16px;}
+.grid5f .plan-card p{font-size:13.5px;}
+
+.grid5 .card.keep h4{font-size:13.5px; overflow-wrap:normal; word-break:normal;}
+/* hero: ящик з продуктами й накладна */
+.crate-k{position:absolute; left:6%; top:14%; width:80%; height:62%; border-radius:16px;
+  background:repeating-linear-gradient(90deg, #C98A4E 0 22%, #A8692F 22% 23.6%);
+  border:12px solid #8A5328; box-shadow:0 30px 56px rgba(90,20,5,.42);}
+.crate-k::after{content:""; position:absolute; left:-12px; right:-12px; top:44%; height:12px; background:#8A5328;}
+.waybill-k{position:absolute; left:60%; top:52%; width:36%; height:44%; border-radius:6px; background:#FFFDF8; rotate:8deg; box-shadow:0 18px 36px rgba(90,20,5,.35); padding:6% 5%;}
+.waybill-k b{display:block; font-family:var(--f-display); font-size:clamp(11px,1.2vw,15px); color:#2A1A12; margin-bottom:10%;}
+.waybill-k i{display:block; height:6px; border-radius:4px; background:#EBDCC7; margin-bottom:9%;}
+.waybill-k span{position:absolute; right:8%; bottom:8%; rotate:-14deg; border:3px solid #2F7A4A; color:#2F7A4A; border-radius:9px; padding:3px 7px; font-family:var(--f-display); font-weight:800; font-size:clamp(9px,1vw,12px);}
+
+/* шкали й діаграми (як у темі 2) */
+.tchart svg{display:block; width:100%; min-width:720px; height:auto; overflow:visible;}
+.tchart .tc-grid{stroke:var(--line); stroke-width:1;}
+.tchart .tc-ax{font-family:var(--f-display); font-size:13px; fill:var(--ink-soft);}
+.tchart .tc-t{font-family:var(--f-body); font-weight:800; font-size:16px; fill:var(--ink);}
+.tchart .tc-s{font-family:var(--f-body); font-weight:600; font-size:13px; fill:var(--ink-soft);}
+.tchart .tc-v{font-family:var(--f-display); font-weight:600; font-size:14px; fill:var(--ink);}
+.tchart .tc-mark{stroke:var(--acc); stroke-width:2; stroke-dasharray:6 6;}
+.tchart .tc-mk{font-family:var(--f-hand); font-weight:700; font-size:20px; fill:var(--acc);}
+.tchart .row{cursor:pointer;}
+.tchart .row rect.bg{fill:transparent;}
+.tchart .row.on rect.bg{fill:var(--acc-t);}
+.tchart .row.dim .bar{opacity:.3;}
+@media(max-width:800px){ .tchart::after{content:"← гортайте шкалу вбік →"; display:block; text-align:center; font-family:var(--f-hand); font-size:18px; color:var(--ink-soft); margin-top:4px; position:sticky; left:0;} }
+
+/* шкала-прогрес */
+.meter{height:18px; border-radius:9px; background:var(--bg-soft); border:1px solid var(--line); overflow:hidden; margin-top:8px; position:relative;}
+.meter i{display:block; height:100%; border-radius:9px; transition:width .4s cubic-bezier(.2,.8,.2,1), background .3s;}
+.status{display:inline-flex; align-items:center; gap:10px; font-family:var(--f-display); font-weight:700; font-size:19px;}
+.status i{width:16px; height:16px; border-radius:50%; flex:none;}
+
+/* стоп-лист */
+.stop-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr)); gap:8px;}
+.stop{background:var(--bg-soft); border:1px solid var(--line); border-radius:14px; padding:10px 12px; display:flex; gap:10px; align-items:flex-start; font-size:14px; line-height:1.45; font-weight:600;}
+.stop i{flex:none; width:22px; height:22px; border-radius:50%; background:var(--red); color:#fff; display:grid; place-items:center; font-style:normal; font-weight:800; font-size:12px; margin-top:1px;}
+
+/* термометр подачі */
+.serve-row{display:grid; grid-template-columns:150px minmax(0,1fr); gap:20px; align-items:center;}
+.serve-row svg{width:100%; max-width:150px; display:block; overflow:visible;}
+@media(max-width:560px){ .serve-row{grid-template-columns:minmax(0,1fr);} .serve-row svg{margin:0 auto;} }
+
+/* потік кроків */
+.steps-v{display:grid; gap:8px; counter-reset:sv;}
+.steps-v div{display:flex; gap:12px; align-items:flex-start; padding:11px 14px; border-radius:14px; border:1.5px solid var(--line); background:var(--bg-panel); color:var(--ink-soft); font-weight:600; transition:.25s;}
+.steps-v div::before{counter-increment:sv; content:counter(sv); flex:none; width:26px; height:26px; border-radius:50%; display:grid; place-items:center; font-family:var(--f-display); font-size:12px; background:var(--bg-soft); color:var(--ink-soft);}
+.steps-v div.on{border-color:var(--acc); background:var(--acc-t); color:var(--ink);}
+.steps-v div.on::before{background:var(--acc); color:var(--on-acc);}
+.steps-v div.done{color:var(--ink);}
+.steps-v div.done::before{background:color-mix(in srgb, var(--acc) 40%, var(--bg-soft)); color:var(--ink);}
+.journal{font-family:var(--f-mono); font-size:13px; line-height:1.7; background:var(--bg-panel); border:1px dashed var(--line-strong); border-radius:12px; padding:12px 14px; min-height:120px;}
+.journal div{border-bottom:1px dashed var(--line); padding:2px 0;}
+.chip.no{background:var(--tint-red);}
+.chip.no::before{content:"✕ "; color:var(--red); font-weight:800;}
+
+/* ГСТ-подібний вибір (дефекти) */
+.pick{display:grid; grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr)); gap:8px;}
+.pick button{font:inherit; font-size:14.5px; font-weight:600; text-align:left; cursor:pointer; padding:10px 14px; border-radius:14px; border:1.5px solid var(--line-strong); background:var(--bg-panel); color:var(--ink); transition:.15s; display:flex; gap:10px; align-items:flex-start;}
+.pick button::before{content:""; flex:none; width:18px; height:18px; margin-top:2px; border-radius:6px; border:2px solid var(--line-strong);}
+.pick button.on{border-color:var(--acc); background:var(--acc-t);}
+.pick button.on::before{background:var(--acc); border-color:var(--acc);}
+.pick button.right{border-color:var(--ok); background:var(--tint-ok);}
+.pick button.wrong{border-color:var(--red); background:var(--tint-red);}
+</style>
+</head><body>
+
+<!-- SVG-спрайт: i-* — іконки, f-* — продукти (кольори через --sa / --sb) -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 7.5 12 3l9 4.5v9L12 21l-9-4.5z"/><path d="M3 7.5 12 12l9-4.5M12 12v9"/></symbol>
+  <symbol id="i-knife" viewBox="0 0 24 24"><path d="M20.5 3.5 7 17l-3.5.5.5-3.5L17.5 3.5c1-1 2-1 3 0z"/><path d="M7 17l3 3-2 1.5L5.5 19"/></symbol>
+  <symbol id="i-pot" viewBox="0 0 24 24"><path d="M4 10h16v6a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M2 10h20M9 7c0-1.2 1-1.2 1-2.5M14 7c0-1.2 1-1.2 1-2.5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M20.5 20.5 15.2 15.2M7.8 10.6l2 2 3.6-3.6"/></symbol>
+  <symbol id="i-cloche" viewBox="0 0 24 24"><path d="M2.5 18.5h19M4.5 18.5a7.5 7.5 0 0 1 15 0M12 11V9M10.5 9h3"/></symbol>
+  <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 2.5c2 4 6.5 6.2 6.5 11.5a6.5 6.5 0 0 1-13 0c0-3.2 2-5.3 3.2-6.3 0 2 1 3.3 2.3 3.3 0-3.4-1.2-5.5 1-8.5z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/><circle cx="12" cy="12" r="6.5"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24"><path d="M6 3h8.5L19 7.5V21H6z"/><path d="M14 3v5h5M9 12.5h7M9 16.5h7"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 0 0 0 18c1.2 0 1.8-.8 1.8-1.7 0-1.3-1.2-1.6-1.2-2.8 0-1 .8-1.6 1.8-1.6H17a4 4 0 0 0 4-4C21 6.6 17 3 12 3z"/><circle cx="7.5" cy="11" r="1"/><circle cx="10" cy="7" r="1"/><circle cx="15" cy="7.5" r="1"/></symbol>
+  <symbol id="i-nose" viewBox="0 0 24 24"><path d="M5 9c2-1 3-1 4 0M15 9c1-1 2-1 4 0"/><path d="M5 15c3 0 4-1.5 7-6.5 3 5 4 6.5 7 6.5"/><path d="M8 19c1.4 1 2.6 1.5 4 1.5s2.6-.5 4-1.5"/></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 13V5.5a1.5 1.5 0 0 1 3 0V11M11 10.5V4a1.5 1.5 0 0 1 3 0v6.5M14 10.5V5.5a1.5 1.5 0 0 1 3 0v8c0 4-2.5 7-6.5 7-3 0-4.5-1.6-6-4.4l-1.4-2.6a1.5 1.5 0 0 1 2.5-1.6L8 14"/></symbol>
+  <symbol id="i-tongue" viewBox="0 0 24 24"><path d="M3 9c3 2 15 2 18 0"/><path d="M7 10.5v3.5a5 5 0 0 0 10 0v-3.5"/><path d="M12 11v4"/></symbol>
+  <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6.2L4.2 19.3A1.2 1.2 0 0 0 5.3 21h13.4a1.2 1.2 0 0 0 1.1-1.7L14 9.2V3"/><path d="M7 15h10"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24"><path d="M12 3s6.5 7.2 6.5 11.5a6.5 6.5 0 0 1-13 0C5.5 10.2 12 3 12 3z"/><path d="M9 15a3 3 0 0 0 3 3"/></symbol>
+  <symbol id="i-bio" viewBox="0 0 24 24"><circle cx="8" cy="9" r="3.5"/><circle cx="16" cy="15.5" r="4"/><circle cx="16.5" cy="5.5" r="1.6"/><circle cx="6.5" cy="17.5" r="1.4"/></symbol>
+  <symbol id="i-wheat" viewBox="0 0 24 24"><path d="M12 21V8"/><path d="M12 8C9 8 8 5.5 8 3c3 0 4 2.5 4 5zM12 8c3 0 4-2.5 4-5-3 0-4 2.5-4 5zM12 13.5c-3 0-4-2.5-4-5 3 0 4 2.5 4 5zM12 13.5c3 0 4-2.5 4-5-3 0-4 2.5-4 5zM12 19c-3 0-4-2.5-4-5 3 0 4 2.5 4 5zM12 19c3 0 4-2.5 4-5-3 0-4 2.5-4 5z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.8 2M10 2.5h4M12 2.5V5"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24"><path d="M13 2.5 4.5 13.5H11l-1 8 8.5-11H12z"/></symbol>
+  <symbol id="i-apple" viewBox="0 0 24 24"><path d="M12 7.5c-2-2-7.5-2-7.5 4.5 0 5.2 3 9.5 5.2 9.5 1 0 1.5-.6 2.3-.6s1.3.6 2.3.6c2.2 0 5.2-4.3 5.2-9.5 0-6.5-5.5-6.5-7.5-4.5z"/><path d="M12 7.5c0-2.2 1-4 3-4.5"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 20 6v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.8 12.2l2.2 2.2 4.3-4.4"/></symbol>
+  <symbol id="i-hat" viewBox="0 0 24 24"><path d="M6.5 14.5a4 4 0 1 1 1.8-7.6 4.2 4.2 0 0 1 7.4 0 4 4 0 1 1 1.8 7.6V20h-11z"/><path d="M6.5 17h11"/></symbol>
+  <symbol id="i-micro" viewBox="0 0 24 24"><path d="M5 21h14M8 17.5h8"/><path d="M9.5 3.5h3l.8 7h-4.6z"/><path d="M11 10.5v2.5M14.5 8a6.5 6.5 0 0 1 .5 9.5"/></symbol>
+
+  <symbol id="f-citrus" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" style="fill:var(--sa)"/><circle cx="50" cy="50" r="39" style="fill:none;stroke:var(--sb);stroke-width:2.5"/><path d="M50 50L50 14M50 50L75.5 24.5M50 50L86 50M50 50L75.5 75.5M50 50L50 86M50 50L24.5 75.5M50 50L14 50M50 50L24.5 24.5" style="stroke:var(--sb);stroke-width:2.5;stroke-linecap:round"/><circle cx="50" cy="50" r="4" style="fill:var(--sb)"/></symbol>
+  <symbol id="f-tomato" viewBox="0 0 100 100"><circle cx="50" cy="50" r="47" style="fill:var(--sa)"/><circle cx="50" cy="50" r="40" style="fill:none;stroke:var(--sb);stroke-width:2"/><g style="fill:none;stroke:var(--sb);stroke-width:2.2"><ellipse cx="50" cy="29" rx="12" ry="15"/><ellipse cx="50" cy="29" rx="12" ry="15" transform="rotate(120 50 50)"/><ellipse cx="50" cy="29" rx="12" ry="15" transform="rotate(240 50 50)"/></g><g style="fill:var(--sb)"><circle cx="46" cy="26" r="2.2"/><circle cx="54" cy="32" r="2.2"/><circle cx="46" cy="26" r="2.2" transform="rotate(120 50 50)"/><circle cx="54" cy="32" r="2.2" transform="rotate(120 50 50)"/><circle cx="46" cy="26" r="2.2" transform="rotate(240 50 50)"/><circle cx="54" cy="32" r="2.2" transform="rotate(240 50 50)"/></g></symbol>
+  <symbol id="f-leaf" viewBox="0 0 100 100"><path d="M50 3C82 25 84 70 50 97C16 70 18 25 50 3Z" style="fill:var(--sa)"/><path d="M50 10L50 92M50 30L65 21M50 45L69 35M50 60L67 51M50 75L62 68M50 30L35 21M50 45L31 35M50 60L33 51M50 75L38 68" style="fill:none;stroke:var(--sb);stroke-width:2.2;stroke-linecap:round"/></symbol>
+  <symbol id="f-anise" viewBox="0 0 100 100"><g style="fill:var(--sa)"><ellipse cx="50" cy="25" rx="9" ry="22"/><ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(45 50 50)"/><ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(90 50 50)"/><ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(135 50 50)"/><ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(180 50 50)"/><ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(225 50 50)"/><ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(270 50 50)"/><ellipse cx="50" cy="25" rx="9" ry="22" transform="rotate(315 50 50)"/></g><g style="fill:var(--sb)"><ellipse cx="50" cy="27" rx="3.2" ry="6"/><ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(90 50 50)"/><ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(180 50 50)"/><ellipse cx="50" cy="27" rx="3.2" ry="6" transform="rotate(270 50 50)"/><circle cx="50" cy="50" r="6"/></g></symbol>
+  <symbol id="f-pepper" viewBox="0 0 100 100"><circle cx="50" cy="50" r="40" style="fill:var(--sa)"/><path d="M28 40A25 25 0 0 1 48 24" style="fill:none;stroke:var(--sb);stroke-width:7;stroke-linecap:round"/></symbol>
+  <symbol id="f-chili" viewBox="0 0 100 100"><path d="M22 28C30 68 58 90 92 86C70 80 46 60 36 24Z" style="fill:var(--sa)"/><path d="M27 28C23 18 29 9 39 7M24 27C30 22 36 22 40 26" style="fill:none;stroke:var(--sb);stroke-width:5;stroke-linecap:round"/></symbol>
+  <symbol id="f-mushroom" viewBox="0 0 100 100"><path d="M8 52C8 18 92 18 92 52Z" style="fill:var(--sa)"/><path d="M38 52L35 88C35 93 65 93 65 88L62 52Z" style="fill:var(--sa)"/><path d="M20 52L30 40M35 52L40 38M50 52L50 37M65 52L60 38M80 52L70 40" style="fill:none;stroke:var(--sb);stroke-width:2.4;stroke-linecap:round"/></symbol>
+  <symbol id="f-carrot" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" style="fill:var(--sa)"/><circle cx="50" cy="50" r="28" style="fill:none;stroke:var(--sb);stroke-width:2.5;stroke-dasharray:4 6"/><circle cx="50" cy="50" r="11" style="fill:none;stroke:var(--sb);stroke-width:3"/></symbol>
+  <symbol id="i-fish" viewBox="0 0 24 24"><path d="M2.5 12c3-4.5 7-6 11-6 3.5 0 6 2.5 7.5 6-1.5 3.5-4 6-7.5 6-4 0-8-1.5-11-6z"/><path d="M2.5 12 1 8.5M2.5 12 1 15.5"/><circle cx="16" cy="10.5" r=".8"/></symbol>
+    <!-- Тема 2: додаткові іконки -->
+    <symbol id="i-steam" viewBox="0 0 24 24"><path d="M7 21c-2-3 2-5 0-8s2-5 0-8M12 21c-2-3 2-5 0-8s2-5 0-8M17 21c-2-3 2-5 0-8s2-5 0-8"/></symbol>
+    <symbol id="i-thermo" viewBox="0 0 24 24"><path d="M14 14.5V5a2 2 0 0 0-4 0v9.5a4 4 0 1 0 4 0z"/><path d="M12 9v7.5"/></symbol>
+    <symbol id="i-pan" viewBox="0 0 24 24"><circle cx="9.5" cy="12" r="7"/><path d="M16.5 12h6"/><circle cx="9.5" cy="12" r="2.6"/></symbol>
+    <symbol id="i-magnet" viewBox="0 0 24 24"><path d="M5 3v9a7 7 0 0 0 14 0V3h-4.5v9a2.5 2.5 0 0 1-5 0V3z"/><path d="M5 7.5h4.5M14.5 7.5H19"/></symbol>
+    <symbol id="i-rays" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M5.3 18.7l2.1-2.1M16.6 7.4l2.1-2.1"/></symbol>
+    <symbol id="i-wave" viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2"/><path d="M5.5 10c1-1.4 2-1.4 3 0s2 1.4 3 0M5.5 14c1-1.4 2-1.4 3 0s2 1.4 3 0M15.5 8v8M18.5 9.5v1M18.5 13.5v1"/></symbol>
+    <symbol id="i-fan" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.8"/><path d="M12 10.2C12 6 13 3 15.8 3c2 0 2.1 3-1.2 5.2M13.8 12c4.2 0 7.2 1 7.2 3.8 0 2-3 2.1-5.2-1.2M12 13.8c0 4.2-1 7.2-3.8 7.2-2 0-2.1-3 1.2-5.2M10.2 12C6 12 3 11 3 8.2c0-2 3-2.1 5.2 1.2"/></symbol>
+    <symbol id="i-smoke" viewBox="0 0 24 24"><path d="M8 21c-2.5-2 0-4 2-5.5s2-4-.5-5.5M14 21c-2.5-2 0-4 2-5.5s2-4-.5-5.5M12 6.5c1.5-1 2.5-2.5 1.5-4"/></symbol>
+    <symbol id="i-oven" viewBox="0 0 24 24"><rect x="3" y="3.5" width="18" height="17" rx="2.5"/><rect x="6" y="9" width="12" height="8.5" rx="1.2"/><path d="M6.5 6.2h1.5M10 6.2h1.5M15 6.2h3"/></symbol>
+    <symbol id="i-grill" viewBox="0 0 24 24"><path d="M3.5 10h17a8.5 8 0 0 1-17 0z"/><path d="M8 17.5l-2 4M16 17.5l2 4M8 6.5c0-1.2 1-1.2 1-2.5M12 6.5c0-1.2 1-1.2 1-2.5M16 6.5c0-1.2 1-1.2 1-2.5"/></symbol>
+    <symbol id="i-gauge" viewBox="0 0 24 24"><path d="M3.5 17a8.5 8.5 0 1 1 17 0"/><path d="M12 17l4.2-5.2"/><circle cx="12" cy="17" r="1.3"/><path d="M6 13.5l1 .6M8.6 9.8l.6 1M12 8.5v1.2"/></symbol>
+    <symbol id="i-wok" viewBox="0 0 24 24"><path d="M2.5 10.5h19a9.5 6.5 0 0 1-19 0z"/><path d="M21.5 10.5l1.5-1.5M7 7l.8-2M12 6.5V3.5M17 7l-.8-2"/></symbol>
+    <symbol id="i-air" viewBox="0 0 24 24"><path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h7"/></symbol>
+    <symbol id="i-oil" viewBox="0 0 24 24"><path d="M9 3h6M10 3v3.5c-3 1.3-5 4.3-5 7.8a7 7 0 0 0 14 0c0-3.5-2-6.5-5-7.8V3"/><path d="M8.5 15.5c.6 1.6 2 2.6 3.5 2.6"/></symbol>
+    <symbol id="i-snow" viewBox="0 0 24 24"><path d="M12 2.5v19M3.8 7.2l16.4 9.6M3.8 16.8l16.4-9.6M9.5 4.5 12 7l2.5-2.5M9.5 19.5 12 17l2.5 2.5"/></symbol>
+    <symbol id="i-lid" viewBox="0 0 24 24"><path d="M3 13h18M5 13a7 7 0 0 1 14 0M10.5 6h3M12 6v-2"/><path d="M5 16h14v3a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2z"/></symbol>
+
+    <!-- Тема 2: яйце для сковорідки -->
+    <symbol id="f-egg" viewBox="0 0 100 100">
+      <path d="M50 6C70 4 90 18 89 40C97 62 80 92 54 90C28 97 6 78 10 54C3 30 26 8 50 6Z" style="fill:var(--sa)"/>
+      <circle cx="47" cy="47" r="17" style="fill:var(--sb)"/>
+      <circle cx="41" cy="41" r="4.5" style="fill:#FFF8EE;opacity:.7"/>
+    </symbol>
+
+    <!-- Тема 3: додаткові іконки -->
+    <symbol id="i-truck" viewBox="0 0 24 24"><path d="M2.5 6h11v10h-11zM13.5 9.5h4l3 3.5V16h-7z"/><circle cx="6.5" cy="17.5" r="1.8"/><circle cx="17" cy="17.5" r="1.8"/></symbol>
+    <symbol id="i-scale" viewBox="0 0 24 24"><path d="M12 4v15M7 20h10M5 7h14M5 7l-2.5 6a2.5 2.5 0 0 0 5 0zM19 7l-2.5 6a2.5 2.5 0 0 0 5 0z"/><circle cx="12" cy="4" r="1.2"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></symbol>
+    <symbol id="i-fridge" viewBox="0 0 24 24"><rect x="5" y="2.5" width="14" height="19" rx="2.5"/><path d="M5 10h14M8.5 6v1.5M8.5 13v3"/></symbol>
+    <symbol id="i-sieve" viewBox="0 0 24 24"><path d="M3 9h18l-7 7v5l-4-2v-3z"/><path d="M7 5.5h.01M11 4h.01M15 5.5h.01"/></symbol>
+    <symbol id="i-ruler" viewBox="0 0 24 24"><rect x="2.5" y="8" width="19" height="8" rx="1.5"/><path d="M6 8v3M9.5 8v4.5M13 8v3M16.5 8v4.5"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 6.5h16M9.5 6.5V4h5v2.5M6 6.5l1 14h10l1-14M10 10.5v6M14 10.5v6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></symbol>
+    <symbol id="i-hook" viewBox="0 0 24 24"><path d="M12 2.5v6M12 8.5a4 4 0 1 1-4 4"/><path d="M8 3h8"/></symbol>
+    <symbol id="i-cake" viewBox="0 0 24 24"><path d="M4 20.5h16V13a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2zM4 15.5c2 1.5 4 1.5 5.3 0 1.4 1.5 4 1.5 5.4 0 1.3 1.5 3.3 1.5 5.3 0M12 11V8"/><path d="M12 8c-1 0-1.5-.8-1.5-1.6S12 4 12 4s1.5 1.6 1.5 2.4S13 8 12 8z"/></symbol>
+    <symbol id="i-bowl" viewBox="0 0 24 24"><path d="M3 11h18a9 7 0 0 1-18 0zM8 21h8"/><path d="M9 8c0-1.2 1-1.2 1-2.5M14 8c0-1.2 1-1.2 1-2.5"/></symbol>
+    <symbol id="i-cup" viewBox="0 0 24 24"><path d="M4.5 9h12v6a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5zM16.5 11h1.5a2.5 2.5 0 0 1 0 5h-1.6"/><path d="M8.5 6c0-1.2 1-1.2 1-2.5M12.5 6c0-1.2 1-1.2 1-2.5"/></symbol>
+    <symbol id="i-jar" viewBox="0 0 24 24"><path d="M7.5 3h9M8 3v2.5c-1.6.9-2.5 2.5-2.5 4.3V19a2 2 0 0 0 2 2h9a2 2 0 0 0 2-2V9.8c0-1.8-.9-3.4-2.5-4.3V3"/><path d="M5.5 12.5h13"/></symbol>
+    <symbol id="i-bread" viewBox="0 0 24 24"><path d="M4 11a4 4 0 0 1 3-6.5h10A4 4 0 0 1 20 11v8.5H4z"/><path d="M9 9.5l1.5-2M13 9.5l1.5-2"/></symbol>
+
+    <symbol id="f-potato" viewBox="0 0 100 100">
+      <path d="M18 34C30 12 70 8 86 28C98 44 92 72 72 84C50 96 20 88 10 66C4 54 10 44 18 34Z" style="fill:var(--sa)"/>
+      <g style="fill:var(--sb)"><circle cx="34" cy="38" r="3.2"/><circle cx="62" cy="30" r="2.6"/><circle cx="70" cy="60" r="3.2"/><circle cx="40" cy="68" r="2.6"/><circle cx="52" cy="50" r="2.2"/></g>
+    </symbol>
+  <symbol id="i-meat" viewBox="0 0 24 24"><path d="M14.5 3.5c3.5 0 6 2.5 6 6 0 5-6 9-11 9-2 0-3-1-3-3 0-5 3-12 8-12z"/><circle cx="14.5" cy="9.5" r="2"/><path d="M6.5 15.5 3 19a1.5 1.5 0 0 0 2 2l3.5-3.5"/></symbol>
+  <symbol id="i-bird" viewBox="0 0 24 24"><path d="M7 7.5a3 3 0 1 1 5.5 1.7L14 11c3 0 6.5 1.5 7 4.5-2.5 0-4 1-5.5 3S11.5 21 9 21c-3 0-5-2.5-5-5.5 0-2 1-3.6 2.4-4.5L7 7.5z"/><path d="M4.5 6 7 7.5"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M2.5 5.5c3-1.2 6.7-1 9.5 1 2.8-2 6.5-2.2 9.5-1v13.5c-3-1.2-6.7-1-9.5 1-2.8-2-6.5-2.2-9.5-1z"/><path d="M12 6.5V20"/></symbol>
+</defs></svg>
+
+<!-- паралакс-фон -->
+<div class="px-bg" id="pxBg" aria-hidden="true"></div>
+
+<div class="frame">
+  <div class="hud-bar">
+    <span><span class="dot"></span>SYSTEM: STEAM‑HUB / FOOD‑TECH.LAB — ОНЛАЙН · ЛЕКЦІЯ: 03</span>
+    <button class="theme-btn" id="themeBtn" type="button">☾ Темна тема</button>
+  </div>
+
+  <header class="hero">
+    <span class="hero-num" aria-hidden="true">03</span>
+    <div class="hero-shape" data-speed=".25" style="right:-60px;top:-70px;width:240px;height:240px"><svg viewBox="0 0 100 100"><use href="#f-citrus"/></svg></div>
+    <div class="hero-shape" data-speed=".45" style="left:38%;bottom:-110px;width:230px;height:230px"><svg viewBox="0 0 100 100"><use href="#f-potato"/></svg></div>
+    <div>
+      <span class="hero-tag">// LECTURE_03 · PROCESS.STAGES</span>
+      <h1>Основні стадії технологічного процесу</h1>
+      <span class="hand">виробництва продукції в ресторанах</span>
+      <p class="sub">Інтерактивний конспект лекції: приймання сировини, зберігання продуктів, механічна та гідромеханічна обробка, теплова обробка і зберігання готової їжі — з картою холоду, калькуляторами відходів і термінів, класифікаторами й тестом.</p>
+      <div class="hero-meta">
+        <span class="chip"><b>5</b> розділів теорії</span>
+        <span class="chip"><b>16</b> симуляторів</span>
+        <span class="chip"><b>6</b> кейсів практики</span>
+        <span class="chip"><b>14</b> питань тесту</span>
+      </div>
+    </div>
+    <!-- ящик з продуктами й накладна: кожен елемент на своїй «висоті» -->
+    <div class="plate-wrap" id="plate" aria-hidden="true">
+      <div class="crate-k" data-depth="0.4"></div>
+      <div class="food" data-depth="1.0" style="left:12%;top:20%;width:30%;height:30%;--sa:#E14B31;--sb:#FFD2C2"><svg viewBox="0 0 100 100"><use href="#f-tomato"/></svg></div>
+      <div class="food" data-depth="1.3" style="left:44%;top:18%;width:28%;height:24%;rotate:-14deg;--sa:#C99A5B;--sb:#8A5F33"><svg viewBox="0 0 100 100"><use href="#f-potato"/></svg></div>
+      <div class="food" data-depth="1.6" style="left:16%;top:50%;width:22%;height:22%;rotate:30deg;--sa:#3E7A4A;--sb:#9CCB98"><svg viewBox="0 0 100 100"><use href="#f-leaf"/></svg></div>
+      <div class="food" data-depth="1.2" style="left:38%;top:46%;width:20%;height:20%;--sa:#E8742A;--sb:#FFD2A6"><svg viewBox="0 0 100 100"><use href="#f-carrot"/></svg></div>
+      <div class="food" data-depth="1.7" style="left:64%;top:26%;width:18%;height:18%;--sa:#B97A4E;--sb:#F2D2B0"><svg viewBox="0 0 100 100"><use href="#f-mushroom"/></svg></div>
+      <div class="waybill-k" data-depth="2.2"><b>Накладна</b><i></i><i style="width:80%"></i><i style="width:90%"></i><i style="width:60%"></i><span>ПРИЙНЯТО</span></div>
+      <div class="food" data-depth="2.6" style="left:76%;top:0;width:24%;height:24%;rotate:-22deg;--sa:#B8261A;--sb:#3E7A4A"><svg viewBox="0 0 100 100"><use href="#f-chili"/></svg></div>
+    </div>
+  </header>
+
+  <nav class="tabs" id="tabsNav" aria-label="Розділи лекції">
+    <button data-t="map" class="active">🗺 Огляд</button>
+    <button data-t="s1"><i style="background:var(--tomato)"></i>01 · Приймання</button>
+    <button data-t="s2"><i style="background:var(--ice)"></i>02 · Зберігання</button>
+    <button data-t="s3"><i style="background:var(--herb)"></i>03 · Мех. обробка</button>
+    <button data-t="s4"><i style="background:var(--saffron)"></i>04 · Теплова</button>
+    <button data-t="s5"><i style="background:var(--plum)"></i>05 · Готова їжа</button>
+    <button data-t="practice">✅ Практика</button>
+    <button data-t="quiz">❓ Тест</button>
+    <button data-t="ref">📚 Глосарій</button>
+    <div class="nav-progress" aria-hidden="true"><i id="navProgress"></i></div>
+  </nav>
+
+  <!-- ================= ОГЛЯД ================= -->
+  <section class="panel plain active" id="map">
+    <header class="sec-head">
+      <div class="sec-idx">00</div>
+      <div>
+        <span class="sec-kicker">Огляд лекції</span>
+        <h2>Загальна карта лекції</h2>
+        <span class="hand">шлях продукту від рампи до тарілки</span>
+        <p class="lede"><b>Мета:</b> знати, яку сировину можна приймати, як і скільки її зберігати, які операції виконують у заготівельних цехах, що відбувається з продуктом під час теплової обробки і як зберігати готову їжу безпечно.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <article class="block" data-kind="data" id="map-1">
+        <header class="block-head"><span class="block-no">◎</span><div><span class="kind"></span><h3>Ментальна карта лекції</h3></div></header>
+        <div class="mindmap-wrap" style="margin-bottom:0">
+          <svg class="mm" viewBox="0 0 1100 450" role="img" aria-label="Ментальна карта лекції">
+            <defs><marker id="arM" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" class="sv-arrow"/></marker></defs>
+            <g class="sv-line" marker-end="url(#arM)">
+              <path class="mm-link" data-a="core" data-b="n1" data-p="450 190 330 110"/><path class="mm-link" data-a="core" data-b="n2" data-p="650 190 770 110"/>
+              <path class="mm-link" data-a="core" data-b="n3" data-p="440 240 300 320"/><path class="mm-link" data-a="core" data-b="n4" data-p="660 240 800 320"/>
+              <path class="mm-link" data-a="core" data-b="n5" data-p="550 250 550 316"/>
+            </g>
+            <g class="mm-node" data-id="core"><g class="mm-in"><rect x="430" y="170" width="240" height="80" rx="40" class="sv-core"/>
+              <text x="550" y="204" text-anchor="middle" class="sv-core-t" style="font-family:var(--f-display);font-size:15px;font-weight:700">ТЕМА 03</text>
+              <text x="550" y="228" text-anchor="middle" class="sv-core-t2" style="font-family:var(--f-mono);font-size:12px">5 СТАДІЙ ПРОЦЕСУ</text></g></g>
+            <g class="mm-node" data-id="n1"><g class="mm-in"><rect x="40" y="40" width="290" height="104" rx="20" class="sv-node st-tomato"/>
+              <text x="185" y="74" text-anchor="middle" class="sv-t" style="font-weight:700">01 · Приймання</text>
+              <text x="185" y="98" text-anchor="middle" class="sv-ts">дві групи сировини · документи</text>
+              <text x="185" y="118" text-anchor="middle" class="sv-ts">стоп-лист · ціла тара</text></g></g>
+            <g class="mm-node" data-id="n2"><g class="mm-in"><rect x="770" y="40" width="290" height="104" rx="20" class="sv-node" style="stroke:var(--ice)"/>
+              <text x="915" y="74" text-anchor="middle" class="sv-t" style="font-weight:700">02 · Зберігання</text>
+              <text x="915" y="98" text-anchor="middle" class="sv-ts">склад · температура · вологість</text>
+              <text x="915" y="118" text-anchor="middle" class="sv-ts">терміни · сусідство</text></g></g>
+            <g class="mm-node" data-id="n3"><g class="mm-in"><rect x="20" y="300" width="280" height="104" rx="20" class="sv-node st-herb"/>
+              <text x="160" y="334" text-anchor="middle" class="sv-t" style="font-weight:700">03 · Мех. обробка</text>
+              <text x="160" y="358" text-anchor="middle" class="sv-ts">10 операцій · розморожування</text>
+              <text x="160" y="378" text-anchor="middle" class="sv-ts">відходи і втрати</text></g></g>
+            <g class="mm-node" data-id="n5"><g class="mm-in"><rect x="405" y="320" width="290" height="104" rx="20" class="sv-node st-plum"/>
+              <text x="550" y="354" text-anchor="middle" class="sv-t" style="font-weight:700">05 · Готова продукція</text>
+              <text x="550" y="378" text-anchor="middle" class="sv-ts">75 · 65 · 12–14 °C</text>
+              <text x="550" y="398" text-anchor="middle" class="sv-ts">терміни · нереалізована їжа</text></g></g>
+            <g class="mm-node" data-id="n4"><g class="mm-in"><rect x="800" y="300" width="280" height="104" rx="20" class="sv-node st-saffron"/>
+              <text x="940" y="334" text-anchor="middle" class="sv-t" style="font-weight:700">04 · Теплова обробка</text>
+              <text x="940" y="358" text-anchor="middle" class="sv-ts">кулінарна готовність · 80 °C</text>
+              <text x="940" y="378" text-anchor="middle" class="sv-ts">харчова цінність · втрати маси</text></g></g>
+          </svg>
+        </div>
+      </article>
+
+      <article class="block" data-kind="data" id="map-3">
+        <header class="block-head"><span class="block-no">⌘</span><div><span class="kind"></span><h3>Граф понять лекції</h3></div></header>
+        <p class="lede">Карта зв'язків між поняттями: <b>колір</b> — розділ, <b>розмір вузла</b> — кількість зв'язків. Наведіть курсор, щоб побачити сусідів; натисніть — у панелі поруч з'явиться пояснення, список зв'язків і перехід до блоку лекції. Вузли можна перетягувати.</p>
+        <div class="cg" id="cgWrap">
+          <div class="cg-bar">
+            <input class="cg-search" id="cgSearch" type="search" placeholder="Пошук поняття…" aria-label="Пошук поняття">
+            <div class="cg-chips" id="cgChips"><button class="cg-chip on" type="button" data-s="0">Усі розділи</button><button class="cg-chip s1" type="button" data-s="1"><i></i>01 · Приймання</button><button class="cg-chip s2" type="button" data-s="2"><i></i>02 · Зберігання</button><button class="cg-chip s3" type="button" data-s="3"><i></i>03 · Мех. обробка</button><button class="cg-chip s4" type="button" data-s="4"><i></i>04 · Теплова</button><button class="cg-chip s5" type="button" data-s="5"><i></i>05 · Готова їжа</button></div>
+            <button class="btn ghost small" type="button" id="cgReset">⟲ Скинути</button>
+          </div>
+          <div class="cg-body">
+            <div><div class="cg-stage"><svg id="cgSvg" viewBox="0 0 1000 700" role="group" aria-label="Граф понять лекції"></svg></div><p class="cg-swipe">← гортайте граф убік →</p></div>
+            <aside class="cg-panel" id="cgPanel" aria-live="polite"></aside>
+          </div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="theory" id="map-2">
+        <header class="block-head"><span class="block-no">≡</span><div><span class="kind"></span><h3>План лекції</h3></div></header>
+        <div class="grid5f">
+          <a class="card plan-card" data-go="s1" style="background:#E14B31"><span class="ghost"><svg viewBox="0 0 24 24"><use href="#i-truck"/></svg></span><span class="plan-n">01</span><h4>Приймання</h4><p>Приймання продовольчої сировини і харчових продуктів.</p><span class="k">5 блоків →</span></a>
+          <a class="card plan-card" data-go="s2" style="background:#2E6F95"><span class="ghost"><svg viewBox="0 0 24 24"><use href="#i-snow"/></svg></span><span class="plan-n">02</span><h4>Зберігання</h4><p>Зберігання харчових продуктів.</p><span class="k">6 блоків →</span></a>
+          <a class="card plan-card" data-go="s3" style="background:#2F7A4A"><span class="ghost"><svg viewBox="0 0 24 24"><use href="#i-knife"/></svg></span><span class="plan-n">03</span><h4>Мех. обробка</h4><p>Механічна та гідромеханічна обробка сировини.</p><span class="k">5 блоків →</span></a>
+          <a class="card plan-card" data-go="s4" style="background:#E29A12;color:#2A1A0C !important"><span class="ghost"><svg viewBox="0 0 24 24"><use href="#i-flame"/></svg></span><span class="plan-n">04</span><h4>Теплова обробка</h4><p>Теплова обробка н/ф і приготування готової їжі.</p><span class="k">4 блоки →</span></a>
+          <a class="card plan-card" data-go="s5" style="background:#6B3576"><span class="ghost"><svg viewBox="0 0 24 24"><use href="#i-cloche"/></svg></span><span class="plan-n">05</span><h4>Готова їжа</h4><p>Зберігання готової продукції.</p><span class="k">5 блоків →</span></a>
+        </div>
+      </article>
+
+      <div class="callout acc"><b>Як користуватись.</b> Кожен розділ складається з коротких теоретичних блоків (картки перевертаються кліком, акордеони розгортаються) та позначених <span class="tag-sim">SIM</span> інтерактивних моделей: карти холоду, калькуляторів термінів і відходів, класифікаторів. Наприкінці — кейси для практики, тест і глосарій. Колір інтерфейсу підказує, у якому розділі ви зараз.</div>
+    </div>
+  </section>
+
+  <!-- ================= S1 · ПРИЙМАННЯ ================= -->
+  <section class="panel" id="s1">
+    <header class="sec-head">
+      <div class="sec-deco" data-rot="1"><svg viewBox="0 0 100 100"><use href="#f-tomato"/></svg></div>
+      <div class="sec-idx">01</div>
+      <div>
+        <span class="sec-kicker">Розділ 1 / 5</span>
+        <h2>Приймання продовольчої сировини і харчових продуктів</h2>
+        <span class="hand">що можна завезти на кухню — а що ні</span>
+        <p class="lede">Сировина, що надходить у заклад, має відповідати стандартам і гігієнічним вимогам і супроводжуватися документами про якість і безпеку. Деякі продукти приймати заборонено взагалі — щоб запобігти інфекційним захворюванням і харчовим отруєнням.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Яка буває сировина"><b>A</b>Яка буває сировина</div>
+
+      <article class="block" data-kind="theory" id="s1-1">
+        <header class="block-head"><span class="block-no">1.1</span><div><span class="kind"></span><h3>Дві групи первинної сировини</h3></div></header>
+        <p class="lede">Натисніть картку, щоб побачити, що належить до групи.</p>
+        <div class="grid2">
+          <div class="card" data-ic="i-wheat"><h4>Група 1 · без технологічної обробки</h4><p>Сільськогосподарські продукти, що не пройшли технологічної обробки:</p><span class="chip">свіжа картопля</span><span class="chip">овочі</span><span class="chip">зелень</span><span class="chip">плоди, ягоди</span><span class="chip">цитрусові</span><span class="chip">баштанні</span><span class="chip">жива й охолоджена риба</span><span class="chip">нерибні морепродукти</span><span class="chip">перната дичина</span><span class="chip">гриби</span></div>
+          <div class="card" data-ic="i-box"><h4>Група 2 · повністю або частково перероблені</h4><p>Пройшли переробку на підприємствах харчової промисловості:</p><span class="chip">борошно, крохмаль</span><span class="chip">крупи, макарони, бобові</span><span class="chip">цукор</span><span class="chip">харчові жири</span><span class="chip">молочні продукти</span><span class="chip">м'ясо й м'ясопродукти</span><span class="chip">рибопродукти</span><span class="chip">яйця</span><span class="chip">птиця, субпродукти</span><span class="chip">напівфабрикати</span><span class="chip">спеції, приправи</span></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-2">
+        <header class="block-head"><span class="block-no">1.2</span><div><span class="kind"></span><h3>Класифікатор: до якої групи належить сировина?</h3></div></header>
+        <div id="clsRaw"></div>
+        <div class="sim-log" id="clsRawScore">Оберіть групу для кожного продукту.</div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Що приймати заборонено"><b>B</b>Що приймати заборонено</div>
+
+      <article class="block" data-kind="theory" id="s1-3">
+        <header class="block-head"><span class="block-no">1.3</span><div><span class="kind"></span><h3>Стоп-лист приймання</h3></div></header>
+        <div class="definition"><span class="term">Загальна вимога</span><p>сировина за якістю відповідає стандартам і гігієнічним вимогам і супроводжується документами, що засвідчують її якість і безпеку. Тара й упаковка — <b>цілі, неушкоджені, незабруднені</b>.</p></div>
+        <div class="stop-grid">
+          <div class="stop"><i>✕</i><span>Продукти без документів про якість і безпеку</span></div>
+          <div class="stop"><i>✕</i><span>М'ясо без клейма ветогляду й ветеринарного свідоцтва</span></div>
+          <div class="stop"><i>✕</i><span>Риба, раки, птиця без ветеринарного свідоцтва</span></div>
+          <div class="stop"><i>✕</i><span>Непатрана птиця (крім дичини)</span></div>
+          <div class="stop"><i>✕</i><span>Яйця з брудною шкаралупою, з нарізом, «тек», «бій»; з господарств, де був сальмонельоз</span></div>
+          <div class="stop"><i>✕</i><span>Качині й гусячі яйця</span></div>
+          <div class="stop"><i>✕</i><span>Консерви негерметичні, бомбажні, «хлопавки», з іржею, деформовані, без етикеток, прострочені</span></div>
+          <div class="stop"><i>✕</i><span>Крупа, борошно, сухі продукти, заражені шкідниками хлібних запасів</span></div>
+          <div class="stop"><i>✕</i><span>Овочі й фрукти з цвіллю та ознаками гнилі</span></div>
+          <div class="stop"><i>✕</i><span>Гриби неїстівні, некультивовані їстівні, червиві, зім'яті</span></div>
+          <div class="stop"><i>✕</i><span>Продукти з простроченим терміном і ознаками недоброякісності</span></div>
+          <div class="stop"><i>✕</i><span>Продукція домашнього виготовлення: консервація, м'ясні, рибні, молочні продукти</span></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-4">
+        <header class="block-head"><span class="block-no">1.4</span><div><span class="kind"></span><h3>Ви на рампі: прийняти чи відмовити?</h3></div></header>
+        <p class="lede">До закладу приїхала машина з продуктами. Вирішіть долю кожної позиції.</p>
+        <div id="clsAccept"></div>
+        <div class="sim-log" id="clsAcceptScore">Ухваліть рішення щодо кожної позиції.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s1-5">
+        <header class="block-head"><span class="block-no">1.5</span><div><span class="kind"></span><h3>Огляд консервів: знайдіть дефекти</h3></div></header>
+        <p class="lede">Позначте ознаки, через які банку консервів не можна прийняти, і натисніть «Перевірити».</p>
+        <div class="pick" id="canPick"></div>
+        <div class="btnrow"><button class="btn" id="canCheck" type="button">Перевірити</button><button class="btn ghost" id="canReset" type="button">⟲ Спочатку</button></div>
+        <div class="sim-log" id="canLog">Обрано 0 ознак.</div>
+      </article>
+
+      <div class="takeaway" id="s1-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок розділу</span><p>Первинна сировина буває непереробленою (сільськогосподарські продукти) і переробленою на підприємствах харчової промисловості. Приймати можна лише продукти з документами про якість і безпеку, у цілій і чистій тарі. Стоп-лист із 12 пунктів — від м'яса без ветеринарного клейма до консервів з бомбажем і продукції домашнього виготовлення — захищає від інфекцій і харчових отруєнь.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= S2 · ЗБЕРІГАННЯ ================= -->
+  <section class="panel" id="s2">
+    <header class="sec-head">
+      <div class="sec-deco" data-rot="-1"><svg viewBox="0 0 100 100"><use href="#f-citrus"/></svg></div>
+      <div class="sec-idx">02</div>
+      <div>
+        <span class="sec-kicker">Розділ 2 / 5</span>
+        <h2>Зберігання харчових продуктів</h2>
+        <span class="hand">холод, темрява і правильне сусідство</span>
+        <p class="lede">Запас сировини в межах термінів, потрібних для безперервної роботи, — частина технологічного процесу. Якість страв значною мірою залежить від того, як дотримано правил зберігання.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Склад і режими"><b>A</b>Склад і режими</div>
+
+      <article class="block" data-kind="theory" id="s2-1">
+        <header class="block-head"><span class="block-no">2.1</span><div><span class="kind"></span><h3>Продовольчий склад</h3></div></header>
+        <p class="prose">Склад має кілька охолоджуваних і неохолоджуваних приміщень (комор), розташованих компактно біля розвантажувального майданчика й вантажних ліфтів. Невеликий запас нешвидкопсувної сировини (борошно, цукор, крохмаль, спеції) створюють для раціонального використання транспорту.</p>
+        <div class="ticket">
+          <span class="mini-title">Вимоги до складських приміщень</span>
+          <div class="check-row"><i>✓</i>Пряма підлога без сходів і порогів, на одному рівні з виробництвом — для візків</div>
+          <div class="check-row"><i>✓</i>Гладкі підлоги, стіни, стелі й двері — для санітарної обробки</div>
+          <div class="check-row"><i>✓</i>Притічно-витяжна вентиляція, штучне освітлення, щільні двері</div>
+          <div class="check-row"><i>✓</i>Холодильні камери — з вологостійкою теплоізоляцією по периметру</div>
+          <div class="check-row"><i>✓</i>Товарні ваги на майданчику; прилади для вимірювання температури й вологості</div>
+        </div>
+        <div class="callout acc"><b>Чому на складі немає вікон?</b> Світло — каталізатор окислювальних процесів у продуктах під час зберігання. Тому природне освітлення не передбачають, а продукти зберігають у темряві.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-2">
+        <header class="block-head"><span class="block-no">2.2</span><div><span class="kind"></span><h3>Карта холоду: температура і вологість</h3></div></header>
+        <p class="lede">Натисніть на групу продуктів — на шкалі підсвітиться її температура, нижче з'являться вологість і правила.</p>
+        <div class="btnrow" id="storeBtns"></div>
+        <div class="sim-stage tchart"><div id="storeChart"></div></div>
+        <div class="result-box" id="storeOut"></div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-3">
+        <header class="block-head"><span class="block-no">2.3</span><div><span class="kind"></span><h3>Калькулятор: чи ще можна зберігати?</h3></div></header>
+        <p class="lede">Оберіть продукт і вкажіть, скільки годин він уже зберігається за 0…5 °C.</p>
+        <div class="calc">
+          <label class="field">Продукт<select id="lifeP"></select></label>
+          <label class="field">Уже зберігається: <span id="lifeV" style="color:var(--acc)">10 год</span><input type="range" id="lifeH" min="0" max="132" step="2" value="10"></label>
+        </div>
+        <div class="result-box" id="lifeOut"></div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Розміщення продуктів"><b>B</b>Розміщення продуктів</div>
+
+      <article class="block" data-kind="sim" id="s2-4">
+        <header class="block-head"><span class="block-no">2.4</span><div><span class="kind"></span><h3>Розкладіть продукти по камерах</h3></div></header>
+        <div id="clsRoom"></div>
+        <div class="sim-log" id="clsRoomScore">Оберіть камеру для кожного продукту.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s2-5">
+        <header class="block-head"><span class="block-no">2.5</span><div><span class="kind"></span><h3>Так чи ні: правила сусідства і розміщення</h3></div></header>
+        <div id="clsRule"></div>
+        <div class="sim-log" id="clsRuleScore">Оцініть кожну дію.</div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s2-6">
+        <header class="block-head"><span class="block-no">2.6</span><div><span class="kind"></span><h3>Нагляд і особливі правила</h3></div></header>
+        <div class="grid2" style="align-items:start">
+          <div class="ticket">
+            <span class="mini-title">Ознаки доброякісного м'яса</span>
+            <div class="check-row"><i>✓</i>Яскраво-червоне забарвлення на розрізі</div>
+            <div class="check-row"><i>✓</i>Немає гнильного (аміачного) запаху і слизу</div>
+            <div class="check-row"><i>✓</i>Пружна консистенція м'язової тканини</div>
+            <div class="check-row"><i>✓</i>Блискучий жир — без матового відтінку й масткої консистенції</div>
+            <div class="stamp">ДОБРО-<br>ЯКІСНЕ</div>
+          </div>
+          <div>
+            <details class="acc" open><summary><span>Квашені й солоні овочі</span><span class="arrow">▶</span></summary>
+              <div class="acc-body"><p>Зберігають у діжках та інших ємностях; овочі мають бути занурені в розсіл. Без розсолу на поверхні розвивається пліснява, яка швидко проникає всередину — соління стають непридатними.</p></div></details>
+            <details class="acc"><summary><span>Заморожені продукти · −15 °C</span><span class="arrow">▶</span></summary>
+              <div class="acc-body"><p>Низькотемпературні камери, шафи, прилавки; так само — централізовано виготовлене (загартоване) морозиво. Розморожувати під час зберігання не допускається. Пельмені, вареники, овочеві набори, піцу, м'ясні й рибні н/ф заправляють на теплову обробку без розморожування.</p></div></details>
+            <details class="acc"><summary><span>Хліб і кондитерські вироби</span><span class="arrow">▶</span></summary>
+              <div class="acc-body"><p>Зберігають в окремих приміщеннях. Вироби з кремом — у холодильних шафах за 0…5 °C від 12 до 24 год. Вироби із заварним кремом виробляють лише в осінньо-зимовий період і зберігають не більше 6 год.</p></div></details>
+          </div>
+        </div>
+      </article>
+
+      <div class="takeaway" id="s2-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок розділу</span><p>Склад — без вікон, з вентиляцією, приладами контролю і рівною підлогою. Кожна група продуктів має свій режим: від −15 °C для заморожених до ≈20 °C для сухих. Охолоджене м'ясо зберігається до 5 діб, птиця — 2–3 доби, н/ф — до доби, січені — до 12 год. М'ясо не можна тримати поруч з рибою й птицею, а яйця — розпаковувати в камері: це шляхи поширення сальмонел.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= S3 · МЕХАНІЧНА ОБРОБКА ================= -->
+  <section class="panel" id="s3">
+    <header class="sec-head">
+      <div class="sec-deco" data-rot="1"><svg viewBox="0 0 100 100"><use href="#f-leaf"/></svg></div>
+      <div class="sec-idx">03</div>
+      <div>
+        <span class="sec-kicker">Розділ 3 / 5</span>
+        <h2>Механічна та гідромеханічна обробка сировини</h2>
+        <span class="hand">від сировини до напівфабрикату</span>
+        <p class="lede">Мета стадії — одержати напівфабрикати для теплової обробки і приготувати страви та кулінарні вироби. Усі операції виконують у заготівельних цехах; під час них утворюються відходи і втрати.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Операції і розморожування"><b>A</b>Операції і розморожування</div>
+
+      <article class="block" data-kind="data" id="s3-1">
+        <header class="block-head"><span class="block-no">3.1</span><div><span class="kind"></span><h3>Десять операцій заготівельного цеху</h3></div></header>
+        <div class="grid5">
+          <div class="card keep"><h4>01 · Розпакування</h4>іноді з підтепленням блоків, щоб відокремити примерзле пакування</div>
+          <div class="card keep"><h4>02 · Розморожування</h4>на повітрі або у воді</div>
+          <div class="card keep"><h4>03 · Сортування</h4>за зрілістю, без пошкоджених і домішок</div>
+          <div class="card keep"><h4>04 · Калібрування</h4>однакові за розміром екземпляри</div>
+          <div class="card keep"><h4>05 · Миття</h4>іноді двічі — до й після очищення</div>
+          <div class="card keep"><h4>06 · Поділ на частини</h4>їстівні й малоцінні: очищення, відокремлення кісток</div>
+          <div class="card keep"><h4>07 · Подрібнення</h4>нарізання, січення</div>
+          <div class="card keep"><h4>08 · Порціонування</h4>поділ на порції</div>
+          <div class="card keep"><h4>09 · Перемішування</h4>котлетні й фаршеві маси</div>
+          <div class="card keep"><h4>10 · Панірування</h4>покриття паніровкою</div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-2">
+        <header class="block-head"><span class="block-no">3.2</span><div><span class="kind"></span><h3>Розморожування: повітря чи вода?</h3></div></header>
+        <div class="grid2" style="margin-bottom:12px">
+          <div class="card keep"><h4>На повітрі · повільно, 5…10 °C</h4>Для продуктів, властивості яких треба максимально відновити після розморожування.</div>
+          <div class="card keep"><h4>У холодній воді · швидко, +15 °C</h4>Для сировини, швидкість розморожування якої не впливає на технологічні властивості й харчову цінність.</div>
+        </div>
+        <div id="clsThaw"></div>
+        <div class="sim-log" id="clsThawScore">Оберіть спосіб розморожування.</div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-3">
+        <header class="block-head"><span class="block-no">3.3</span><div><span class="kind"></span><h3>Термометр у товщі продукту</h3></div></header>
+        <p class="lede">Сировина вважається розмороженою, коли температура в її товщі піднялася до −1 °C. Оберіть спосіб і стежте за термометром.</p>
+        <div class="calc">
+          <label class="field">Спосіб<select id="thawM"><option value="air">на повітрі · 5…10 °C</option><option value="water">у холодній воді · +15 °C</option><option value="warm">у теплій воді, щоб швидше</option></select></label>
+          <label class="field">Температура в товщі: <span id="thawV" style="color:var(--acc)">−12 °C</span><input type="range" id="thawT" min="-18" max="2" step="1" value="-12"></label>
+        </div>
+        <div class="serve-row">
+          <svg id="thawSvg" viewBox="0 0 120 300" aria-hidden="true"></svg>
+          <div><div class="result-box" id="thawOut" style="margin:0"></div></div>
+        </div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Відходи і втрати"><b>B</b>Відходи і втрати</div>
+
+      <article class="block" data-kind="theory" id="s3-4">
+        <header class="block-head"><span class="block-no">3.4</span><div><span class="kind"></span><h3>Сортування, калібрування, миття</h3></div></header>
+        <div class="grid3">
+          <div class="card" data-ic="i-sieve"><h4>Сортування</h4><p>Сировину розділяють за ступенем зрілості, відокремлюють пошкоджені екземпляри й домішки. Здебільшого — овочі й фрукти, але й нерибні морепродукти.</p></div>
+          <div class="card" data-ic="i-ruler"><h4>Калібрування</h4><p>Відокремлюють однакові за розміром екземпляри — наприклад, для фарширування або рівномірної теплової обробки.</p></div>
+          <div class="card" data-ic="i-drop"><h4>Миття</h4><p>Видаляє механічні й бактеріальні забруднення, поліпшує санітарні умови подальшої обробки. Ванни з холодною й гарячою водою, злив — до каналізації.</p></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s3-5">
+        <header class="block-head"><span class="block-no">3.5</span><div><span class="kind"></span><h3>Калькулятор відходів: брутто → нетто</h3></div></header>
+        <p class="lede">Розмір відходів і втрат для різної сировини коливається в широких межах. Для картоплі він залежить ще й від пори року.</p>
+        <div class="calc">
+          <label class="field">Сировина<select id="wasteP"></select></label>
+          <label class="field">Маса брутто, кг<input type="number" id="wasteM" value="10" min="0" step="0.5"></label>
+        </div>
+        <div class="kv" id="wasteOut"></div>
+        <div class="sim-stage tchart" style="margin-top:12px"><div id="wasteChart"></div></div>
+      </article>
+
+      <div class="takeaway" id="s3-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок розділу</span><p>У заготівельних цехах сировину розпаковують, розморожують, сортують, калібрують, миють, очищають, подрібнюють, порціонують, перемішують і панірують. Цінну сировину розморожують повільно на повітрі за 5…10 °C, решту — у холодній воді (+15 °C), але ніколи не в теплій; готово при −1 °C у товщі. Відходи становлять від 20 % (білоголова капуста, молода картопля) до 49 % (судак).</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= S4 · ТЕПЛОВА ОБРОБКА ================= -->
+  <section class="panel" id="s4">
+    <header class="sec-head">
+      <div class="sec-deco" data-rot="-1"><svg viewBox="0 0 100 100"><use href="#f-anise"/></svg></div>
+      <div class="sec-idx">04</div>
+      <div>
+        <span class="sec-kicker">Розділ 4 / 5</span>
+        <h2>Теплова обробка напівфабрикатів і приготування готової їжі</h2>
+        <span class="hand">що відбувається всередині продукту</span>
+        <p class="lede">Під час теплової обробки продукт доводять до кулінарної готовності. Харчові речовини зазнають фізико-хімічних змін, утворюються нові смакові й ароматичні речовини, а маса продукту здебільшого зменшується.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Готовність і зміни"><b>A</b>Готовність і зміни</div>
+
+      <article class="block" data-kind="theory" id="s4-1">
+        <header class="block-head"><span class="block-no">4.1</span><div><span class="kind"></span><h3>Кулінарна готовність і температура</h3></div></header>
+        <div class="definition"><span class="term">Кулінарна готовність</span><p>характеризується органолептичними показниками — зовнішній вигляд, смак, запах, консистенція — а також відмиранням більшої частини бактерій, у тому числі потенційно небезпечних для людини.</p></div>
+        <div class="points">
+          <div class="point"><b>≈ 80 °C</b><p>температура напівфабрикатів під час теплової обробки</p></div>
+          <div class="point warn"><b>120…130 °C</b><p>у поверхневому шарі при смаженні — через зневоднення</p></div>
+          <div class="point warn"><b>Піроліз</b><p>руйнуються харчові речовини й утворюються нові, чимало з яких мають мутагенну й канцерогенну дію</p></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s4-2">
+        <header class="block-head"><span class="block-no">4.2</span><div><span class="kind"></span><h3>Хто виграє, а хто втрачає?</h3></div></header>
+        <p class="lede">Фізико-хімічні зміни неоднаково впливають на харчову цінність. Як змінюється кожна складова?</p>
+        <div id="clsNutr"></div>
+        <div class="sim-log" id="clsNutrScore">Оберіть варіант для кожної складової.</div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Втрати маси"><b>B</b>Втрати маси</div>
+
+      <article class="block" data-kind="sim" id="s4-3">
+        <header class="block-head"><span class="block-no">4.3</span><div><span class="kind"></span><h3>Скільки залишиться після теплової обробки?</h3></div></header>
+        <p class="lede">Втрати маси пов'язані здебільшого з втратою води. Порівняйте способи обробки за даними лекції.</p>
+        <div class="calc">
+          <label class="field">Продукт і спосіб<select id="lossP"><option value="pb">картопля · варіння</option><option value="pf">картопля · смаження</option><option value="bb">яловичина · варіння</option></select></label>
+          <label class="field">Маса до обробки, г<input type="number" id="lossM" value="1000" min="0" step="50"></label>
+        </div>
+        <div class="kv" id="lossOut"></div>
+        <div class="sim-log" id="lossLog"></div>
+      </article>
+
+      <article class="block" data-kind="extra" id="s4-4">
+        <header class="block-head"><span class="block-no">4.4</span><div><span class="kind"></span><h3>Нові речовини і нормативи втрат</h3></div></header>
+        <details class="acc" open><summary><span>Що утворюється під час теплової обробки</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Утворюються нові смакові, ароматичні й забарвлені речовини. Водночас помітно змінюється маса продуктів — як правило, зменшується.</p></div></details>
+        <details class="acc"><summary><span>Звідки беруться нормативи відходів і втрат</span><span class="arrow">▶</span></summary>
+          <div class="acc-body"><p>Нормативи відходів і втрат при механічній і тепловій обробці розробив Науково-дослідний інститут громадського харчування; їх затвердило Міністерство торгівлі СРСР і опубліковано у Збірниках рецептур страв та кулінарних виробів. Ними користуються, складаючи рецептури на нову продукцію та для інших виробничих цілей.</p></div></details>
+      </article>
+
+      <div class="takeaway" id="s4-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок розділу</span><p>Кулінарна готовність — це і органолептика, і загибель більшості бактерій; у товщі продукт прогрівається до ≈80 °C, а поверхня при смаженні — до 120–130 °C, де відбувається піроліз. Засвоюваність білків і вуглеводів зростає, жирів — знижується, частина вітамінів руйнується або переходить у відвар. Маса зменшується через втрату води: варена картопля майже не змінюється, смажена втрачає 30–60 %.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= S5 · ГОТОВА ПРОДУКЦІЯ ================= -->
+  <section class="panel" id="s5">
+    <header class="sec-head">
+      <div class="sec-deco" data-rot="-.6" style="--sb:var(--herb);right:-10px"><svg viewBox="0 0 100 100"><use href="#f-chili"/></svg></div>
+      <div class="sec-idx">05</div>
+      <div>
+        <span class="sec-kicker">Розділ 5 / 5</span>
+        <h2>Зберігання готової продукції</h2>
+        <span class="hand">гаряче — гарячим, холодне — холодним</span>
+        <p class="lede">Терміни, протягом яких готова їжа не втрачає якості, обмежені, а температурні умови регламентовані санітарними правилами. Найсприятливіша температура для розвитку мікроорганізмів у готовій їжі — 25…50 °C.</p>
+        <div class="sec-meta"></div>
+      </div>
+    </header>
+    <aside class="sec-toc" aria-label="Зміст розділу"><div class="toc-title">Зміст розділу</div><nav class="toc-list"></nav></aside>
+    <div class="sec-main">
+
+      <div class="group-label" data-g="A" data-title="Температура і обладнання"><b>A</b>Температура і обладнання</div>
+
+      <article class="block" data-kind="sim" id="s5-1">
+        <header class="block-head"><span class="block-no">5.1</span><div><span class="kind"></span><h3>Термометр подачі</h3></div></header>
+        <p class="lede">Оберіть страву і задайте температуру, за якої її тримають. Підвищувати температуру охолодженої їжі й знижувати температуру гарячої заборонено.</p>
+        <div class="calc">
+          <label class="field">Страва<select id="servP"><option value="soup">гарячий суп або напій · 75 °C</option><option value="hot">м'ясна, рибна, овочева гаряча страва · 65 °C</option><option value="cold">холодна закуска, холодна солодка страва · 12…14 °C</option></select></label>
+          <label class="field">Температура зберігання: <span id="servV" style="color:var(--acc)">75 °C</span><input type="range" id="servT" min="0" max="90" step="1" value="75"></label>
+        </div>
+        <div class="serve-row">
+          <svg id="servSvg" viewBox="0 0 120 300" aria-hidden="true"></svg>
+          <div><div class="result-box" id="servOut" style="margin:0"></div></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s5-2">
+        <header class="block-head"><span class="block-no">5.2</span><div><span class="kind"></span><h3>Де зберігати готову страву?</h3></div></header>
+        <div id="clsEquip"></div>
+        <div class="sim-log" id="clsEquipScore">Оберіть обладнання.</div>
+      </article>
+
+      <div class="group-label" data-g="B" data-title="Терміни і залишки"><b>B</b>Терміни і залишки</div>
+
+      <article class="block" data-kind="sim" id="s5-3">
+        <header class="block-head"><span class="block-no">5.3</span><div><span class="kind"></span><h3>Таймер: скільки ще можна тримати?</h3></div></header>
+        <div class="calc">
+          <label class="field">Що зберігаємо<select id="timeP"><option value="60">холодні закуски, десерти, напої · до 1 год</option><option value="120">гарячі страви · до 2 год</option><option value="r60">їжа після вторинної теплової обробки · до 1 год</option></select></label>
+          <label class="field">Минуло: <span id="timeV" style="color:var(--acc)">20 хв</span><input type="range" id="timeM" min="0" max="150" step="5" value="20"></label>
+        </div>
+        <div class="result-box" id="timeOut"></div>
+        <div class="points">
+          <div class="point warn"><b>Найменш стійкі холодні</b><p>холодці, паштети, заливні, салати; десерти зі збитими вершками, креми, муси, желе</p></div>
+          <div class="point warn"><b>Найменш стійкі гарячі</b><p>натуральне смажене м'ясо, смажена риба, відварна цвітна капуста, смажені овочі</p></div>
+          <div class="point ok"><b>Як дотриматися термінів</b><p>потокове приготування невеликими партіями; страви в соусі зберігаються краще за натуральні; порціонне морозиво зберіганню не підлягає</p></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="sim" id="s5-4">
+        <header class="block-head"><span class="block-no">5.4</span><div><span class="kind"></span><h3>Нереалізована їжа: крок за кроком</h3></div></header>
+        <p class="lede">Лише у виняткових випадках. Пройдіть процедуру — праворуч з'являтимуться записи бракеражного журналу.</p>
+        <div class="grid2" style="align-items:start">
+          <div>
+            <div class="steps-v" id="leftSteps">
+              <div>Швидко охолодити</div>
+              <div>Зберігати за 2…4 °C — не більше 18 год</div>
+              <div>Перед реалізацією продегустувати</div>
+              <div>Знову теплова обробка: кип'ятіння, просмажування в жаровій шафі, НВЧ</div>
+              <div>Повторна дегустація</div>
+              <div>Реалізувати не пізніше ніж за 1 год</div>
+            </div>
+            <div class="btnrow"><button class="btn" id="leftNext" type="button">▶ Наступний крок</button><button class="btn ghost" id="leftReset" type="button">⟲ Спочатку</button></div>
+          </div>
+          <div><span class="mini-title">Бракеражний журнал · умовний приклад записів</span><div class="journal" id="leftJournal"></div>
+            <div class="callout" style="margin-top:12px"><b>Не змішувати</b> вчорашню їжу зі свіжоприготовленою.</div></div>
+        </div>
+      </article>
+
+      <article class="block" data-kind="theory" id="s5-5">
+        <header class="block-head"><span class="block-no">5.5</span><div><span class="kind"></span><h3>Не можна залишати на наступний день</h3></div></header>
+        <div class="grid3">
+          <div class="card keep"><h4>Швидкопсувні холодні</h4><span class="chip no">салати</span><span class="chip no">вінегрети</span><span class="chip no">паштети</span><span class="chip no">холодці</span><span class="chip no">заливні</span><span class="chip no">вироби з кремом</span></div>
+          <div class="card keep"><h4>Супи</h4><span class="chip no">молочні</span><span class="chip no">холодні</span><span class="chip no">солодкі</span><span class="chip no">супи-пюре</span><span class="chip no">м'ясо відварне порціонне для супів</span></div>
+          <div class="card keep"><h4>Інші страви</h4><span class="chip no">млинці з м'ясом і сиром</span><span class="chip no">січені вироби з м'яса, птиці, риби</span><span class="chip no">соуси</span><span class="chip no">омлети</span><span class="chip no">картопляне пюре</span><span class="chip no">відварні макарони</span><span class="chip no">напої власного виробництва</span></div>
+        </div>
+        <div class="callout acc"><b>Кондитерські вироби з кремом</b> зберігають у холодильних камерах і шафах за температури не вище 6 °C — у межах термінів для надто швидкопсувних продуктів.</div>
+      </article>
+
+      <div class="takeaway" id="s5-end"><div class="tk-icon">✓</div><div><span class="tk-label">Висновок лекції</span><p>Готову їжу тримають за 75 °C (супи, напої), 65 °C (гарячі страви) або 12–14 °C (холодні закуски й десерти), уникаючи «небезпечної зони» 25–50 °C: холодне — до 1 год, гаряче — до 2 год. Нереалізовану їжу лише у виняткових випадках охолоджують і зберігають за 2–4 °C до 18 год, двічі дегустують і повторно прогрівають; салати, супи-пюре, омлети та інші швидкопсувні страви на наступний день не залишають. Так усі п'ять стадій процесу разом забезпечують безпечну й якісну продукцію.</p></div></div>
+    </div>
+  </section>
+
+  <!-- ================= ПРАКТИКА ================= -->
+  <section class="panel plain" id="practice">
+    <header class="sec-head">
+      <div class="sec-idx">✓</div>
+      <div>
+        <span class="sec-kicker">Практика</span>
+        <h2>Практика: ситуаційні кейси</h2>
+        <span class="hand">спробуйте відповісти самостійно</span>
+        <p class="lede">Прочитайте ситуацію, запишіть власну відповідь, а потім відкрийте розбір. Кожен кейс спирається на конкретний фрагмент лекції.</p>
+      </div>
+    </header>
+    <div class="sec-main"><div id="caseList"></div></div>
+  </section>
+
+  <!-- ================= ТЕСТ ================= -->
+  <section class="panel plain" id="quiz">
+    <header class="sec-head">
+      <div class="sec-idx">?</div>
+      <div>
+        <span class="sec-kicker">Самоперевірка</span>
+        <h2>Тест для самоперевірки</h2>
+        <p class="lede">Оберіть відповідь: правильна підсвітиться, а під питанням з'явиться пояснення.</p>
+      </div>
+    </header>
+    <div class="sec-main">
+      <div id="quizContainer"></div>
+      <div id="quizScoreBar"><span>Результат: <span id="quizScore">0 / 0</span></span><button class="btn small" id="quizReset" type="button">⟲ Пройти знову</button></div>
+    </div>
+  </section>
+
+  <!-- ================= ГЛОСАРІЙ ================= -->
+  <section class="panel plain" id="ref">
+    <header class="sec-head">
+      <div class="sec-idx">Aa</div>
+      <div><span class="sec-kicker">Довідка</span><h2>Глосарій лекції</h2><span class="hand">усі терміни в одному місці</span></div>
+    </header>
+    <div class="sec-main"><dl class="gloss" id="glossList"></dl></div>
+  </section>
+
+  <footer>STEAM-HUB · ПУЕТ — інтерактивний конспект · Тема 3 «Основні стадії технологічного процесу виробництва продукції в ресторанах»</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const fmt = (n, d=0) => Number(n).toLocaleString('uk-UA', {minimumFractionDigits:d, maximumFractionDigits:d});
+const NS = 'http://www.w3.org/2000/svg';
+const still = matchMedia('(prefers-reduced-motion: reduce)').matches || location.search.includes('static');
+
+/* ---------- тема ---------- */
+const root = document.documentElement;
+function curTheme(){ const t = root.getAttribute('data-theme'); if(t) return t; return matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+function paintThemeBtn(){ $('#themeBtn').textContent = curTheme()==='dark' ? '☀ Світла тема' : '☾ Темна тема'; }
+try{ const s = localStorage.getItem('food01-theme'); if(s) root.setAttribute('data-theme', s); }catch(e){}
+{ const m = location.search.match(/theme=(light|dark)/); if(m) root.setAttribute('data-theme', m[1]); }
+$('#themeBtn').addEventListener('click', ()=>{
+  const next = curTheme()==='dark' ? 'light' : 'dark';
+  root.setAttribute('data-theme', next);
+  try{ localStorage.setItem('food01-theme', next); }catch(e){}
+  paintThemeBtn();
+});
+paintThemeBtn();
+
+/* ---------- вкладки (колір інтерфейсу = колір розділу) ---------- */
+function openTab(id, scroll=true){
+  if(!document.getElementById(id)) return;
+  root.dataset.sec = id;
+  $$('#tabsNav button').forEach(b=>b.classList.toggle('active', b.dataset.t===id));
+  $$('section.panel').forEach(p=>p.classList.toggle('active', p.id===id));
+  const tabs = $('#tabsNav'), act = tabs.querySelector('button.active');
+  if(act) tabs.scrollTo({left: Math.max(0, act.offsetLeft - 12), behavior:'auto'});
+  const toc = document.getElementById(id).querySelector('.toc-list'); if(toc){ toc.scrollLeft = 0; toc.parentElement.scrollTop = 0; }
+  if(scroll){
+    const panel = document.getElementById(id), nav = $('#tabsNav');
+    const y = panel.getBoundingClientRect().top + window.scrollY - nav.offsetHeight - 22;
+    window.scrollTo({top: Math.max(0, y), behavior:'auto'});
+  }
+  setTimeout(()=>{ buildLayers(); onScroll(); }, 30);
+}
+$$('#tabsNav button').forEach(b=>b.addEventListener('click', ()=>openTab(b.dataset.t)));
+$$('[data-go]').forEach(c=>c.addEventListener('click', ()=>openTab(c.dataset.go)));
+
+function group(sel, fn){
+  const btns = $$(sel);
+  btns.forEach(b=>b.addEventListener('click', ()=>{
+    btns.forEach(x=>{ x.classList.remove('active'); x.classList.add('ghost'); });
+    b.classList.add('active'); b.classList.remove('ghost'); fn(b);
+  }));
+}
+
+/* ---------- ментальні карти: вузли відштовхуються від курсора ---------- */
+const MM = (()=>{
+  const MAX = 15, K = 0.13, DAMP = 0.74, PAD = 6;
+  const active = new Set(); let running = false;
+  function parse(svg){
+    const nodes = [...svg.querySelectorAll('.mm-node')].map(g=>{
+      const r = g.querySelector('rect');
+      const b = {x:+r.getAttribute('x'), y:+r.getAttribute('y'), w:+r.getAttribute('width'), h:+r.getAttribute('height')};
+      return {g, b, cx:b.x+b.w/2, cy:b.y+b.h/2, x:0, y:0, vx:0, vy:0, tx:0, ty:0};
+    });
+    const byId = {}; nodes.forEach(n=>byId[n.g.dataset.id] = n);
+    const links = [...svg.querySelectorAll('.mm-link')].map(p=>({p, a:byId[p.dataset.a], b:byId[p.dataset.b], c:p.dataset.p.trim().split(/[\s,]+/).map(Number)}));
+    svg._mm = {nodes, links}; render(svg);
+  }
+  function render(svg){
+    const {nodes, links} = svg._mm;
+    nodes.forEach(n=>n.g.setAttribute('transform', `translate(${n.x.toFixed(2)} ${n.y.toFixed(2)})`));
+    links.forEach(l=>{
+      const ax = l.a ? l.a.x : 0, ay = l.a ? l.a.y : 0, bx = l.b ? l.b.x : 0, by = l.b ? l.b.y : 0, [x1,y1,x2,y2] = l.c;
+      const qx = (x1+x2)/2 + (ax+bx)*0.15, qy = (y1+y2)/2 + (ay+by)*0.15;
+      l.p.setAttribute('d', `M${(x1+ax).toFixed(2)},${(y1+ay).toFixed(2)} Q${qx.toFixed(2)},${qy.toFixed(2)} ${(x2+bx).toFixed(2)},${(y2+by).toFixed(2)}`);
+    });
+  }
+  function toSvg(svg, e){ const m = svg.getScreenCTM(); return m ? new DOMPoint(e.clientX, e.clientY).matrixTransform(m.inverse()) : null; }
+  function onMove(e){
+    const svg = e.currentTarget, pt = toSvg(svg, e); if(!svg._mm || !pt) return;
+    svg._mm.nodes.forEach(n=>{
+      const inside = pt.x > n.b.x-PAD && pt.x < n.b.x+n.b.w+PAD && pt.y > n.b.y-PAD && pt.y < n.b.y+n.b.h+PAD;
+      if(inside){ const nx = (n.cx-pt.x)/(n.b.w/2), ny = (n.cy-pt.y)/(n.b.h/2), len = Math.hypot(nx, ny) || 1, f = Math.min(1, len) * MAX / len; n.tx = nx*f; n.ty = ny*f; }
+      else { n.tx = 0; n.ty = 0; }
+      n.g.classList.toggle('mm-hot', inside);
+    });
+    kick(svg);
+  }
+  function onLeave(e){ const svg = e.currentTarget; if(!svg._mm) return; svg._mm.nodes.forEach(n=>{ n.tx = 0; n.ty = 0; n.g.classList.remove('mm-hot'); }); kick(svg); }
+  function kick(svg){ active.add(svg); if(!running){ running = true; requestAnimationFrame(step); } }
+  function step(){
+    active.forEach(svg=>{
+      let moving = false;
+      svg._mm.nodes.forEach(n=>{
+        n.vx = (n.vx + (n.tx-n.x)*K) * DAMP; n.vy = (n.vy + (n.ty-n.y)*K) * DAMP; n.x += n.vx; n.y += n.vy;
+        if(Math.abs(n.tx-n.x) + Math.abs(n.ty-n.y) + Math.abs(n.vx) + Math.abs(n.vy) > 0.04) moving = true; else { n.x = n.tx; n.y = n.ty; n.vx = n.vy = 0; }
+      });
+      render(svg); if(!moving) active.delete(svg);
+    });
+    if(active.size) requestAnimationFrame(step); else running = false;
+  }
+  function attach(svg){ if(!svg) return; parse(svg); if(still || svg._mmBound) return; svg._mmBound = true; svg.addEventListener('pointermove', onMove); svg.addEventListener('pointerleave', onLeave); }
+  return {attach};
+})();
+$$('svg.mm').forEach(MM.attach);
+
+/* ---------- генератори ---------- */
+function arcPath(cx, cy, r1, r2, a0, a1){
+  const p = (r, a) => { const t = (a - 90) * Math.PI / 180; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; };
+  const [x0,y0] = p(r2,a0), [x1,y1] = p(r2,a1), [x2,y2] = p(r1,a1), [x3,y3] = p(r1,a0), lg = a1 - a0 > 180 ? 1 : 0;
+  return `M${x0} ${y0}A${r2} ${r2} 0 ${lg} 1 ${x1} ${y1}L${x2} ${y2}A${r1} ${r1} 0 ${lg} 0 ${x3} ${y3}Z`;
+}
+const polar = (cx, cy, r, a) => { const t = (a - 90) * Math.PI / 180; return [cx + r * Math.cos(t), cy + r * Math.sin(t)]; };
+
+/* ---------- класифікатор ---------- */
+function classifier(boxSel, scoreSel, cats, items){
+  const box = $(boxSel); let done = 0, right = 0;
+  items.sort(()=>Math.random()-.5).forEach(it=>{
+    const d = document.createElement('div'); d.className = 'cls-item';
+    d.innerHTML = `<div class="txt">${it.t}</div><div class="opts">${cats.map((c,ci)=>`<button class="btn ghost small" type="button" data-c="${ci}">${c}</button>`).join('')}</div><div class="fb" hidden></div>`;
+    d.querySelectorAll('button').forEach(b=>b.addEventListener('click', ()=>{
+      if(d.dataset.done) return; d.dataset.done = 1; done++;
+      const ok = +b.dataset.c === it.c; if(ok) right++;
+      d.classList.add(ok ? 'right' : 'wrong');
+      d.querySelectorAll('button').forEach(x=>{ x.disabled = true; if(+x.dataset.c===it.c) x.classList.add('active'); });
+      const fb = d.querySelector('.fb'); fb.hidden = false; fb.textContent = (ok ? '✅ ' : '❌ Правильно: «'+cats[it.c]+'». ') + it.e;
+      $(scoreSel).textContent = `Виконано ${done} / ${items.length} · правильно ${right}` + (done===items.length ? (right===items.length ? ' · Чудово, усе правильно!' : ' · Перегляньте пояснення до помилок.') : '');
+    }));
+    box.appendChild(d);
+  });
+}
+
+/* =========================================================
+   ТЕМА 3 — симулятори
+   ========================================================= */
+if(location.search.includes('static')) root.classList.add('static');
+
+/* Шкала-діапазони з рядками, які можна підсвічувати.
+   rows: [назва, пояснення, від, до, підпис]; o: {min,max,ticks,mark,color,sel,onPick,left} */
+function rangeChart(el, rows, o){
+  const W = 1000, rowH = o.rowH || 52, top = o.mark ? 34 : 10, left = o.left || 320, right = 20, H = top + rows.length*rowH + 30;
+  const x = t => left + (t-o.min)/(o.max-o.min)*(W-left-right);
+  let s = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${o.label||'Діаграма'}">`;
+  o.ticks.forEach(([v,t])=> s += `<line x1="${x(v)}" x2="${x(v)}" y1="${top-8}" y2="${H-26}" class="tc-grid"/><text x="${x(v)}" y="${H-6}" text-anchor="middle" class="tc-ax">${t}</text>`);
+  if(o.mark) s += `<line x1="${x(o.mark[0])}" x2="${x(o.mark[0])}" y1="${top-22}" y2="${H-26}" class="tc-mark"/><text x="${x(o.mark[0])+8}" y="${top-10}" class="tc-mk">${o.mark[1]}</text>`;
+  rows.forEach((r,i)=>{
+    const [name, sub, a, b, lab] = r, y = top + i*rowH + 2, cls = o.sel==null ? '' : (i===o.sel ? ' on' : ' dim');
+    const x0 = x(a), x1 = Math.max(x(b), x0+14);
+    s += `<g class="row${cls}" data-i="${i}"><rect class="bg" x="-10" y="${y-2}" width="${W+10}" height="${rowH-4}" rx="12"/>`;
+    s += `<text x="4" y="${y+18}" class="tc-t">${name}</text><text x="4" y="${y+36}" class="tc-s">${sub}</text>`;
+    s += `<rect class="bar" x="${x0}" y="${y+5}" width="${x1-x0}" height="28" rx="14" fill="${o.color(r,i)}"/>`;
+    s += x1 > W-170 ? `<text x="${x0-12}" y="${y+25}" text-anchor="end" class="tc-v">${lab}</text>` : `<text x="${x1+12}" y="${y+25}" class="tc-v">${lab}</text>`;
+    s += `</g>`;
+  });
+  el.innerHTML = s + '</svg>';
+  if(o.onPick) el.querySelectorAll('.row').forEach(g=>g.addEventListener('click', ()=>o.onPick(+g.dataset.i)));
+}
+
+/* Вертикальний термометр: t — поточна, [min,max] — шкала, zones — підсвічені смуги [від, до, колір, підпис] */
+function thermo(svg, t, min, max, zones, col){
+  const y = v => 250 - (v-min)/(max-min)*220;
+  let s = '';
+  zones.forEach(([a,b,c,l])=>{ s += `<rect x="58" y="${y(b)}" width="62" height="${y(a)-y(b)}" rx="6" fill="${c}" opacity=".22"/><text x="118" y="${y(b)+14}" text-anchor="end" style="font-family:var(--f-mono);font-size:9px;font-weight:700;fill:${c}">${l}</text>`; });
+  s += `<rect x="22" y="22" width="30" height="240" rx="15" fill="var(--bg-panel)" stroke="var(--ink)" stroke-width="2.5"/>`;
+  const ty = Math.max(30, Math.min(258, y(t)));
+  s += `<rect x="30" y="${ty}" width="14" height="${270-ty}" rx="7" fill="${col}" style="transition:y .4s, height .4s"/>`;
+  s += `<circle cx="37" cy="272" r="22" fill="${col}" stroke="var(--ink)" stroke-width="2.5"/>`;
+  for(let v=Math.ceil(min/10)*10; v<=max; v+=10) s += `<line x1="52" x2="58" y1="${y(v)}" y2="${y(v)}" stroke="var(--ink)" stroke-width="1.5"/><text x="18" y="${y(v)+4}" text-anchor="end" style="font-family:var(--f-display);font-size:10px;fill:var(--ink-soft)">${v}</text>`;
+  svg.innerHTML = s;
+}
+const statusHtml = (col, text) => `<span class="status"><i style="background:${col};box-shadow:0 0 0 5px color-mix(in srgb, ${col} 22%, transparent)"></i>${text}</span>`;
+
+/* ---------- 1.2 групи сировини ---------- */
+classifier('#clsRaw', '#clsRawScore', ['Група 1 · без обробки','Група 2 · перероблена'], [
+  {t:'Свіжа картопля', c:0, e:'Сільськогосподарський продукт без технологічної обробки.'},
+  {t:'Жива й охолоджена риба', c:0, e:'Перша група сировини.'},
+  {t:'Перната дичина', c:0, e:'Перша група сировини.'},
+  {t:'Цитрусові й баштанні', c:0, e:'Перша група сировини.'},
+  {t:'Гриби', c:0, e:'Перша група сировини.'},
+  {t:'Борошно і крупи', c:1, e:'Пройшли переробку на підприємствах харчової промисловості.'},
+  {t:'Молоко й молочні продукти', c:1, e:'Друга група сировини.'},
+  {t:'Сільськогосподарська птиця', c:1, e:'За лекцією — у другій групі (на відміну від пернатої дичини).'},
+  {t:'М’ясні й рибні напівфабрикати', c:1, e:'Друга група сировини.'},
+  {t:'Спеції та приправи', c:1, e:'Друга група сировини.'}
+]);
+
+/* ---------- 1.4 рампа ---------- */
+classifier('#clsAccept', '#clsAcceptScore', ['Прийняти','Відмовити'], [
+  {t:'Охолоджена яловичина з клеймом ветогляду і ветеринарним свідоцтвом', c:0, e:'Обидві вимоги до м’яса виконано.'},
+  {t:'Свинина з ветсвідоцтвом, але без клейма ветогляду', c:1, e:'Потрібні і клеймо, і ветеринарне свідоцтво.'},
+  {t:'Непатрані кури', c:1, e:'Непатрану птицю приймати заборонено (крім дичини).'},
+  {t:'Непатрана перната дичина з документами', c:0, e:'Для дичини виняток: заборона стосується лише сільськогосподарської птиці.'},
+  {t:'Качині яйця', c:1, e:'Качині й гусячі яйця не приймають.'},
+  {t:'Курячі яйця з чистою цілою шкаралупою, з документами', c:0, e:'Порушень немає.'},
+  {t:'Борошно, в якому помітні шкідники хлібних запасів', c:1, e:'Заражені сухі продукти не приймають.'},
+  {t:'Домашні мариновані гриби від знайомого фермера', c:1, e:'Продукція домашнього виготовлення заборонена.'},
+  {t:'Яблука з ознаками гнилі', c:1, e:'Овочі й фрукти з цвіллю й гниллю не приймають.'},
+  {t:'Крупа в цілій чистій упаковці з документами про якість', c:0, e:'Тара ціла, документи є.'}
+]);
+
+/* ---------- 1.5 дефекти консервів ---------- */
+const CAN = [
+  ['Порушена герметичність банки', true], ['Бомбаж — здуті кришки', true], ['«Хлопавка» — кришка прогинається', true],
+  ['Іржа на банці', true], ['Деформована банка', true], ['Немає етикетки', true], ['Минув термін реалізації', true],
+  ['Банка ціла, без вм’ятин', false], ['Етикетка на місці, термін не минув', false], ['Є документи про якість', false]
+];
+function buildCan(){
+  const order = CAN.map((c,i)=>i).sort(()=>Math.random()-.5);
+  $('#canPick').innerHTML = order.map(i=>`<button type="button" data-i="${i}">${CAN[i][0]}</button>`).join('');
+  $('#canPick').dataset.done = '';
+  $$('#canPick button').forEach(b=>b.addEventListener('click', ()=>{ if($('#canPick').dataset.done) return; b.classList.toggle('on'); $('#canLog').textContent = `Обрано ${$$('#canPick .on').length} ознак.`; }));
+  $('#canLog').textContent = 'Обрано 0 ознак.';
+}
+$('#canCheck').addEventListener('click', ()=>{
+  $('#canPick').dataset.done = 1; let ok = 0;
+  $$('#canPick button').forEach(b=>{ const t = CAN[+b.dataset.i][1], on = b.classList.contains('on'); b.classList.remove('on'); if(t===on) ok++; if(t) b.classList.add('right'); else if(on) b.classList.add('wrong'); else b.style.opacity = .55; });
+  $('#canLog').innerHTML = `Правильно оцінено <b>${ok} / ${CAN.length}</b>. Зеленим — 7 дефектів із лекції: негерметичність, бомбаж, «хлопавки», іржа, деформація, відсутність етикетки, прострочений термін.`;
+});
+$('#canReset').addEventListener('click', buildCan);
+buildCan();
+
+/* ---------- 2.2 карта холоду ---------- */
+const STORE = [
+  ['Заморожені продукти','низькотемпературні камери, шафи, прилавки',-15.5,-14.5,'−15 °C','у лекції не вказано','Так само зберігають загартоване морозиво. Розморожування під час зберігання не допускається; пельмені, вареники, піцу, н/ф заправляють на теплову обробку без розморожування.'],
+  ['М’ясо, птиця, риба','м’ясо-рибна камера',0,5,'0…5 °C','90…95 %','Підтоварники, стелажі, вішала з гаками; туші не торкаються одна одної. М’ясо не контактує з рибою й птицею — через бактеріальну «засіяність», зокрема сальмонелами.'],
+  ['Молочні, жири, яйця, сири, гастрономія','молочно-жирова камера',4.5,5.5,'5 °C','85…90 %','Продукти з гострим запахом — на окремих стелажах у тарі. Яйця — в упаковці на окремому підтоварнику, розпаковувати й перекладати заборонено. На малих підприємствах тут можна тримати фрукти й напої.'],
+  ['Овочі й зелень','охолоджувана камера',5,10,'5…10 °C','90…95 %','Тара з вентиляційними отворами — доступ повітря, щоб не розвивалася пліснява. Квашені й солоні — у розсолі.'],
+  ['Сухі продукти','суха, добре провітрювана комора',19.5,20.5,'≈ 20 °C','70…75 %','Борошно, цукор, крупи, макарони, чай, кава, кондитерські вироби. Вологість самих продуктів — від 0,1 % (цукор) до 20 % (крохмаль).']
+];
+const coldCol = t => t < -5 ? '#1F4F6E' : t <= 4 ? '#2E6F95' : t <= 6 ? '#4B86AB' : t <= 10 ? '#7FAECB' : '#E39E1E';
+$('#storeBtns').innerHTML = STORE.map((r,i)=>`<button class="btn ${i?'ghost ':''}small${i?'':' active'}" type="button" data-i="${i}">${r[0]}</button>`).join('');
+function drawStore(i){
+  $$('#storeBtns button').forEach((b,j)=>{ b.classList.toggle('active', j===i); b.classList.toggle('ghost', j!==i); });
+  const tk = []; for(let t=-20;t<=25;t+=5) tk.push([t, t+'°']);
+  rangeChart($('#storeChart'), STORE.map(r=>r.slice(0,5)), {min:-20, max:25, ticks:tk, mark:[0,'0 °C'], color:r=>coldCol((r[2]+r[3])/2), sel:i, onPick:drawStore, left:380, label:'Температура зберігання'});
+  const r = STORE[i];
+  $('#storeOut').innerHTML = `<div class="big">${r[0]} · ${r[4]}</div><div class="kv" style="margin:8px 0"><div><div class="l">ТЕМПЕРАТУРА</div><div class="v acc">${r[4]}</div></div><div><div class="l">ВІДНОСНА ВОЛОГІСТЬ</div><div class="v">${r[5]}</div></div><div><div class="l">ДЕ</div><div class="v" style="font-size:15px">${r[1]}</div></div></div><p style="margin:0">${r[6]}</p>`;
+}
+$$('#storeBtns button').forEach(b=>b.addEventListener('click', ()=>drawStore(+b.dataset.i)));
+drawStore(0);
+
+/* ---------- 2.3 термін зберігання ---------- */
+const LIFE = [
+  ['Охолоджене м’ясо (туші, напівтуші, четвертини)', 120, 120, 'до 5 діб у підвішеному стані'],
+  ['Заморожене м’ясо: яловичі напівтуші, задні четвертини', 120, 120, '5 діб, разом із повільним розморожуванням'],
+  ['Заморожене м’ясо: передні четвертини, свинина, телятина, баранина', 72, 96, '3…4 доби, разом із повільним розморожуванням'],
+  ['Охолоджена птиця в тушках', 48, 72, 'не більше 2…3 діб'],
+  ['Охолоджені м’ясні, рибні н/ф і н/ф з птиці', 24, 24, 'не більше доби'],
+  ['Н/ф із січеного м’яса', 12, 12, 'не більше 12 год від виготовлення'],
+  ['Вироби з кремом (холодильна шафа)', 12, 24, 'від 12 до 24 год'],
+  ['Вироби із заварним кремом', 6, 6, 'не більше 6 год (лише осінь–зима)']
+];
+$('#lifeP').innerHTML = LIFE.map((l,i)=>`<option value="${i}">${l[0]}</option>`).join('');
+function drawLife(){
+  const [name, lo, hi, txt] = LIFE[+$('#lifeP').value], h = +$('#lifeH').value;
+  $('#lifeV').textContent = h >= 24 ? `${h} год (${fmt(h/24,1)} доби)` : `${h} год`;
+  const pct = Math.min(100, h/hi*100);
+  let col, st, msg;
+  if(h <= lo){ col = 'var(--ok)'; st = 'Можна зберігати'; msg = `Залишилось ${lo - h} год${lo === hi ? '' : ' до нижньої межі терміну'}.`; }
+  else if(h <= hi){ col = 'var(--sim)'; st = 'Межа термінів'; msg = `Продукт у діапазоні ${txt}; варто негайно використати.`; }
+  else { col = 'var(--red)'; st = 'Термін минув'; msg = 'Перевищено допустимий термін зберігання — продукт не можна використовувати.'; }
+  $('#lifeOut').innerHTML = `${statusHtml(col, st)}<p style="margin:10px 0 6px"><b>${name}</b> · ${txt}. ${msg}</p><div class="meter"><i style="width:${pct}%;background:${col}"></i></div>`;
+}
+['#lifeP','#lifeH'].forEach(i=>$(i).addEventListener('input', drawLife)); drawLife();
+
+/* ---------- 2.4 камери ---------- */
+classifier('#clsRoom', '#clsRoomScore', ['−15 °C','0…5 °C','5 °C','5…10 °C','≈20 °C'], [
+  {t:'Яловичі напівтуші', c:1, e:'М’ясо-рибна камера, 0…5 °C.'},
+  {t:'Охолоджений судак', c:1, e:'Риба — 0…5 °C, але окремо від м’яса.'},
+  {t:'Сир твердий', c:2, e:'Молочно-жирова камера, 5 °C, на окремому стелажі.'},
+  {t:'Курячі яйця в упаковці', c:2, e:'5 °C, на окремому підтоварнику.'},
+  {t:'Вершкове масло', c:2, e:'Жири — 5 °C.'},
+  {t:'Морква і петрушка', c:3, e:'Овочі й зелень — 5…10 °C.'},
+  {t:'Заморожені пельмені', c:0, e:'Низькотемпературна камера, −15 °C.'},
+  {t:'Загартоване морозиво', c:0, e:'−15 °C.'},
+  {t:'Борошно і цукор', c:4, e:'Сухі продукти — ≈20 °C, вологість 70–75 %.'},
+  {t:'Кава і чай', c:4, e:'Сухі продукти.'}
+]);
+
+/* ---------- 2.5 правила ---------- */
+classifier('#clsRule', '#clsRuleScore', ['Так, правильно','Ні, заборонено'], [
+  {t:'Підвісити туші так, щоб вони не торкалися одна одної', c:0, e:'Так забезпечують циркуляцію повітря.'},
+  {t:'Покласти охолоджену рибу на полицю поруч із м’ясом', c:1, e:'М’ясо не має контактувати з рибою й птицею незалежно від їх термічного стану.'},
+  {t:'Розпакувати яйця й перекласти на вільну полицю камери', c:1, e:'Яйця часто «засіяні» сальмонелами, які можуть потрапити на інші продукти.'},
+  {t:'Сир — на окремий стелаж у тарі, подалі від інших продуктів', c:0, e:'Продукти з гострим запахом зберігають окремо.'},
+  {t:'Овочі — у тарі з вентиляційними отворами', c:0, e:'Доступ повітря запобігає плісняві.'},
+  {t:'Квашену капусту — так, щоб вона була занурена в розсіл', c:0, e:'Без розсолу розвивається пліснява.'},
+  {t:'Розморозити пельмені перед варінням', c:1, e:'Заморожені н/ф заправляють на теплову обробку без розморожування.'},
+  {t:'Зробити на складі вікно, щоб продукти були на денному світлі', c:1, e:'Світло — каталізатор окислювальних процесів.'}
+]);
+
+/* ---------- 3.2 розморожування ---------- */
+classifier('#clsThaw', '#clsThawScore', ['На повітрі','У холодній воді'], [
+  {t:'М’ясо', c:0, e:'Розморожують на повітрі.'},
+  {t:'Печінка, язик, серце (субпродукти I категорії)', c:0, e:'На повітрі.'},
+  {t:'Птиця', c:0, e:'На повітрі.'},
+  {t:'Лосось, осетрина, палтус', c:0, e:'Риба цінних порід — на повітрі.'},
+  {t:'Риба з кістковим скелетом', c:1, e:'У холодній воді.'},
+  {t:'Голови, ноги, вим’я (субпродукти II категорії)', c:1, e:'У холодній воді.'},
+  {t:'Легені, фляки', c:1, e:'Субпродукти II категорії — у воді.'}
+]);
+
+/* ---------- 3.3 термометр розморожування ---------- */
+function drawThaw(){
+  const m = $('#thawM').value, t = +$('#thawT').value;
+  $('#thawV').textContent = (t>0?'+':'') + t + ' °C';
+  thermo($('#thawSvg'), t, -20, 5, [[-1.5,5,'#2F7A4A','РОЗМОРОЖ.']], t >= -1 ? '#2F7A4A' : '#2E6F95');
+  let html;
+  if(m==='warm') html = statusHtml('var(--red)','Заборонено') + `<p style="margin:10px 0 0">Для прискорення розморожування продукти <b>забороняється</b> занурювати в теплу воду. Оптимальна температура води — +15 °C.</p>`;
+  else if(t >= -1) html = statusHtml('var(--ok)','Розморожено') + `<p style="margin:10px 0 0">Температура в товщі досягла −1 °C. Розморожені продукти нестійкі до зберігання — їх треба <b>негайно</b> передати на приготування напівфабрикатів.</p>`;
+  else html = statusHtml('var(--ice)','Ще заморожено') + `<p style="margin:10px 0 0">${m==='air' ? 'Повільне розморожування на повітрі за 5…10 °C максимально відновлює властивості продукту.' : 'Розморожування в холодній воді (+15 °C) швидке — для сировини, на яку швидкість не впливає.'} До готовності: ще ${-1 - t} °C у товщі.</p>`;
+  $('#thawOut').innerHTML = html;
+}
+['#thawM','#thawT'].forEach(i=>$(i).addEventListener('input', drawThaw)); drawThaw();
+
+/* ---------- 3.5 відходи ---------- */
+const WASTE = [
+  ['Картопля молода · до 1 вересня', 20], ['Картопля · 1 вересня – 31 жовтня', 25], ['Картопля · 1 листопада – 31 грудня', 30],
+  ['Картопля · 1 січня – 28 (29) лютого', 35], ['Картопля · з 1 березня', 40],
+  ['Капуста білоголова · зачищення', 20], ['Капуста цвітна · зачищення', 48], ['Судак · порціонні шматки зі шкірою без кісток', 49],
+  ['Яловичина · розбирання туші', 26.4], ['Свинина м’ясна · розбирання туші', 26.5], ['Баранина · розбирання туші', 29.9], ['Телятина · розбирання туші', 34]
+];
+$('#wasteP').innerHTML = WASTE.map((w,i)=>`<option value="${i}">${w[0]}</option>`).join('');
+function drawWaste(){
+  const i = +$('#wasteP').value, [name, p] = WASTE[i], m = Math.max(0, +$('#wasteM').value || 0), loss = m*p/100;
+  $('#wasteOut').innerHTML = `<div><div class="l">ВІДХОДИ І ВТРАТИ</div><div class="v red">${fmt(p,1).replace(',0','')} %</div></div><div><div class="l">У ВІДХОДИ</div><div class="v red">${fmt(loss,2)} кг</div></div><div><div class="l">МАСА НЕТТО</div><div class="v ok">${fmt(m-loss,2)} кг</div></div>`;
+  rangeChart($('#wasteChart'), WASTE.map(w=>{ const [a,b] = w[0].split(' · '); return [a, b, 0, w[1], fmt(w[1],1).replace(',0','')+' %']; }), {min:0, max:50, ticks:[0,10,20,30,40,50].map(v=>[v, v+' %']), rowH:46, color:(r,j)=> j<5 ? `hsl(${140-j*22} 45% ${46-j*2}%)` : 'var(--acc)', sel:i, onPick:j=>{ $('#wasteP').value = j; drawWaste(); }, left:300, label:'Відходи і втрати'});
+}
+['#wasteP','#wasteM'].forEach(i=>$(i).addEventListener('input', drawWaste)); drawWaste();
+
+/* ---------- 4.2 харчова цінність ---------- */
+classifier('#clsNutr', '#clsNutrScore', ['Засвоюваність ↑','Засвоюваність ↓','Руйнується / у відвар'], [
+  {t:'Білки', c:0, e:'Засвоюваність білків підвищується.'},
+  {t:'Вуглеводи', c:0, e:'Засвоюваність вуглеводів підвищується.'},
+  {t:'Жири', c:1, e:'Засвоюваність жирів знижується.'},
+  {t:'Вітаміни', c:2, e:'Частина руйнується, інша під час варіння переходить у відвар.'},
+  {t:'Мінеральні речовини', c:2, e:'Під час варіння переходять у відвар.'},
+  {t:'Екстрактивні речовини', c:2, e:'Під час варіння переходять у відвар.'}
+]);
+
+/* ---------- 4.3 втрати маси ---------- */
+function drawLoss(){
+  const p = $('#lossP').value, m = Math.max(0, +$('#lossM').value || 0);
+  if(p==='pb'){
+    $('#lossOut').innerHTML = `<div><div class="l">ВТРАТИ МАСИ</div><div class="v ok">≈ 0 %</div></div><div><div class="l">ПІСЛЯ ВАРІННЯ</div><div class="v ok">≈ ${fmt(m)} г</div></div>`;
+    $('#lossLog').textContent = 'Маса картоплі після варіння практично не змінюється.';
+  } else if(p==='pf'){
+    $('#lossOut').innerHTML = `<div><div class="l">ВТРАТИ МАСИ</div><div class="v red">30…60 %</div></div><div><div class="l">ПІСЛЯ СМАЖЕННЯ</div><div class="v acc">${fmt(m*.4)} – ${fmt(m*.7)} г</div></div>`;
+    $('#lossLog').textContent = 'Під час смаження маса картоплі зменшується на 30…60 % залежно від ступеня подрібнення і способу смаження.';
+  } else {
+    $('#lossOut').innerHTML = `<div><div class="l">ВТРАТИ ВОДИ</div><div class="v red">≈ 50 % води</div></div><div><div class="l">ПІСЛЯ ВАРІННЯ</div><div class="v" style="font-size:16px">масу розраховують за нормативами Збірника рецептур</div></div>`;
+    $('#lossLog').textContent = 'Яловичина під час варіння втрачає близько 50 % води, що в ній міститься. Це не те саме, що 50 % маси: вміст води в лекції не наведено, тому точні втрати маси беруть з нормативів.';
+  }
+}
+['#lossP','#lossM'].forEach(i=>$(i).addEventListener('input', drawLoss)); drawLoss();
+
+/* ---------- 5.1 термометр подачі ---------- */
+const SERV = {soup:{n:75, lab:'гарячі супи й напої', hot:true}, hot:{n:65, lab:'м’ясні, рибні, овочеві гарячі страви', hot:true}, cold:{n:[12,14], lab:'холодні закуски й холодні солодкі страви', hot:false}};
+let servLast = 'soup';
+function drawServ(){
+  const k = $('#servP').value, s = SERV[k];
+  if(k !== servLast){ $('#servT').value = s.hot ? s.n : 13; servLast = k; }
+  const t = +$('#servT').value; $('#servV').textContent = t + ' °C';
+  const danger = t >= 25 && t <= 50;
+  const zones = [[25,50,'#C8283B','25…50 °C'], s.hot ? [s.n, s.n+2,'#2F8F6B','НОРМА'] : [12,14,'#2F8F6B','НОРМА']];
+  let col, st, msg;
+  if(s.hot){
+    if(t >= s.n){ col='var(--ok)'; st='Норма'; msg=`Для страви «${s.lab}» температура має становити ${s.n} °C.`; }
+    else if(danger){ col='var(--red)'; st='Небезпечна зона'; msg='25…50 °C — найсприятливіша температура для розвитку мікроорганізмів у готовій їжі.'; }
+    else { col='var(--red)'; st='Нижче норми'; msg=`Знижувати температуру зберігання гарячої їжі заборонено: потрібно ${s.n} °C.`; }
+  } else {
+    if(t >= 12 && t <= 14){ col='var(--ok)'; st='Норма'; msg='Холодні закуски й холодні солодкі страви подають за 12…14 °C.'; }
+    else if(danger){ col='var(--red)'; st='Небезпечна зона'; msg='25…50 °C — найсприятливіша температура для розвитку мікроорганізмів.'; }
+    else if(t > 14){ col='var(--red)'; st='Вище норми'; msg='Підвищувати температуру зберігання охолодженої їжі заборонено.'; }
+    else { col='var(--sim)'; st='Нижче норми подачі'; msg='Для споживача холодні страви мають бути 12…14 °C.'; }
+  }
+  thermo($('#servSvg'), t, 0, 90, zones, t>=25&&t<=50 ? '#C8283B' : (s.hot && t>=s.n) || (!s.hot && t>=12 && t<=14) ? '#2F8F6B' : '#E39E1E');
+  $('#servOut').innerHTML = statusHtml(col, st) + `<p style="margin:10px 0 0">${msg}</p>`;
+}
+['#servP','#servT'].forEach(i=>$(i).addEventListener('input', drawServ)); drawServ();
+
+/* ---------- 5.2 обладнання ---------- */
+classifier('#clsEquip', '#clsEquipScore', ['Охолоджуваний прилавок / шафа-вітрина','Марміт','Термостат'], [
+  {t:'Салат', c:0, e:'Холодні закуски — в охолоджуваних прилавках і шафах-вітринах.'},
+  {t:'Холодець', c:0, e:'Холодна закуска.'},
+  {t:'Борщ', c:1, e:'Супи — на повітряних мармітах.'},
+  {t:'Гарнір', c:1, e:'Гарніри — на водяних і повітряних мармітах.'},
+  {t:'Соус', c:1, e:'Соуси — на водяних і повітряних мармітах.'},
+  {t:'Кава', c:2, e:'Гарячі напої — у термостатах.'},
+  {t:'Чай', c:2, e:'Гарячі напої — у термостатах.'}
+]);
+
+/* ---------- 5.3 таймер ---------- */
+function drawTime(){
+  const v = $('#timeP').value, lim = parseInt(v.replace('r','')), m = +$('#timeM').value;
+  $('#timeV').textContent = m >= 60 ? `${Math.floor(m/60)} год ${m%60} хв` : `${m} хв`;
+  const left = lim - m, pct = Math.min(100, m/lim*100);
+  const col = left > 15 ? 'var(--ok)' : left >= 0 ? 'var(--sim)' : 'var(--red)';
+  const st = left > 15 ? 'Можна реалізувати' : left >= 0 ? 'Час майже вичерпано' : 'Термін минув';
+  const msg = left >= 0 ? `Залишилось ${left} хв із ${lim}.` : `Перевищено на ${-left} хв. ${v==='r60' ? 'Термін реалізації їжі після вторинної теплової обробки — не більше 1 год.' : 'Санітарні правила: холодні закуски, десерти, напої — до 1 год, гарячі страви — до 2 год.'}`;
+  $('#timeOut').innerHTML = statusHtml(col, st) + `<p style="margin:10px 0 6px">${msg}</p><div class="meter"><i style="width:${pct}%;background:${col}"></i></div>`;
+}
+['#timeP','#timeM'].forEach(i=>$(i).addEventListener('input', drawTime)); drawTime();
+
+/* ---------- 5.4 нереалізована їжа ---------- */
+const LEFT_LOG = ['День 1, 21:30 — страву швидко охолоджено', 'День 1, 21:45 — закладено на зберігання, 2…4 °C (запис у бракеражному журналі)', 'День 2, 11:00 — дегустація: якість задовільна', 'День 2, 11:10 — вторинна теплова обробка', 'День 2, 11:25 — повторна дегустація', 'День 2, 11:30 — передано на реалізацію (до 12:30); запис у журналі'];
+let leftI = -1;
+function drawLeft(){
+  $$('#leftSteps div').forEach((d,i)=>{ d.classList.toggle('on', i===leftI); d.classList.toggle('done', i<leftI); });
+  $('#leftJournal').innerHTML = leftI < 0 ? '<span style="color:var(--ink-soft)">Записів поки немає.</span>' : LEFT_LOG.slice(0, leftI+1).map(l=>`<div>${l}</div>`).join('');
+  $('#leftNext').disabled = leftI >= 5;
+}
+$('#leftNext').addEventListener('click', ()=>{ if(leftI < 5){ leftI++; drawLeft(); } });
+$('#leftReset').addEventListener('click', ()=>{ leftI = -1; drawLeft(); });
+drawLeft();
+
+/* ---------- практика ---------- */
+const cases = [
+  {t:'Яйця з фермерського господарства', q:'Постачальник привіз курячі яйця з документами, але відомо, що в цьому господарстві нещодавно фіксували сальмонельоз. Частина яєць має брудну шкаралупу. Як діяти?', a:'Не приймати. Заборонено приймати яйця з господарств, де було зафіксовано сальмонельоз, а також яйця із забрудненою шкаралупою, з нарізом, «тек» і «бій». Наявність документів цього не скасовує.'},
+  {t:'Тісна камера', q:'У м’ясо-рибній камері бракує місця, і комірник кладе охолоджених курей на полицю впритул до яловичини. Що не так?', a:'М’ясо не повинно контактувати з рибою і птицею незалежно від їх термічного стану: птиця й риба мають високу бактеріальну «засіяність», зокрема сальмонелами. Крім того, туші й блоки не мають торкатися одне одного, щоб циркулювало повітря.'},
+  {t:'Швидке розморожування', q:'Перед банкетом кухар занурює заморожене філе лосося в теплу воду, щоб пришвидшити розморожування. Які дві помилки він робить?', a:'По-перше, занурювати продукти в теплу воду заборонено (оптимальна температура води +15 °C). По-друге, риба цінних порід (лососеві) розморожується на повітрі, повільно, за 5…10 °C, щоб максимально відновити її властивості.'},
+  {t:'Скільки картоплі закупити?', q:'У квітні на гарнір потрібно 12 кг очищеної картоплі. Скільки сирої картоплі (брутто) треба взяти?', a:'З 1 березня відходи і втрати при очищенні картоплі становлять 40 %, тобто нетто = 60 % брутто. Брутто = 12 / 0,6 = 20 кг.'},
+  {t:'Суп охолов на роздачі', q:'Під час обіду температура супу на роздачі опустилася до 45 °C. Кухар вважає, що «ще теплий — і так нормально». Чи правий він?', a:'Ні. Гарячі супи мають бути 75 °C; знижувати температуру гарячої їжі заборонено. 45 °C — у межах 25…50 °C, найсприятливіших для розвитку мікроорганізмів.'},
+  {t:'Залишки після вечері', q:'Після закриття лишилися картопляне пюре, гуляш у соусі та салат. Що можна залишити на завтра і як?', a:'Картопляне пюре і салат залишати на наступний день не можна. Гуляш у виняткових випадках швидко охолоджують і зберігають за 2…4 °C не більше 18 год; перед реалізацією дегустують, знову прогрівають, повторно дегустують і реалізують протягом 1 год, роблячи записи в бракеражному журналі й не змішуючи зі свіжою їжею.'}
+];
+$('#caseList').innerHTML = cases.map((c,i)=>`<div class="quiz-q"><h4><span class="idx">К${i+1}</span>${c.t}</h4><p>${c.q}</p>
+  <label class="field" for="case${i}">Ваша відповідь<textarea id="case${i}" rows="3"></textarea></label>
+  <div class="btnrow"><button class="btn ghost small" type="button" data-case="${i}">Показати розбір</button></div>
+  <div class="callout ok" id="caseA${i}" hidden><b>Розбір.</b> ${c.a}</div></div>`).join('');
+$$('[data-case]').forEach(b=>b.addEventListener('click', ()=>{ const el = $('#caseA'+b.dataset.case); el.hidden = !el.hidden; b.textContent = el.hidden ? 'Показати розбір' : 'Сховати розбір'; }));
+
+/* ---------- тест ---------- */
+const quiz = [
+  {q:'До якої групи сировини належить борошно?', o:['Не пройшла технологічної обробки','Пройшла повну або часткову переробку','Напівфабрикат високого ступеня готовності','Це не сировина'], c:1, e:'Борошно, крупи, цукор, жири, молочні продукти — друга група.'},
+  {q:'Яку птицю дозволено приймати непатраною?', o:['Курей','Качок','Дичину','Будь-яку з документами'], c:2, e:'Заборонено приймати непатрану птицю, крім дичини.'},
+  {q:'Які яйця заборонено приймати?', o:['Курячі в упаковці','Качині й гусячі','Перепелині з документами','Курячі з чистою шкаралупою'], c:1, e:'Качині й гусячі яйця не приймають.'},
+  {q:'Чому на складі не передбачають природного освітлення?', o:['Щоб заощадити електроенергію','Світло — каталізатор окислювальних процесів','Так дешевше будувати','Через вологість'], c:1, e:'Продукти зберігають у темряві.'},
+  {q:'Температура і вологість зберігання м’яса, птиці й риби:', o:['−15 °C, 70–75 %','0…5 °C, 90–95 %','5 °C, 85–90 %','20 °C, 70–75 %'], c:1, e:'Охолоджувані камери з підтоварниками, стелажами й вішалами.'},
+  {q:'Скільки зберігаються охолоджені н/ф із січеного м’яса?', o:['Не більше 12 год','Не більше доби','2–3 доби','До 5 діб'], c:0, e:'Інші охолоджені м’ясні, рибні н/ф і з птиці — не більше доби.'},
+  {q:'Чому яйця не можна розпаковувати в холодильній камері?', o:['Вони б’ються','Вони часто «засіяні» сальмонелами','Через запах','Вони швидко висихають'], c:1, e:'Сальмонели можуть потрапити на інші продукти й розмножитися навіть за знижених температур.'},
+  {q:'За якої температури зберігають заморожені продукти?', o:['−5 °C','−15 °C','0 °C','−30 °C'], c:1, e:'Розморожування під час зберігання не допускається.'},
+  {q:'Коли сировина вважається розмороженою?', o:['Коли поверхня м’яка','Коли в товщі −1 °C','Коли в товщі +5 °C','Через 2 години'], c:1, e:'Розморожені продукти одразу передають на приготування н/ф.'},
+  {q:'Як розморожують субпродукти II категорії (голови, ноги, вим’я)?', o:['На повітрі за 5…10 °C','У холодній воді','У теплій воді','Не розморожують'], c:1, e:'На повітрі — м’ясо, субпродукти I категорії, птиця, цінна риба.'},
+  {q:'Відходи при очищенні картоплі з 1 березня:', o:['20 %','30 %','35 %','40 %'], c:3, e:'До 1 вересня — 20 %, потім 25, 30, 35 і з 1 березня — 40 %.'},
+  {q:'Як змінюється засвоюваність жирів під час теплової обробки?', o:['Підвищується','Знижується','Не змінюється','Жири руйнуються повністю'], c:1, e:'Засвоюваність білків і вуглеводів підвищується, жирів — знижується.'},
+  {q:'Температура гарячих м’ясних, рибних, овочевих страв для споживача:', o:['50 °C','65 °C','75 °C','90 °C'], c:1, e:'Гарячі супи й напої — 75 °C, холодні закуски — 12…14 °C.'},
+  {q:'Як довго можна зберігати нереалізовану охолоджену їжу?', o:['До 6 год за 10 °C','Не більше 18 год за 2…4 °C','До 2 діб за 0…5 °C','До 1 год'], c:1, e:'Після вторинної теплової обробки реалізують не пізніше ніж за 1 год.'}
+];
+let score = 0, answered = new Set();
+function buildQuiz(){
+  score = 0; answered = new Set();
+  $('#quizContainer').innerHTML = quiz.map((it,qi)=>`<div class="quiz-q"><h4>${qi+1}. ${it.q}</h4>${it.o.map((o,oi)=>`<button class="opt" type="button" data-q="${qi}" data-o="${oi}">${o}</button>`).join('')}<div class="quiz-fb" id="fb-${qi}" hidden></div></div>`).join('');
+  $('#quizScore').textContent = `0 / ${quiz.length}`;
+}
+$('#quizContainer').addEventListener('click', e=>{
+  const t = e.target.closest('.opt'); if(!t) return;
+  const qi = +t.dataset.q, oi = +t.dataset.o; if(answered.has(qi)) return; answered.add(qi);
+  $$(`.opt[data-q="${qi}"]`).forEach(o=>{ o.disabled = true; if(+o.dataset.o===quiz[qi].c) o.classList.add('correct'); else if(+o.dataset.o===oi) o.classList.add('wrong'); });
+  const ok = oi===quiz[qi].c; if(ok) score++;
+  const fb = $('#fb-'+qi); fb.hidden = false; fb.innerHTML = (ok ? '✅ <b>Правильно.</b> ' : '❌ <b>Не зовсім.</b> ') + quiz[qi].e;
+  $('#quizScore').textContent = `${score} / ${quiz.length}` + (answered.size===quiz.length ? ` · ${Math.round(score/quiz.length*100)}%` : '');
+});
+$('#quizReset').addEventListener('click', buildQuiz);
+buildQuiz();
+
+/* ---------- глосарій (колір = розділ) ---------- */
+const gloss = [
+  ['Первинна сировина','С/г продукти без технологічної обробки та продукти, перероблені на підприємствах харчової промисловості.',1],
+  ['Документи про якість і безпеку','Супроводжують кожну партію; без них сировину не приймають.',1],
+  ['Клеймо ветогляду, ветсвідоцтво','Обов’язкові для м’яса; для риби, раків і птиці — ветеринарне свідоцтво.',1],
+  ['Бомбаж','Здуття кришок консервної банки; такі консерви не приймають.',1],
+  ['«Хлопавка»','Консервна банка, кришка якої прогинається; приймати заборонено.',1],
+  ['Продовольчий склад','Охолоджувані й неохолоджувані комори біля розвантажувального майданчика.',2],
+  ['Підтоварник','Підставка для зберігання продуктів у тарі над підлогою.',2],
+  ['Відносна вологість повітря','Важливий параметр зберігання: 70–75 % для сухих, 90–95 % для м’яса й овочів.',2],
+  ['Бактеріальна «засіяність»','Висока кількість бактерій (зокрема сальмонел) на птиці, рибі, яйцях.',2],
+  ['Низькотемпературна камера','Зберігання заморожених продуктів і морозива за −15 °C.',2],
+  ['Заготівельні цехи','Місце механічної та гідромеханічної обробки сировини.',3],
+  ['Підтеплення','Короткочасне нагрівання блоків, щоб відокремити примерзле пакування.',3],
+  ['Розморожування','На повітрі (5…10 °C) або в холодній воді (+15 °C) до −1 °C у товщі.',3],
+  ['Сортування / калібрування','Поділ за зрілістю й якістю / за розміром.',3],
+  ['Відходи і втрати','Частка маси, що втрачається при обробці: 20–49 % для різної сировини.',3],
+  ['Кулінарна готовність','Задані органолептичні показники й відмирання більшості бактерій.',4],
+  ['Піроліз','Руйнування харчових речовин за 120–130 °C у поверхневому шарі при смаженні.',4],
+  ['Засвоюваність','Частка речовини, яку засвоює організм; для білків і вуглеводів зростає, для жирів — знижується.',4],
+  ['Нормативи відходів і втрат','Розроблені НДІ громадського харчування, опубліковані у Збірниках рецептур.',4],
+  ['Температура подачі','75 °C — супи й напої, 65 °C — гарячі страви, 12…14 °C — холодні.',5],
+  ['Небезпечна зона','25…50 °C — найсприятливіше для мікроорганізмів у готовій їжі.',5],
+  ['Марміт','Водяний або повітряний підігрівач для зберігання гарячих страв.',5],
+  ['Бракеражний журнал','Журнал, де фіксують закладання й реалізацію нереалізованої їжі.',5],
+  ['Вторинна теплова обробка','Кип’ятіння, просмажування, прогрівання в НВЧ перед повторною реалізацією.',5]
+];
+const GC = {1:'var(--tomato)',2:'var(--ice)',3:'var(--herb)',4:'var(--saffron)',5:'var(--plum)'};
+$('#glossList').innerHTML = gloss.map(g=>`<div style="--c:${GC[g[2]]}"><dt>${g[0]}</dt><dd>${g[1]}</dd></div>`).join('');
+
+
+/* ---------- зміст розділу, мета, scroll-spy, прогрес ---------- */
+const plural = (n, f) => f[(n%10===1 && n%100!==11) ? 0 : (n%10>=2 && n%10<=4 && (n%100<10 || n%100>=20)) ? 1 : 2];
+const spyLinks = new Map();
+$$('section.panel').forEach(p=>{
+  const blocks = [...p.querySelectorAll('article.block')];
+  const groups = p.querySelectorAll('.group-label').length;
+  const meta = p.querySelector('.sec-meta');
+  if(meta && blocks.length){
+    const sims = blocks.filter(b=>b.dataset.kind==='sim').length;
+    meta.innerHTML = `<span><b>${blocks.length}</b> ${plural(blocks.length,['блок','блоки','блоків'])}</span>` + (groups ? `<span><b>${groups}</b> ${plural(groups,['тематична група','тематичні групи','тематичних груп'])}</span>` : '') + (sims ? `<span><b>${sims}</b> ${plural(sims,['симулятор','симулятори','симуляторів'])}</span>` : '');
+  }
+  const toc = p.querySelector('.toc-list'); if(!toc) return;
+  const link = (el, no, title, kind)=>{
+    const a = document.createElement('a'); a.href = '#'+el.id; a.dataset.kind = kind;
+    a.innerHTML = `<span class="toc-no">${no}</span><span>${title}</span>`;
+    a.addEventListener('click', e=>{ e.preventDefault(); el.scrollIntoView({behavior:'smooth', block:'start'}); });
+    toc.appendChild(a); spyLinks.set(el, a);
+  };
+  p.querySelectorAll('.group-label, article.block').forEach(el=>{
+    if(el.classList.contains('group-label')){ const g = document.createElement('div'); g.className = 'toc-group'; g.innerHTML = `<i>${el.dataset.g}</i>${el.dataset.title}`; toc.appendChild(g); return; }
+    link(el, el.querySelector('.block-no').textContent, el.querySelector('h3').textContent, el.dataset.kind);
+  });
+  const tk = p.querySelector('.takeaway'); if(tk) link(tk, '✓', tk.querySelector('.tk-label').textContent, 'end');
+  const legend = document.createElement('div'); legend.className = 'toc-legend';
+  legend.innerHTML = '<span style="--k:var(--acc)">теорія</span><span style="--k:var(--sim)">симулятор</span><span style="--k:var(--ok)">схема</span><span style="--k:var(--ink-soft)">поглиблення</span>';
+  toc.parentElement.appendChild(legend);
+});
+const spy = new IntersectionObserver(entries=>{
+  entries.forEach(en=>{
+    if(!en.isIntersecting) return;
+    const a = spyLinks.get(en.target); if(!a) return;
+    const list = a.parentElement;
+    list.querySelectorAll('a').forEach(x=>x.classList.toggle('on', x===a));
+    if(list.scrollWidth > list.clientWidth + 4) list.scrollTo({left: a.offsetLeft - 12, behavior:'smooth'});
+    else if(list.parentElement.scrollHeight > list.parentElement.clientHeight + 4){ const box = list.parentElement; box.scrollTo({top: a.offsetTop - box.clientHeight/2, behavior:'smooth'}); }
+  });
+}, {rootMargin:'-30% 0px -60% 0px'});
+spyLinks.forEach((a, el)=>spy.observe(el));
+
+/* ---------- картки → 3D-перевертні (тема спереду, пояснення ззаду) ---------- */
+$$('.sec-main .card').forEach(card=>{
+  if(card.matches('a.card, .keep') || card.closest('.kv')) return;
+  const h = card.querySelector(':scope > h4'); if(!h) return;
+  const lvl = card.querySelector(':scope > .lvl-n');
+  const idx = [...card.parentElement.children].indexOf(card) + 1;
+  const title = h.innerHTML, plain = h.textContent;
+  h.remove(); if(lvl) lvl.remove();
+  const f = document.createElement('div');
+  f.className = 'fcard' + (lvl ? ' lvl' : '');
+  f.tabIndex = 0; f.setAttribute('role', 'button'); f.setAttribute('aria-pressed', 'false');
+  f.innerHTML = `<div class="fcard-inner"><div class="fcard-face front">${lvl ? `<span class="lvl-n">${lvl.textContent}</span><span class="fnum">Принцип ${lvl.textContent}</span>` : `<span class="fnum">${String(idx).padStart(2,'0')}</span>`}${card.dataset.ic ? `<svg class="fic"><use href="#${card.dataset.ic}"/></svg>` : ''}<h4>${title}</h4><span class="fhint">↻ натисніть, щоб перевернути</span></div>`
+    + `<div class="fcard-face back"><span class="fback-t">${plain}</span><div>${card.innerHTML.trim()}</div></div></div>`;
+  card.replaceWith(f);
+});
+function flipCard(f){ f.classList.toggle('flipped'); f.setAttribute('aria-pressed', f.classList.contains('flipped')); }
+document.addEventListener('click', e=>{ const f = e.target.closest('.fcard'); if(f) flipCard(f); });
+document.addEventListener('keydown', e=>{ if((e.key==='Enter' || e.key===' ') && e.target.classList && e.target.classList.contains('fcard')){ e.preventDefault(); flipCard(e.target); } });
+
+/* ---------- поява під час прокручування ---------- */
+function clearLater(el){ (el._rvT || []).forEach(clearTimeout); el._rvT = []; }
+function later(el, fn, ms){ (el._rvT = el._rvT || []).push(setTimeout(fn, ms)); }
+function resetLinks(svg){ svg.querySelectorAll('.mm-link').forEach(p=>{ p.style.strokeDasharray = ''; p.style.strokeDashoffset = ''; p.style.transition = ''; p.style.markerEnd = ''; }); }
+function mmReveal(svg){
+  clearLater(svg);
+  svg.classList.remove('mm-wait', 'mm-anim'); svg.getBoundingClientRect(); svg.classList.add('mm-anim');
+  svg.querySelectorAll('.mm-in').forEach((g,i)=>g.style.setProperty('--i', i));
+  svg.querySelectorAll('.mm-link').forEach((p,i)=>{
+    const L = p.getTotalLength();
+    p.style.transition = 'none'; p.style.markerEnd = 'none'; p.style.strokeDasharray = L; p.style.strokeDashoffset = L; p.getBoundingClientRect();
+    p.style.transition = `stroke-dashoffset .9s cubic-bezier(.6,0,.2,1) ${0.3 + i*0.12}s`; p.style.strokeDashoffset = '0';
+    later(svg, ()=>{ p.style.markerEnd = ''; }, (1.15 + i*0.12) * 1000);
+  });
+  later(svg, ()=>{ svg.classList.remove('mm-anim'); resetLinks(svg); }, 2800);
+}
+function mmReset(svg){ clearLater(svg); svg.classList.remove('mm-anim'); svg.classList.add('mm-wait'); resetLinks(svg); }
+if(!still && 'IntersectionObserver' in window){
+  const set = new Set($$('.sec-main > *'));
+  const staggered = $$('.fcard, .points > .point, .checklist > li, .gloss > div, .cls-item, .plan-card, .quiz-q, .tabcard, .definition');
+  staggered.forEach(el=>set.add(el));
+  set.forEach(el=>{ el.classList.add('rv'); if(staggered.includes(el)){ const sib = [...el.parentElement.children]; el.style.setProperty('--i', Math.min(sib.indexOf(el), 8)); } });
+  const rvIn = new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting) en.target.classList.add('in'); }), {threshold:0.06, rootMargin:'0px 0px -6% 0px'});
+  const rvOut = new IntersectionObserver(es=>es.forEach(en=>{ if(en.isIntersecting) return; en.target.classList.remove('in'); en.target.classList.toggle('from-top', en.boundingClientRect.top < 0); }), {threshold:0});
+  set.forEach(el=>{ rvIn.observe(el); rvOut.observe(el); });
+  const maps = $$('svg.mm');
+  maps.forEach(x=>x.classList.add('mm-wait'));
+  const svgIn = new IntersectionObserver(es=>es.forEach(en=>{ const x = en.target; if(!en.isIntersecting || x._shown) return; x._shown = true; mmReveal(x); }), {threshold:0.3});
+  const svgOut = new IntersectionObserver(es=>es.forEach(en=>{ const x = en.target; if(en.isIntersecting || !x._shown) return; x._shown = false; mmReset(x); }), {threshold:0});
+  maps.forEach(x=>{ svgIn.observe(x); svgOut.observe(x); });
+}
+
+/* =========================================================
+   ПАРАЛАКС
+   1) Фонові шари продуктів (кольори — від активного розділу) рухаються під час прокрутки
+      з різною швидкістю; далекі дрібні й розмиті, ближні великі.
+   2) Продукти на тарілці в hero реагують на мишу; великі фігури hero та шапок розділів
+      зміщуються й обертаються під час прокрутки.
+   ========================================================= */
+const FOODS = ['f-citrus','f-tomato','f-leaf','f-anise','f-pepper','f-chili','f-mushroom','f-carrot'];
+function seeded(seed){ return ()=>{ seed = (seed*16807) % 2147483647; return (seed-1)/2147483646; }; }
+const pxBg = $('#pxBg'); let LAYERS = [];
+function buildLayers(){
+  if(still) return;
+  pxBg.innerHTML = ''; LAYERS = [];
+  const rnd = seeded(4242), W = innerWidth, H = innerHeight, maxScroll = Math.max(0, document.documentElement.scrollHeight - H), mobile = W < 700;
+  [[0.15, 2.2, 40, 80, 2.5], [0.35, 1.4, 80, 150, 0], [0.6, 0.8, 150, 260, 0]].forEach(([speed, dens, smin, smax, blur])=>{
+    const layerH = H + maxScroll*speed + 200, layer = document.createElement('div');
+    layer.className = 'px-layer'; layer.style.height = layerH + 'px';
+    const count = Math.round(layerH/1000 * dens * (mobile ? 2 : 4));
+    for(let k=0;k<count;k++){
+      const id = FOODS[Math.floor(rnd()*FOODS.length)], s = (smin + rnd()*(smax-smin)) * (id==='f-pepper' ? .4 : 1) * (mobile ? .6 : 1);
+      const side = rnd() < .5, x = side ? -s*.4 + rnd()*W*.14 : W*.86 + rnd()*W*.14 - s*.6, y = (k + rnd()) * (layerH/count) - 100;
+      const d = document.createElement('div'); d.className = 'px-shape';
+      d.style.cssText = `left:${x}px;top:${y}px;width:${s}px;height:${s}px;rotate:${Math.floor(rnd()*360)}deg;` + (blur ? `filter:blur(${blur}px);` : '');
+      d.innerHTML = `<svg viewBox="0 0 100 100"><use href="#${id}"/></svg>`;
+      layer.appendChild(d);
+    }
+    pxBg.appendChild(layer); LAYERS.push({el:layer, speed});
+  });
+}
+const heroShapes = $$('.hero-shape'), plateFoods = $$('#plate [data-depth]');
+function onScroll(){
+  const y = scrollY, H = innerHeight, max = document.documentElement.scrollHeight - H;
+  $('#navProgress').style.width = (max > 0 ? Math.min(100, y/max*100) : 0) + '%';
+  if(still) return;
+  LAYERS.forEach(({el, speed})=>{ el.style.transform = `translate3d(0, ${(-y*speed).toFixed(1)}px, 0)`; });
+  if(y < H*1.5) heroShapes.forEach(s=>{ s.style.transform = `translateY(${(y*+s.dataset.speed).toFixed(1)}px) rotate(${(y*.05).toFixed(1)}deg)`; });
+  $$('section.panel.active .sec-deco').forEach(s=>{ const r = s.getBoundingClientRect(); if(r.bottom < -100 || r.top > H+100) return; const off = r.top + r.height/2 - H/2; s.style.transform = `translateY(${(off*-.12).toFixed(1)}px) rotate(${(off*.1*+s.dataset.rot).toFixed(1)}deg)`; });
+}
+let ticking = false;
+addEventListener('scroll', ()=>{ if(ticking) return; ticking = true; requestAnimationFrame(()=>{ onScroll(); ticking = false; }); }, {passive:true});
+let rz; addEventListener('resize', ()=>{ clearTimeout(rz); rz = setTimeout(()=>{ buildLayers(); onScroll(); }, 200); });
+if(!still){
+  let tx = 0, ty = 0, cx = 0, cy = 0;
+  addEventListener('mousemove', e=>{ tx = (e.clientX/innerWidth - .5)*2; ty = (e.clientY/innerHeight - .5)*2; }, {passive:true});
+  (function tick(){
+    cx += (tx-cx)*.06; cy += (ty-cy)*.06;
+    if(scrollY < innerHeight) plateFoods.forEach(el=>{ const d = +el.dataset.depth; el.style.translate = `${(-cx*9*d).toFixed(2)}px ${(-cy*9*d).toFixed(2)}px`; });
+    LAYERS.forEach(({el, speed})=>{ el.style.translate = `${(-cx*40*speed).toFixed(1)}px ${(-cy*30*speed).toFixed(1)}px`; });
+    requestAnimationFrame(tick);
+  })();
+}
+
+/* =========================================================
+   ГРАФ ПОНЯТЬ
+   ========================================================= */
+(()=>{
+  const wrap = $('#cgWrap'); if(!wrap) return;
+  const CG = {secs:[[1,'01','Приймання'],[2,'02','Зберігання'],[3,'03','Мех. обробка'],[4,'04','Теплова'],[5,'05','Готова їжа']],
+  nodes:[
+    ['raw','Первинна сировина',1,'s1-1','С/г продукти без обробки та продукти, перероблені на підприємствах харчової промисловості.'],
+    ['g1','Група 1',1,'s1-1','Продукти без технологічної обробки: картопля, овочі, риба, дичина, гриби.'],
+    ['g2','Група 2',1,'s1-1','Перероблені продукти: борошно, крупи, м’ясо, молоко, напівфабрикати.'],
+    ['docs','Документи якості',1,'s1-3','Без документів про якість і безпеку сировину не приймають.'],
+    ['vet','Ветеринарний контроль',1,'s1-3','М’ясо — клеймо ветогляду й ветсвідоцтво; риба, раки, птиця — ветсвідоцтво.'],
+    ['stop','Стоп-лист',1,'s1-3','12 груп продуктів, які приймати заборонено.'],
+    ['cans','Дефекти консервів',1,'s1-5','Негерметичність, бомбаж, «хлопавки», іржа, деформація, без етикеток, прострочені.'],
+    ['store','Продовольчий склад',2,'s2-1','Комори без вікон, з вентиляцією, рівною підлогою й приладами контролю.'],
+    ['dark','Темрява',2,'s2-1','Світло — каталізатор окислення, тому продукти зберігають без світла.'],
+    ['cold','Карта холоду',2,'s2-2','Від −15 °C для заморожених до ≈20 °C для сухих продуктів.'],
+    ['hum','Вологість повітря',2,'s2-2','70–75 % для сухих, 85–90 % для молочних, 90–95 % для м’яса й овочів.'],
+    ['terms','Терміни зберігання',2,'s2-3','Від 12 год (січені н/ф) до 5 діб (охолоджене м’ясо).'],
+    ['sep','Окреме зберігання',2,'s2-5','М’ясо окремо від риби й птиці; гострі запахи — окремо; яйця не розпаковувати.'],
+    ['salm','Сальмонели',2,'s2-5','Бактерії, якими часто «засіяні» птиця, риба, яйця.'],
+    ['frozen','Заморожені продукти',2,'s2-6','−15 °C; на теплову обробку — без розморожування.'],
+    ['ops','10 операцій',3,'s3-1','Розпакування, розморожування, сортування, калібрування, миття, поділ, подрібнення, порціонування, перемішування, панірування.'],
+    ['shop','Заготівельні цехи',3,'s3-1','Місце механічної та гідромеханічної обробки.'],
+    ['thaw','Розморожування',3,'s3-2','На повітрі 5…10 °C або в холодній воді +15 °C до −1 °C у товщі.'],
+    ['sort','Сортування і калібрування',3,'s3-4','Поділ за зрілістю, якістю і розміром.'],
+    ['wash','Миття',3,'s3-4','Видаляє механічні й бактеріальні забруднення.'],
+    ['waste','Відходи і втрати',3,'s3-5','20–49 % залежно від сировини; у картоплі — ще й від пори року.'],
+    ['nf','Напівфабрикати',3,'s3-1','Результат механічної обробки, призначений для теплової.'],
+    ['ready','Кулінарна готовність',4,'s4-1','Органолептичні показники й відмирання більшості бактерій.'],
+    ['t80','≈ 80 °C',4,'s4-1','Температура напівфабрикатів під час теплової обробки.'],
+    ['pyro','Піроліз',4,'s4-1','Руйнування речовин за 120–130 °C на поверхні при смаженні; можливі канцерогени.'],
+    ['nutr','Харчова цінність',4,'s4-2','Білки й вуглеводи засвоюються краще, жири — гірше, вітаміни частково втрачаються.'],
+    ['mass','Втрати маси',4,'s4-3','Здебільшого через втрату води.'],
+    ['norm','Нормативи втрат',4,'s4-4','Опубліковані у Збірниках рецептур.'],
+    ['serve','Температура подачі',5,'s5-1','75 °C — супи й напої, 65 °C — гарячі страви, 12…14 °C — холодні.'],
+    ['danger','Небезпечна зона',5,'s5-1','25…50 °C — найсприятливіше для мікроорганізмів.'],
+    ['equip','Марміти й вітрини',5,'s5-2','Обладнання для зберігання готової їжі.'],
+    ['life','Термін реалізації',5,'s5-3','Холодне — до 1 год, гаряче — до 2 год.'],
+    ['left','Нереалізована їжа',5,'s5-4','2…4 °C до 18 год, дві дегустації, повторне прогрівання.'],
+    ['journal','Бракеражний журнал',5,'s5-4','Записи в день закладання й реалізації.'],
+    ['nonext','Не на наступний день',5,'s5-5','Салати, супи-пюре, омлети, пюре, соуси та інші швидкопсувні страви.']
+  ],
+  edges:[
+    ['raw','g1','група'],['raw','g2','група'],['raw','docs','вимога'],['docs','stop','без них — у стоп-лист'],['vet','stop','без ветконтролю'],['stop','cans','включає'],['g2','vet','м’ясо, птиця'],['stop','salm','яйця з господарств'],
+    ['raw','store','після приймання'],['store','dark','умова'],['store','cold','режими'],['cold','hum','разом із'],['cold','terms','визначає'],['store','sep','розміщення'],['sep','salm','запобігає'],['cold','frozen','−15 °C'],
+    ['frozen','thaw','без розморожування н/ф'],['ops','shop','виконують у'],['ops','thaw','операція'],['ops','sort','операція'],['ops','wash','операція'],['ops','nf','результат'],['ops','waste','утворюють'],['terms','thaw','разом з повільним розморожуванням'],
+    ['nf','ready','теплова обробка'],['ready','t80','≈ 80 °C'],['ready','pyro','при смаженні'],['ready','nutr','змінює'],['ready','mass','втрати води'],['waste','norm','нормативи'],['mass','norm','нормативи'],
+    ['ready','serve','готова страва'],['serve','danger','уникати'],['serve','equip','забезпечує'],['serve','life','разом з'],['life','left','залишки'],['left','journal','записи'],['left','nonext','крім'],['left','danger','швидко охолодити'],['salm','danger','розмножуються'],['g1','sort','овочі, фрукти']
+  ]};
+  const svg = $('#cgSvg'), panel = $('#cgPanel');
+  const W = 1000, H = 700, A = {1:[170,190], 2:[500,190], 3:[830,190], 4:[255,520], 5:[745,520]};
+  const Q = {1:[14,40,330,350], 2:[342,40,658,350], 3:[670,40,986,350], 4:[14,384,490,686], 5:[510,384,986,686]};
+  const SEC = {}; CG.secs.forEach(s=>SEC[s[0]] = s);
+  const N = CG.nodes.map(n=>({id:n[0], l:n[1], s:n[2], b:n[3], d:n[4], deg:0, nb:[]})), by = {};
+  N.forEach(n=>by[n.id] = n);
+  const E = CG.edges.map(e=>({a:by[e[0]], b:by[e[1]], l:e[2]}));
+  E.forEach(e=>{ e.a.deg++; e.b.deg++; e.a.nb.push(e); e.b.nb.push(e); });
+  const R = n => 9 + Math.min(15, n.deg*1.5), other = (e, n) => e.a===n ? e.b : e.a;
+  const wrapL = l => { if(l.length <= 14 || l.indexOf(' ') < 0) return [l]; const sp = [...l.matchAll(/ /g)].map(m=>m.index); const c = sp.reduce((a,b)=>Math.abs(b-l.length/2) < Math.abs(a-l.length/2) ? b : a); return [l.slice(0,c), l.slice(c+1)]; };
+  N.forEach(n=>{ n.lines = wrapL(n.l); n.hw = Math.max(R(n), Math.max(...n.lines.map(x=>x.length))*3.8 + 6); n.lh = 6 + n.lines.length*15; });
+  const clampQ = n => { const q = Q[n.s], r = R(n); n.x = Math.max(q[0]+n.hw, Math.min(q[2]-n.hw, n.x)); n.y = Math.max(q[1]+r+16, Math.min(q[3]-r-n.lh, n.y)); };
+  let seed = 20251; const rnd = ()=>{ seed = (seed*1664525 + 1013904223) % 4294967296; return seed/4294967296; };
+  N.forEach(n=>{ const a = A[n.s]; n.x = a[0] + (rnd()-.5)*260; n.y = a[1] + (rnd()-.5)*160; n.vx = 0; n.vy = 0; clampQ(n); });
+  const T = 500;
+  for(let t=0; t<T; t++){
+    const cool = 1 - t/T;
+    for(let i=0;i<N.length;i++) for(let j=i+1;j<N.length;j++){
+      const p = N[i], q = N[j]; const dx = q.x-p.x, dy = q.y-p.y, ex = dx*0.55, d2 = Math.max(ex*ex+dy*dy, 1), d = Math.sqrt(d2);
+      const f = Math.min((p.s===q.s ? 4200 : 1800)/d2, 7), ux = ex/d, uy = dy/d;
+      p.vx -= ux*f; p.vy -= uy*f; q.vx += ux*f; q.vy += uy*f;
+    }
+    E.forEach(e=>{ if(e.a.s!==e.b.s) return; let dx = e.b.x-e.a.x, dy = e.b.y-e.a.y; const d = Math.max(Math.hypot(dx,dy), .01), k = (d-105)*0.03; dx /= d; dy /= d; e.a.vx += dx*k; e.a.vy += dy*k; e.b.vx -= dx*k; e.b.vy -= dy*k; });
+    E.forEach(e=>{ if(e.a.s===e.b.s) return; let dx = e.b.x-e.a.x, dy = e.b.y-e.a.y; const d = Math.max(Math.hypot(dx,dy), .01), k = d*0.0025; dx /= d; dy /= d; e.a.vx += dx*k; e.a.vy += dy*k; e.b.vx -= dx*k; e.b.vy -= dy*k; });
+    N.forEach(n=>{ const a = A[n.s]; n.vx += (a[0]-n.x)*0.008; n.vy += (a[1]-n.y)*0.008; n.x += n.vx*(.25+.75*cool); n.y += n.vy*(.25+.75*cool); n.vx *= .55; n.vy *= .55; clampQ(n); });
+  }
+  for(let it=0; it<900; it++){
+    let moved = false;
+    for(let i=0;i<N.length;i++) for(let j=i+1;j<N.length;j++){
+      const p = N[i], q = N[j]; if(p.s!==q.s) continue;
+      const ox = (p.hw + q.hw + 6) - Math.abs(q.x-p.x), oy = Math.min(p.y+R(p)+p.lh, q.y+R(q)+q.lh) - Math.max(p.y-R(p), q.y-R(q)) + 4;
+      if(ox <= 0 || oy <= 0) continue; moved = true;
+      if(oy < ox){ const s = (q.y >= p.y ? 1 : -1)*oy/2; p.y -= s; q.y += s; } else { const s = (q.x >= p.x ? 1 : -1)*ox/2; p.x -= s; q.x += s; }
+      clampQ(p); clampQ(q);
+    }
+    if(!moved) break;
+  }
+  const el = (tag, attrs, parent) => { const x = document.createElementNS(NS, tag); Object.entries(attrs||{}).forEach(([k,v])=>x.setAttribute(k, v)); if(parent) parent.appendChild(x); return x; };
+  const gZ = el('g', {}, svg), gE = el('g', {}, svg), gN = el('g', {}, svg);
+  CG.secs.forEach(s=>{ const ns = N.filter(n=>n.s===s[0]); const q = Q[s[0]], x0 = Math.max(q[0]-8, Math.min(...ns.map(n=>n.x-n.hw)) - 14), x1 = Math.min(q[2]+8, Math.max(...ns.map(n=>n.x+n.hw)) + 14), y0 = Math.max(q[1]-28, Math.min(...ns.map(n=>n.y-R(n))) - 30), y1 = Math.min(q[3]+10, Math.max(...ns.map(n=>n.y+R(n)+n.lh)) + 12);
+    el('rect', {x:x0, y:y0, width:x1-x0, height:y1-y0, rx:26, class:'cg-zone s'+s[0]}, gZ);
+    const t = el('text', {x:x0+14, y:y0+18, class:'cg-zt s'+s[0]}, gZ); t.textContent = s[1]+' · '+s[2].toUpperCase(); });
+  E.forEach(e=>{ e.el = el('line', {class:'cg-e'}, gE); });
+  N.forEach(n=>{
+    n.el = el('g', {class:'cg-n s'+n.s, tabindex:0, role:'button', 'aria-label':n.l+' — '+SEC[n.s][1]+' · '+SEC[n.s][2]}, gN);
+    el('circle', {r:R(n)}, n.el);
+    const t = el('text', {y:R(n)+15, 'text-anchor':'middle'}, n.el); n.lines.forEach((x, i)=>{ const ts = el('tspan', {x:0, dy:i ? 14.5 : 0}, t); ts.textContent = x; });
+  });
+  const place = n => n.el.setAttribute('transform', `translate(${n.x.toFixed(1)} ${n.y.toFixed(1)})`);
+  const placeEdge = e => { e.el.setAttribute('x1', e.a.x.toFixed(1)); e.el.setAttribute('y1', e.a.y.toFixed(1)); e.el.setAttribute('x2', e.b.x.toFixed(1)); e.el.setAttribute('y2', e.b.y.toFixed(1)); };
+  N.forEach(place); E.forEach(placeEdge);
+  let sel = null, hov = null, sec = 0, q = '';
+  const match = n => !q || n.l.toLowerCase().includes(q) || n.d.toLowerCase().includes(q);
+  function paint(){
+    const f = hov || sel, near = f ? new Set([f, ...f.nb.map(e=>other(e, f))]) : null;
+    N.forEach(n=>{ const off = (sec && n.s!==sec) || !match(n); n.el.classList.toggle('dim', near ? !near.has(n) : off); n.el.classList.toggle('sel', n===sel); n.el.classList.toggle('focus', n===f); });
+    E.forEach(e=>{ const on = !!f && (e.a===f || e.b===f); e.el.classList.toggle('on', on); e.el.classList.toggle('dim', f ? !on : (!!q || (sec && e.a.s!==sec && e.b.s!==sec))); });
+  }
+  const esc = s => String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+  const blockNo = b => b.slice(1).replace('-', '.');
+  function idle(){
+    const top = [...N].sort((a,b)=>b.deg-a.deg).slice(0, 5);
+    panel.innerHTML = `<p class="cg-hint">Натисніть на будь-яке поняття в графі або оберіть одне з ключових нижче.</p>
+      <div class="cg-stat"><span><b>${N.length}</b> понять</span><span><b>${E.length}</b> зв'язків</span><span><b>5</b> розділів</span></div>
+      <div class="cg-sub">Найбільше зв'язків</div><ul class="cg-links">${top.map(n=>`<li><button type="button" class="s${n.s}" data-id="${n.id}"><i></i><b>${esc(n.l)}</b><small>${n.deg} зв'язків · розділ ${SEC[n.s][1]}</small></button></li>`).join('')}</ul>`;
+  }
+  function show(n){
+    const links = n.nb.map(e=>({o:other(e, n), out:e.a===n, l:e.l})).sort((x,y)=>x.o.s-y.o.s || x.o.l.localeCompare(y.o.l, 'uk'));
+    panel.innerHTML = `<span class="cg-tag s${n.s}"><i></i>${SEC[n.s][1]} · ${esc(SEC[n.s][2])}</span>
+      <div class="cg-title">${esc(n.l)}</div><p class="cg-def">${esc(n.d)}</p>
+      <div class="cg-sub">Зв'язки · ${links.length}</div>
+      <ul class="cg-links">${links.map(k=>`<li><button type="button" class="s${k.o.s}" data-id="${k.o.id}"><i></i><b>${esc(k.o.l)}</b><small>${k.out ? '→ '+esc(k.l) : '← '+esc(k.l)}</small></button></li>`).join('')}</ul>
+      <button class="btn small cg-go" type="button" data-go-block="${n.b}">Відкрити в лекції · блок ${blockNo(n.b)} →</button>`;
+  }
+  function select(n, fromGraph){ sel = n; hov = null; n ? show(n) : idle(); paint(); if(n && fromGraph && matchMedia('(max-width:860px)').matches) panel.scrollIntoView({behavior:'smooth', block:'nearest'}); }
+  panel.addEventListener('click', e=>{
+    const b = e.target.closest('[data-id]'); if(b){ select(by[b.dataset.id]); by[b.dataset.id].el.focus({preventScroll:true}); return; }
+    const g = e.target.closest('[data-go-block]'); if(!g) return;
+    const id = g.dataset.goBlock, target = document.getElementById(id);
+    openTab(id.split('-')[0]);
+    setTimeout(()=>{ if(!target) return; target.scrollIntoView({behavior:'smooth', block:'start'}); target.classList.remove('cg-flash'); void target.offsetWidth; target.classList.add('cg-flash'); setTimeout(()=>target.classList.remove('cg-flash'), 1900); }, 80);
+  });
+  const pt = ev => { const m = svg.getScreenCTM(); return m ? new DOMPoint(ev.clientX, ev.clientY).matrixTransform(m.inverse()) : {x:0, y:0}; };
+  let drag = null;
+  N.forEach(n=>{
+    n.el.addEventListener('pointerenter', ()=>{ if(!drag){ hov = n; paint(); } });
+    n.el.addEventListener('pointerleave', ()=>{ if(!drag){ hov = null; paint(); } });
+    n.el.addEventListener('pointerdown', ev=>{ const p = pt(ev); drag = {n, dx:n.x-p.x, dy:n.y-p.y, x0:ev.clientX, y0:ev.clientY, moved:false}; n.el.setPointerCapture(ev.pointerId); });
+    n.el.addEventListener('pointermove', ev=>{
+      if(!drag || drag.n!==n) return;
+      if(Math.hypot(ev.clientX-drag.x0, ev.clientY-drag.y0) > 4) drag.moved = true;
+      if(!drag.moved) return;
+      ev.preventDefault(); const p = pt(ev), r = R(n)+6;
+      n.x = Math.max(r, Math.min(W-r, p.x+drag.dx)); n.y = Math.max(r, Math.min(H-r-16, p.y+drag.dy)); place(n); n.nb.forEach(placeEdge);
+    });
+    n.el.addEventListener('pointerup', ev=>{ const d = drag; drag = null; try{ n.el.releasePointerCapture(ev.pointerId); }catch(_){} if(d && !d.moved) select(sel===n ? null : n, true); });
+    n.el.addEventListener('pointercancel', ()=>{ drag = null; hov = null; paint(); });
+    n.el.addEventListener('keydown', ev=>{ if(ev.key==='Enter' || ev.key===' '){ ev.preventDefault(); select(sel===n ? null : n, true); } });
+  });
+  svg.addEventListener('click', ev=>{ if(ev.target===svg) select(null); });
+  const chips = $$('#cgChips .cg-chip');
+  chips.forEach(c=>c.addEventListener('click', ()=>{ sec = +c.dataset.s; chips.forEach(x=>x.classList.toggle('on', x===c)); if(sel && sec && sel.s!==sec) select(null); else paint(); }));
+  const search = $('#cgSearch');
+  search.addEventListener('input', ()=>{ q = search.value.trim().toLowerCase(); if(sel && !match(sel)) sel = null; if(!sel) idle(); paint(); });
+  search.addEventListener('keydown', ev=>{ if(ev.key==='Enter'){ const m = N.filter(n=>match(n) && (!sec || n.s===sec)); if(m.length){ const lab = m.filter(n=>n.l.toLowerCase().includes(q)); select((lab.length ? lab : m).sort((a,b)=>b.deg-a.deg)[0], true); } } });
+  const seedLayout = N.map(n=>[n, n.x, n.y]);
+  $('#cgReset').addEventListener('click', ()=>{ q = ''; search.value = ''; sec = 0; chips.forEach(x=>x.classList.toggle('on', x.dataset.s==='0')); seedLayout.forEach(([n,x,y])=>{ n.x = x; n.y = y; place(n); }); E.forEach(placeEdge); select(null); });
+  idle(); paint();
+})();
+
+/* ---------- старт ---------- */
+if(location.hash){ const h = location.hash.slice(1); openTab(document.getElementById(h) ? (h.split('-')[0] || h) : 'map', false); }
+addEventListener('load', ()=>{ buildLayers(); onScroll(); });
+onScroll();
+</script>
+</body></html>
